@@ -63,8 +63,11 @@ const DeclarationCertificate = forwardRef<HTMLDivElement, { d: DeclarationDoc }>
           </p>
           <p className="text-babel-gold/90 text-xs break-all leading-relaxed">{address}</p>
           <div className="h-px bg-babel-gold/20 w-full my-4" />
-          <p className="text-babel-dust/50 text-[10px] italic leading-relaxed">
+          <p className="text-babel-dust/50 text-[10px] italic leading-relaxed mb-3">
             In a library of every possible text, these words were always here — waiting to be found.
+          </p>
+          <p className="text-babel-gold/80 text-[11px] tracking-wider break-all">
+            thelibrary.page{d.id ? `/d/${d.id}` : ''}
           </p>
         </div>
       </div>
