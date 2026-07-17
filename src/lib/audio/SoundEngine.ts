@@ -10,6 +10,12 @@ class SoundEngine {
   private reverb: ConvolverNode | null = null;
   private reverbGain: GainNode | null = null;
   private whisperTimer: ReturnType<typeof setTimeout> | null = null;
+  // Master output bus: a gentle limiter that every sound routes through, so the drone,
+  // page-turn thump, rustle, chime and whispers can never sum past the clipping point
+  // (which is what produces harsh crackle/distortion). Nothing connects to ctx.destination
+  // directly anymore — everything goes through here.
+  private master: GainNode | null = null;
+  private limiter: DynamicsCompressorNode | null = null;
   // Ambient sound is OFF by default — it only begins once the visitor explicitly
   // enables it via the speaker toggle, so nothing plays on an incidental first click.
   private isEnabled: boolean = false;
@@ -22,6 +28,27 @@ class SoundEngine {
       this.ctx = new (w.AudioContext || w.webkitAudioContext!)();
     }
     return this.ctx;
+  }
+
+  // The shared output bus. Created once, lazily.
+  private out(): AudioNode {
+    const ctx = this.ensureContext();
+    if (!this.master || !this.limiter) {
+      this.limiter = ctx.createDynamicsCompressor();
+      // Brick-wall-ish limiter to catch peaks before they clip.
+      this.limiter.threshold.value = -8;
+      this.limiter.knee.value = 6;
+      this.limiter.ratio.value = 12;
+      this.limiter.attack.value = 0.003;
+      this.limiter.release.value = 0.25;
+
+      this.master = ctx.createGain();
+      this.master.gain.value = 0.85; // a touch of headroom
+
+      this.limiter.connect(this.master);
+      this.master.connect(ctx.destination);
+    }
+    return this.limiter;
   }
 
   public handleUserInteraction() {
@@ -109,9 +136,10 @@ class SoundEngine {
     this.reverb = this.buildReverb();
     this.reverbGain = ctx.createGain();
     this.reverbGain.gain.value = 0.55; // generous wet tail
+    const bus = this.out();
     this.reverb.connect(this.reverbGain);
-    this.reverbGain.connect(ctx.destination);
-    this.ambientGain.connect(ctx.destination); // dry
+    this.reverbGain.connect(bus);
+    this.ambientGain.connect(bus); // dry
     this.ambientGain.connect(this.reverb); // wet
     this.ambientNodes.push(this.ambientGain, this.reverb, this.reverbGain);
 
@@ -266,64 +294,69 @@ class SoundEngine {
 
     const rng = seedrandom(`${roomId}-${page}`);
     const time = this.ctx.currentTime;
-    
+    const bus = this.out(); // everything routes through the master limiter
+
     // LAYER 1: Deep thump — a pitch-dropping sine wave
     const thumpOsc = this.ctx.createOscillator();
     const thumpGain = this.ctx.createGain();
     thumpOsc.type = 'sine';
     thumpOsc.frequency.setValueAtTime(120, time);
     thumpOsc.frequency.exponentialRampToValueAtTime(35, time + 0.18);
-    
+
     thumpGain.gain.setValueAtTime(0, time);
-    thumpGain.gain.linearRampToValueAtTime(0.4, time + 0.015);
+    thumpGain.gain.linearRampToValueAtTime(0.26, time + 0.015);
     thumpGain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+    thumpGain.gain.linearRampToValueAtTime(0, time + 0.3); // settle to true zero — no click
 
     thumpOsc.connect(thumpGain);
-    thumpGain.connect(this.ctx.destination);
+    thumpGain.connect(bus);
     thumpOsc.start(time);
-    thumpOsc.stop(time + 0.3);
+    thumpOsc.stop(time + 0.32);
 
-    // LAYER 2: Soft parchment rustle — filtered noise
-    const bufferSize = Math.floor(this.ctx.sampleRate * 0.3); 
+    // LAYER 2: Soft parchment rustle — filtered noise (band-limited so it can't crackle)
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.3);
     const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
     const data = buffer.getChannelData(0);
     for (let i = 0; i < bufferSize; i++) {
-      data[i] = Math.random() * 2 - 1; 
+      data[i] = Math.random() * 2 - 1;
     }
     const noiseSource = this.ctx.createBufferSource();
     noiseSource.buffer = buffer;
 
     const noiseFilter = this.ctx.createBiquadFilter();
     noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 2000 + (rng() * 500);
+    noiseFilter.frequency.value = 2000 + rng() * 500;
     noiseFilter.Q.value = 0.7;
 
     const noiseGain = this.ctx.createGain();
     noiseGain.gain.setValueAtTime(0, time);
-    noiseGain.gain.linearRampToValueAtTime(0.12, time + 0.02); 
-    noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.25); 
+    noiseGain.gain.linearRampToValueAtTime(0.08, time + 0.03);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, time + 0.25);
+    noiseGain.gain.linearRampToValueAtTime(0, time + 0.3);
 
     noiseSource.connect(noiseFilter);
     noiseFilter.connect(noiseGain);
-    noiseGain.connect(this.ctx.destination);
+    noiseGain.connect(bus);
     noiseSource.start(time);
+    noiseSource.stop(time + 0.32);
 
     // LAYER 3: Gentle chime — satisfying tonal sparkle
     const chimeOsc = this.ctx.createOscillator();
     const chimeGain = this.ctx.createGain();
     chimeOsc.type = 'triangle';
-    const chimeFreq = 520 + (rng() * 80);
+    const chimeFreq = 520 + rng() * 80;
     chimeOsc.frequency.setValueAtTime(chimeFreq, time + 0.02);
     chimeOsc.frequency.exponentialRampToValueAtTime(chimeFreq * 0.6, time + 0.4);
-    
+
     chimeGain.gain.setValueAtTime(0, time);
-    chimeGain.gain.linearRampToValueAtTime(0.06, time + 0.03);
+    chimeGain.gain.linearRampToValueAtTime(0.05, time + 0.03);
     chimeGain.gain.exponentialRampToValueAtTime(0.001, time + 0.45);
+    chimeGain.gain.linearRampToValueAtTime(0, time + 0.5);
 
     chimeOsc.connect(chimeGain);
-    chimeGain.connect(this.ctx.destination);
+    chimeGain.connect(bus);
     chimeOsc.start(time);
-    chimeOsc.stop(time + 0.5);
+    chimeOsc.stop(time + 0.52);
   }
 }
 
