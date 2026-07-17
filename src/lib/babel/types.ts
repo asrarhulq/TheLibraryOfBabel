@@ -8,6 +8,34 @@ export interface Coordinate {
   page: number;
 }
 
+// A "claim" — exclusive ownership of a single chamber (room), a paid keepsake.
+export interface ClaimDoc {
+  roomId: string; // the claimed chamber (exclusive: one owner per room)
+  owner: string; // display name of the owner
+  dedication?: string; // optional line shown on the room
+  travelerId?: string; // who claimed it (anonymous device id)
+  paid: boolean; // true once payment settled (or granted in dev mode)
+  amount: number; // price in the smallest currency unit (e.g. cents)
+  currency: string;
+  claimedAt: number;
+}
+
+// A "declaration" — a phrase or date immortalized at its deterministic coordinate.
+export type DeclarationKind = 'love' | 'future' | 'anniversary';
+
+export interface DeclarationDoc {
+  id: string; // short, URL-safe share id
+  kind: DeclarationKind;
+  phrase: string; // the resolved phrase that was located (e.g. "asrar loves sana")
+  from?: string; // author / first name
+  to?: string; // recipient / second name
+  message: string; // personal note
+  dateLabel?: string; // for anniversary: the human date they chose
+  coord: Coordinate;
+  isPublic: boolean;
+  timestamp: number;
+}
+
 export interface TravelerStats {
   travelerId: string;
   name: string;

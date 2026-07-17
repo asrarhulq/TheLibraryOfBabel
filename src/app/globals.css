@@ -175,6 +175,17 @@ body::before {
 }
 .babel-veil-out { animation: babel-veil-out 0.9s ease-out both; }
 
+/* Home intro title: rise in, hold, then drift away. Runs once on load. */
+@keyframes babel-title-cycle {
+  0% { opacity: 0; transform: translateY(-10px); }
+  14% { opacity: 1; transform: translateY(0); }
+  78% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-8px); }
+}
+.babel-title-cycle {
+  animation: babel-title-cycle 6.5s ease-in-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import AudioToggle from '@/components/AudioToggle';
 import InfoModal from '@/components/InfoModal';
-import { BookMarked, Sparkles } from 'lucide-react';
+import { BookMarked, Sparkles, Heart } from 'lucide-react';
 
 export default function Navbar() {
   return (
@@ -20,20 +20,27 @@ export default function Navbar() {
           Asrar ul Haq
         </a>
       </div>
-      <div className="flex gap-4 items-center text-xs tracking-wider">
+      <div className="flex gap-3 md:gap-4 items-center text-xs tracking-wider">
         <InfoModal />
         <AudioToggle />
         <Link
+          href="/immortalize"
+          title="Immortalize a love, a moment, or a message"
+          className="flex items-center gap-1 text-babel-gold border border-babel-gold/60 bg-babel-gold/5 hover:bg-babel-gold/15 transition-colors duration-300 px-3 py-1 rounded"
+        >
+          <Heart size={13} /> <span className="hidden sm:inline">IMMORTALIZE</span>
+        </Link>
+        <Link
           href="/daily"
           title="Today's shared chamber"
-          className="hidden sm:flex items-center gap-1 hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded"
+          className="hidden md:flex items-center gap-1 hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded"
         >
           <Sparkles size={13} /> DAILY
         </Link>
         <Link
           href="/journal"
           title="Your Seeker's Journal"
-          className="flex items-center gap-1 hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded"
+          className="hidden sm:flex items-center gap-1 hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded"
         >
           <BookMarked size={13} /> JOURNAL
         </Link>

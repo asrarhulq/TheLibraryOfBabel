@@ -4,6 +4,9 @@ import { notFound } from 'next/navigation';
 import { generatePageText, decodeRoom } from '@/lib/babel/server/generatorCore';
 import BookReader from '@/components/BookReader';
 import TravelerLog from '@/components/TravelerLog';
+import ClaimChamber from '@/components/ClaimChamber';
+import { getClaim } from '@/lib/db/claims';
+import { CLAIM_PRICE, CLAIM_CURRENCY, isLiveMode } from '@/lib/payments/payments';
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 
 interface RoomPageProps {
@@ -34,6 +37,9 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
   // Decode the search string from the coordinate (server-side)
   const searchQuery = decodeRoom(x, y, z);
+
+  // Ownership: a chamber can be claimed by one traveler (a paid keepsake).
+  const claim = await getClaim(roomId);
 
   const prevPage = page > 1 ? `/room/${roomId}/${wall}/${shelf}/${book}/${page - 1}` : null;
   const nextPage = page < 410 ? `/room/${roomId}/${wall}/${shelf}/${book}/${page + 1}` : null;
@@ -70,9 +76,17 @@ export default async function RoomPage({ params }: RoomPageProps) {
           </div>
         </div>
 
+        <ClaimChamber
+          roomId={roomId}
+          initialClaim={claim}
+          price={CLAIM_PRICE}
+          currency={CLAIM_CURRENCY}
+          live={isLiveMode()}
+        />
+
         <div className="mt-auto">
           <p className="text-xs text-babel-dust italic">
-            "The library is a sphere whose exact center is any one of its hexagons and whose circumference is inaccessible."
+            &ldquo;The library is a sphere whose exact center is any one of its hexagons and whose circumference is inaccessible.&rdquo;
           </p>
         </div>
 
