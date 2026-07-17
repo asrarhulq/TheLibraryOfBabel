@@ -1,12 +1,17 @@
 @import "tailwindcss";
 
 @theme {
+  /* Neutrals carry a deliberate warm-gold bias — chosen, not defaulted. */
+  --color-babel-void: #08090c;
   --color-babel-dark: #0d0e12;
   --color-babel-parchment: #f4f1ea;
   --color-babel-gold: #d4af37;
+  --color-babel-gold-dim: rgba(212, 175, 55, 0.5);
   --color-babel-dust: rgba(244, 241, 234, 0.6);
   --color-babel-lines: rgba(212, 175, 55, 0.15);
   --color-babel-wall: #1a1b22;
+
+  --font-serif: Georgia, "Times New Roman", serif;
 }
 
 :root {
@@ -23,6 +28,23 @@ body {
   overflow: hidden; /* For full screen 3D app */
 }
 
+/* Atmospheric depth — a faint gold vignette that makes the void feel vast.
+   Sits behind everything, ignores pointer events. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(212, 175, 55, 0.06) 0%, transparent 55%),
+    radial-gradient(100% 100% at 50% 120%, rgba(212, 175, 55, 0.04) 0%, transparent 50%);
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
 /* Custom scrollbar for text reading */
 ::-webkit-scrollbar {
   width: 8px;
@@ -36,4 +58,83 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-babel-gold);
+}
+
+/* Gilded, consistent keyboard focus across the whole app */
+:focus-visible {
+  outline: 1px solid var(--color-babel-gold);
+  outline-offset: 2px;
+}
+
+/* ── Motion system ────────────────────────────────────────────────────────── */
+
+/* Toast entrance */
+@keyframes babel-toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.babel-toast-in {
+  animation: babel-toast-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Rarity reveal shimmer used when a treasure surfaces on a page */
+@keyframes babel-rarity-pulse {
+  0% { text-shadow: 0 0 6px rgba(212,175,55,0.4); }
+  50% { text-shadow: 0 0 22px rgba(212,175,55,1), 0 0 40px rgba(212,175,55,0.6); }
+  100% { text-shadow: 0 0 6px rgba(212,175,55,0.4); }
+}
+.babel-rarity {
+  animation: babel-rarity-pulse 2.4s ease-in-out infinite;
+}
+
+/* Generic fade / rise — the page-enter language */
+@keyframes babel-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.babel-fade-in { animation: babel-fade-in 0.6s ease-out; }
+
+@keyframes babel-rise-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.babel-rise-in {
+  animation: babel-rise-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Slow breathing glow for hero elements — echoes the ambient audio's "breath" */
+@keyframes babel-breathe {
+  0%, 100% { opacity: 0.85; text-shadow: 0 0 18px rgba(212,175,55,0.15); }
+  50% { opacity: 1; text-shadow: 0 0 34px rgba(212,175,55,0.35); }
+}
+.babel-breathe { animation: babel-breathe 7s ease-in-out infinite; }
+
+/* Animated gold underline that draws in from the left on hover */
+.babel-underline {
+  position: relative;
+}
+.babel-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: var(--color-babel-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.babel-underline:hover::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

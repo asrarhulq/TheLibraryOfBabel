@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import AudioToggle from '@/components/AudioToggle';
 import InfoModal from '@/components/InfoModal';
+import { BookMarked, Sparkles } from 'lucide-react';
 
 export default function Navbar() {
   return (
@@ -9,12 +10,12 @@ export default function Navbar() {
         <Link href="/" className="hover:text-babel-gold transition-colors duration-300">
           The Infinite Library of Babel
         </Link>
-        <span className="text-babel-dust mx-2">by</span>
-        <a 
-          href="https://asrarul.com" 
-          target="_blank" 
+        <span className="text-babel-dust mx-2 text-xs">by</span>
+        <a
+          href="https://asrarul.com"
+          target="_blank"
           rel="noopener noreferrer"
-          className="relative inline-block hover:text-babel-gold transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-[1px] after:bg-babel-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
+          className="relative inline-block text-xs hover:text-babel-gold transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-px after:bg-babel-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
         >
           Asrar ul Haq
         </a>
@@ -22,6 +23,20 @@ export default function Navbar() {
       <div className="flex gap-4 items-center text-xs tracking-wider">
         <InfoModal />
         <AudioToggle />
+        <Link
+          href="/daily"
+          title="Today's shared chamber"
+          className="hidden sm:flex items-center gap-1 hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded"
+        >
+          <Sparkles size={13} /> DAILY
+        </Link>
+        <Link
+          href="/journal"
+          title="Your Seeker's Journal"
+          className="flex items-center gap-1 hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded"
+        >
+          <BookMarked size={13} /> JOURNAL
+        </Link>
         <Link href="/search" className="hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 px-3 py-1 rounded">
           SEARCH
         </Link>

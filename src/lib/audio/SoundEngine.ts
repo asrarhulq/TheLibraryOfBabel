@@ -5,14 +5,19 @@ let engineInstance: SoundEngine | null = null;
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private ambientOscillators: OscillatorNode[] = [];
+  private ambientNodes: AudioNode[] = []; // filters, gains, LFOs to tear down
   private ambientGain: GainNode | null = null;
+  private reverb: ConvolverNode | null = null;
+  private reverbGain: GainNode | null = null;
+  private whisperTimer: ReturnType<typeof setTimeout> | null = null;
   private isEnabled: boolean = true;
   private currentRoomId: string = '';
   private hasInteracted: boolean = false;
 
   private ensureContext() {
     if (!this.ctx) {
-      this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const w = window as typeof window & { webkitAudioContext?: typeof AudioContext };
+      this.ctx = new (w.AudioContext || w.webkitAudioContext!)();
     }
     return this.ctx;
   }
@@ -68,67 +73,189 @@ class SoundEngine {
     }
   }
 
+  // Build a synthetic reverb impulse (a decaying noise tail) for a vast, cathedral-like space.
+  private buildReverb(seconds = 4.5, decay = 3.2): ConvolverNode {
+    const ctx = this.ctx!;
+    const rate = ctx.sampleRate;
+    const length = Math.floor(rate * seconds);
+    const impulse = ctx.createBuffer(2, length, rate);
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch);
+      for (let i = 0; i < length; i++) {
+        // exponential decay envelope over white noise
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+      }
+    }
+    const conv = ctx.createConvolver();
+    conv.buffer = impulse;
+    return conv;
+  }
+
   private startAmbientHum(roomId: string) {
     if (!this.ctx || !this.isEnabled || this.ambientOscillators.length > 0) return;
     if (this.ctx.state === 'suspended') return;
 
+    const ctx = this.ctx;
+    const now = ctx.currentTime;
     const rng = seedrandom(roomId || 'default');
-    const rootFreq = 50 + (rng() * 40);
+    const rootFreq = 44 + rng() * 30; // ~44-74 Hz cosmic root
 
-    // Build a lush, addictive minor/mystical chord (Root, minor 3rd, 5th, minor 7th)
-    const ratios = [1, 1.189, 1.498, 1.781];
-    
-    this.ambientGain = this.ctx.createGain();
+    // ── Master ambient bus + reverb send ──────────────────────────────────────
+    this.ambientGain = ctx.createGain();
     this.ambientGain.gain.value = 0.0;
 
-    // Slow sweeping lowpass filter for a "breathing" cosmic effect
-    const filter = this.ctx.createBiquadFilter();
+    this.reverb = this.buildReverb();
+    this.reverbGain = ctx.createGain();
+    this.reverbGain.gain.value = 0.55; // generous wet tail
+    this.reverb.connect(this.reverbGain);
+    this.reverbGain.connect(ctx.destination);
+    this.ambientGain.connect(ctx.destination); // dry
+    this.ambientGain.connect(this.reverb); // wet
+    this.ambientNodes.push(this.ambientGain, this.reverb, this.reverbGain);
+
+    // ── Breathing lowpass filter (one slow "breath" every ~22s) ───────────────
+    const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
     filter.frequency.value = rootFreq * 4;
-    
-    // LFO to animate the filter: one full breath every 20 seconds
-    const lfo = this.ctx.createOscillator();
-    lfo.type = 'sine';
-    lfo.frequency.value = 0.05;
-    const lfoGain = this.ctx.createGain();
-    lfoGain.gain.value = rootFreq * 2;
-    lfo.connect(lfoGain);
-    lfoGain.connect(filter.frequency);
-    lfo.start();
-    this.ambientOscillators.push(lfo);
+    filter.Q.value = 0.8;
+    filter.connect(this.ambientGain);
+    this.ambientNodes.push(filter);
 
+    const breathLfo = ctx.createOscillator();
+    breathLfo.type = 'sine';
+    breathLfo.frequency.value = 0.045;
+    const breathGain = ctx.createGain();
+    breathGain.gain.value = rootFreq * 2.2;
+    breathLfo.connect(breathGain);
+    breathGain.connect(filter.frequency);
+    breathLfo.start();
+    this.ambientOscillators.push(breathLfo);
+    this.ambientNodes.push(breathGain);
+
+    // ── Pad voices: a mystical minor chord (root, min3, 5th, min7, oct) ────────
+    const ratios = [1, 1.189, 1.498, 1.781, 2.0];
     ratios.forEach((ratio) => {
-      if (!this.ctx) return;
-      const osc = this.ctx.createOscillator();
+      const osc = ctx.createOscillator();
       osc.type = rng() > 0.5 ? 'sine' : 'triangle';
-      
-      // Slight detuning for a thick chorus effect
-      const detune = (rng() * 4) - 2; 
-      osc.frequency.value = (rootFreq * ratio) + detune;
+      const detune = rng() * 5 - 2.5; // thick chorus
+      osc.frequency.value = rootFreq * ratio + detune;
 
-      osc.connect(filter);
+      // per-voice slow amplitude drift so the chord "evolves"
+      const voiceGain = ctx.createGain();
+      voiceGain.gain.value = 0.5 + rng() * 0.3;
+      const driftLfo = ctx.createOscillator();
+      driftLfo.type = 'sine';
+      driftLfo.frequency.value = 0.02 + rng() * 0.06;
+      const driftAmt = ctx.createGain();
+      driftAmt.gain.value = 0.25;
+      driftLfo.connect(driftAmt);
+      driftAmt.connect(voiceGain.gain);
+      driftLfo.start();
+
+      osc.connect(voiceGain);
+      voiceGain.connect(filter);
       osc.start();
-      this.ambientOscillators.push(osc);
+      this.ambientOscillators.push(osc, driftLfo);
+      this.ambientNodes.push(voiceGain, driftAmt);
     });
 
-    filter.connect(this.ambientGain);
-    this.ambientGain.connect(this.ctx.destination);
+    // ── Sub-bass swell: a felt-more-than-heard pulse under everything ──────────
+    const sub = ctx.createOscillator();
+    sub.type = 'sine';
+    sub.frequency.value = rootFreq / 2;
+    const subGain = ctx.createGain();
+    subGain.gain.value = 0.0;
+    const subLfo = ctx.createOscillator();
+    subLfo.type = 'sine';
+    subLfo.frequency.value = 0.06 + rng() * 0.04; // slow tidal swell
+    const subLfoAmt = ctx.createGain();
+    subLfoAmt.gain.value = 0.16;
+    subLfo.connect(subLfoAmt);
+    subLfoAmt.connect(subGain.gain);
+    subLfo.start();
+    sub.connect(subGain);
+    subGain.connect(this.ambientGain);
+    sub.start();
+    this.ambientOscillators.push(sub, subLfo);
+    this.ambientNodes.push(subGain, subLfoAmt);
 
-    // Fade in over 3 seconds
-    this.ambientGain.gain.linearRampToValueAtTime(0.18, this.ctx.currentTime + 3);
+    // ── Shimmer: a high, glassy partial that slowly fades in and out ──────────
+    const shimmer = ctx.createOscillator();
+    shimmer.type = 'sine';
+    shimmer.frequency.value = rootFreq * 6.02; // slightly detuned high partial
+    const shimmerGain = ctx.createGain();
+    shimmerGain.gain.value = 0.0;
+    const shimmerLfo = ctx.createOscillator();
+    shimmerLfo.type = 'sine';
+    shimmerLfo.frequency.value = 0.033;
+    const shimmerAmt = ctx.createGain();
+    shimmerAmt.gain.value = 0.018;
+    shimmerLfo.connect(shimmerAmt);
+    shimmerAmt.connect(shimmerGain.gain);
+    shimmerLfo.start();
+    shimmer.connect(shimmerGain);
+    shimmerGain.connect(this.reverb); // shimmer lives in the reverb tail
+    shimmer.start();
+    this.ambientOscillators.push(shimmer, shimmerLfo);
+    this.ambientNodes.push(shimmerGain, shimmerAmt);
+
+    // Fade the whole bed in gently over 4 seconds
+    this.ambientGain.gain.linearRampToValueAtTime(0.2, now + 4);
+
+    // ── Distant whispers: occasional soft bell-tones seeded by the room ───────
+    this.scheduleWhisper(roomId, rng);
+  }
+
+  // Randomized, reverb-drenched bell tones that drift in "from far away".
+  private scheduleWhisper(roomId: string, rng: () => number) {
+    if (!this.ctx || !this.isEnabled) return;
+    const delay = 7000 + rng() * 13000; // every 7-20s
+    this.whisperTimer = setTimeout(() => {
+      if (!this.ctx || !this.isEnabled || !this.reverb) return;
+      const ctx = this.ctx;
+      const t = ctx.currentTime;
+      const base = 220 + rng() * 440;
+      const partials = [1, 2.01, 3.03];
+      partials.forEach((p, idx) => {
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = base * p;
+        const g = ctx.createGain();
+        const peak = 0.05 / (idx + 1);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(peak, t + 0.6);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 4.5);
+        osc.connect(g);
+        g.connect(this.reverb!); // pure wet — sounds impossibly distant
+        osc.start(t);
+        osc.stop(t + 4.6);
+      });
+      this.scheduleWhisper(roomId, rng);
+    }, delay);
   }
 
   private stopAmbientHum() {
+    if (this.whisperTimer) {
+      clearTimeout(this.whisperTimer);
+      this.whisperTimer = null;
+    }
     if (this.ambientGain && this.ctx) {
-      this.ambientGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 1);
+      this.ambientGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 1.2);
       const oscsToStop = [...this.ambientOscillators];
+      const nodesToDisconnect = [...this.ambientNodes];
       this.ambientOscillators = [];
+      this.ambientNodes = [];
+      this.reverb = null;
+      this.reverbGain = null;
       setTimeout(() => {
-        oscsToStop.forEach(osc => {
-          try { osc.stop(); } catch(e) {}
-          osc.disconnect();
+        oscsToStop.forEach((osc) => {
+          try { osc.stop(); } catch { /* already stopped */ }
+          try { osc.disconnect(); } catch { /* noop */ }
         });
-      }, 1100);
+        nodesToDisconnect.forEach((n) => {
+          try { n.disconnect(); } catch { /* noop */ }
+        });
+      }, 1400);
     }
   }
 

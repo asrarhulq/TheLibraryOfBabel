@@ -23,13 +23,17 @@ export default function Home() {
       
       <RecentDiscoveries />
       
-      {/* Overlay text */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 pointer-events-none text-center">
-        <h1 className="text-2xl md:text-4xl text-babel-parchment font-mono tracking-widest uppercase mb-2 drop-shadow-md">
+      {/* Title — pinned to the top, clear of the hexagon field below */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 pointer-events-none text-center babel-rise-in z-10">
+        <h1 className="text-xl md:text-3xl text-babel-parchment font-mono tracking-[0.35em] uppercase babel-breathe">
           The Infinite Library
         </h1>
-        <p className="text-babel-dust text-sm md:text-base font-sans max-w-lg mx-auto leading-relaxed">
-          Drag to explore. Click a hexagonal chamber to enter.
+      </div>
+
+      {/* Instruction — kept low and unobtrusive */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 pointer-events-none text-center babel-fade-in z-10">
+        <p className="not-italic font-sans text-xs tracking-widest uppercase text-babel-gold-dim">
+          Drag to drift · click a chamber to enter
         </p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { generatePageText, bigIntToString } from '@/lib/babel/generator';
+import { generatePageText, decodeRoom } from '@/lib/babel/server/generatorCore';
 import BookReader from '@/components/BookReader';
 import TravelerLog from '@/components/TravelerLog';
 import { ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
@@ -32,14 +32,8 @@ export default async function RoomPage({ params }: RoomPageProps) {
 
   const text = generatePageText(x, y, z, wall, shelf, book, page);
 
-  // Decode the search string from the coordinate
-  let searchQuery = '';
-  try {
-    const combinedHex = (x + y + z).replace(/-/g, '');
-    if (combinedHex.length > 0) {
-      searchQuery = bigIntToString(BigInt('0x' + combinedHex));
-    }
-  } catch (e) {}
+  // Decode the search string from the coordinate (server-side)
+  const searchQuery = decodeRoom(x, y, z);
 
   const prevPage = page > 1 ? `/room/${roomId}/${wall}/${shelf}/${book}/${page - 1}` : null;
   const nextPage = page < 410 ? `/room/${roomId}/${wall}/${shelf}/${book}/${page + 1}` : null;
@@ -89,7 +83,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
       <div className="flex-1 flex flex-col relative h-full">
         {/* Book Reader */}
         <div className="flex-1 relative bg-[#0a0a0c] shadow-inner overflow-hidden">
-          <BookReader text={text} searchQuery={searchQuery} roomId={roomId} page={page} />
+          <BookReader text={text} searchQuery={searchQuery} roomId={roomId} wall={wall} shelf={shelf} book={book} page={page} />
         </div>
 
         {/* Page Controls */}

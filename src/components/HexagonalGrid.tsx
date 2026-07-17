@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text, Edges } from '@react-three/drei';
 import * as THREE from 'three';
@@ -8,35 +8,33 @@ import { useRouter } from 'next/navigation';
 
 const HEX_RADIUS = 2;
 const HEX_HEIGHT = 4;
-// Calculate offsets for pointy-topped hexagons
 const HEX_WIDTH = Math.sqrt(3) * HEX_RADIUS;
 const HEX_VERT_DIST = 1.5 * HEX_RADIUS;
+const GRID_RADIUS = 4; // rings
+const LABEL_RING_LIMIT = 2; // only label the inner rings — distant labels are unreadable noise
 
-interface HexRoomProps {
+interface RoomData {
   q: number;
   r: number;
-  yOffset?: number;
+  x: number;
+  z: number;
+  phase: number; // per-hex float offset
   label: string;
+  showLabel: boolean;
+}
+
+interface HexRoomProps {
+  room: RoomData;
+  meshRef: (m: THREE.Mesh | null) => void;
   onClick: () => void;
 }
 
-function HexRoom({ q, r, yOffset = 0, label, onClick }: HexRoomProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
+// Presentational only — no per-hex frame loop. The parent animates all meshes at once.
+function HexRoom({ room, meshRef, onClick }: HexRoomProps) {
   const [hovered, setHovered] = useState(false);
 
-  // Calculate 3D position from axial coordinates (q, r)
-  const x = HEX_WIDTH * (q + r / 2);
-  const z = HEX_VERT_DIST * r;
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      // Subtle floating animation
-      meshRef.current.position.y = yOffset + Math.sin(state.clock.elapsedTime * 0.5 + q + r) * 0.2;
-    }
-  });
-
   return (
-    <group position={[x, yOffset, z]}>
+    <group position={[room.x, 0, room.z]}>
       <mesh
         ref={meshRef}
         onClick={(e) => {
@@ -46,73 +44,95 @@ function HexRoom({ q, r, yOffset = 0, label, onClick }: HexRoomProps) {
         onPointerOver={(e) => {
           e.stopPropagation();
           setHovered(true);
+          document.body.style.cursor = 'pointer';
         }}
-        onPointerOut={() => setHovered(false)}
-        rotation={[0, Math.PI / 6, 0]} // Rotate to pointy top
+        onPointerOut={() => {
+          setHovered(false);
+          document.body.style.cursor = 'auto';
+        }}
+        rotation={[0, Math.PI / 6, 0]}
       >
         <cylinderGeometry args={[HEX_RADIUS, HEX_RADIUS, HEX_HEIGHT, 6]} />
-        <meshStandardMaterial 
-          color={hovered ? '#1a1b22' : '#0d0e12'} 
+        <meshStandardMaterial
+          color={hovered ? '#1a1b22' : '#0d0e12'}
           transparent
-          opacity={hovered ? 0.9 : 0.6}
+          opacity={hovered ? 0.92 : 0.62}
           roughness={0.8}
         />
         <Edges
-          linewidth={hovered ? 2 : 1}
+          scale={1}
           threshold={15}
-          color={hovered ? '#d4af37' : 'rgba(212, 175, 55, 0.3)'}
+          color={hovered ? '#d4af37' : '#6b5a1f'}
         />
       </mesh>
-      
-      {/* Label for the room */}
-      <Text
-        position={[0, HEX_HEIGHT / 2 + 0.5, 0]}
-        fontSize={0.4}
-        color={hovered ? '#d4af37' : '#f4f1ea'}
-        anchorX="center"
-        anchorY="middle"
-        rotation={[-Math.PI / 2, 0, 0]} // Face upwards
-      >
-        {label}
-      </Text>
+
+      {room.showLabel && (
+        <Text
+          position={[0, HEX_HEIGHT / 2 + 0.5, 0]}
+          fontSize={0.4}
+          color={hovered ? '#d4af37' : '#f4f1ea'}
+          anchorX="center"
+          anchorY="middle"
+          rotation={[-Math.PI / 2, 0, 0]}
+        >
+          {room.label}
+        </Text>
+      )}
     </group>
   );
 }
 
 export default function HexagonalGrid() {
   const router = useRouter();
-  
-  // Generate a grid of rooms around 0,0
-  const rooms = [];
-  const radius = 4; // Number of rings
+  const meshes = useRef<(THREE.Mesh | null)[]>([]);
 
-  for (let q = -radius; q <= radius; q++) {
-    const r1 = Math.max(-radius, -q - radius);
-    const r2 = Math.min(radius, -q + radius);
-    for (let r = r1; r <= r2; r++) {
-      // Create an artificial Z coordinate for demonstration
-      const zCoord = Math.abs(q + r);
-      // Room address format: X-Y-Z
-      const xStr = (q < 0 ? 'm' : '') + Math.abs(q);
-      const yStr = (r < 0 ? 'm' : '') + Math.abs(r);
-      const zStr = zCoord.toString();
-      
-      const label = `${xStr}-${yStr}-${zStr}`;
-
-      rooms.push(
-        <HexRoom
-          key={`${q}-${r}`}
-          q={q}
-          r={r}
-          label={label}
-          onClick={() => {
-            // Navigate to the room's first wall, shelf, book, page
-            router.push(`/room/${label}/1/1/1/1`);
-          }}
-        />
-      );
+  // Compute the grid once.
+  const rooms = useMemo<RoomData[]>(() => {
+    const out: RoomData[] = [];
+    for (let q = -GRID_RADIUS; q <= GRID_RADIUS; q++) {
+      const r1 = Math.max(-GRID_RADIUS, -q - GRID_RADIUS);
+      const r2 = Math.min(GRID_RADIUS, -q + GRID_RADIUS);
+      for (let r = r1; r <= r2; r++) {
+        const zCoord = Math.abs(q + r);
+        const xStr = (q < 0 ? 'm' : '') + Math.abs(q);
+        const yStr = (r < 0 ? 'm' : '') + Math.abs(r);
+        const ring = (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
+        out.push({
+          q,
+          r,
+          x: HEX_WIDTH * (q + r / 2),
+          z: HEX_VERT_DIST * r,
+          phase: q + r,
+          label: `${xStr}-${yStr}-${zCoord}`,
+          showLabel: ring <= LABEL_RING_LIMIT,
+        });
+      }
     }
-  }
+    return out;
+  }, []);
 
-  return <group>{rooms}</group>;
+  // A SINGLE frame loop drives the float animation for every hexagon.
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    const list = meshes.current;
+    for (let i = 0; i < list.length; i++) {
+      const m = list[i];
+      if (m) m.position.y = Math.sin(t * 0.5 + rooms[i].phase) * 0.2;
+    }
+  });
+
+  return (
+    <group>
+      {rooms.map((room, i) => (
+        <HexRoom
+          key={`${room.q}-${room.r}`}
+          room={room}
+          meshRef={(m) => {
+            meshes.current[i] = m;
+          }}
+          onClick={() => router.push(`/room/${room.label}/1/1/1/1`)}
+        />
+      ))}
+    </group>
+  );
 }

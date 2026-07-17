@@ -2,15 +2,32 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getRecentNotes, TravelerNote } from '@/lib/db/travelerLog';
 import { History, ChevronLeft, ChevronRight } from 'lucide-react';
+import { travelerApi } from '@/lib/traveler/client';
+import { Coordinate } from '@/lib/babel/types';
+
+interface Discovery {
+  name: string;
+  kind: 'phrase' | 'rarity';
+  rarityKind?: string;
+  text: string;
+  coord: Coordinate;
+  timestamp: number;
+}
 
 export default function RecentDiscoveries() {
-  const [notes, setNotes] = useState<TravelerNote[]>([]);
+  const [notes, setNotes] = useState<Discovery[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    setNotes(getRecentNotes(10));
+    let cancelled = false;
+    (async () => {
+      const res = await travelerApi.recent();
+      if (!cancelled && res?.discoveries) setNotes(res.discoveries as Discovery[]);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
@@ -23,7 +40,7 @@ export default function RecentDiscoveries() {
         title={isOpen ? 'Close discoveries' : 'Recent discoveries'}
       >
         {isOpen ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-        <span 
+        <span
           className="text-[10px] tracking-widest uppercase font-mono"
           style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
         >
@@ -36,37 +53,37 @@ export default function RecentDiscoveries() {
         className="fixed top-0 right-0 z-20 h-full w-80 bg-babel-dark/95 backdrop-blur-md border-l border-babel-lines/30 shadow-2xl flex flex-col pt-16 transition-transform duration-300 ease-in-out"
         style={{ transform: isOpen ? 'translateX(0)' : 'translateX(100%)' }}
       >
-        {/* Header */}
         <div className="px-5 py-4 border-b border-babel-lines/20 flex-shrink-0">
           <h3 className="text-babel-gold text-sm tracking-widest uppercase flex items-center gap-2">
             <History size={16} /> Recent Discoveries
           </h3>
         </div>
 
-        {/* Notes List */}
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {notes.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-babel-dust/70 text-sm italic mb-2">No discoveries yet.</p>
               <p className="text-babel-dust/50 text-xs">
-                Search for a phrase and leave a note in the Traveler's Log to see it here.
+                Search for a phrase or surface a rarity to see it appear here — for everyone.
               </p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {notes.map((note) => (
-                <Link 
-                  key={note.id}
-                  href={`/room/${note.roomId}/${note.wall}/${note.shelf}/${note.book}/${note.page}`}
+              {notes.map((note, i) => (
+                <Link
+                  key={`${note.timestamp}-${i}`}
+                  href={`/room/${note.coord.roomId}/${note.coord.wall}/${note.coord.shelf}/${note.coord.book}/${note.coord.page}`}
                   className="block bg-black/40 hover:bg-black/60 p-3 rounded border border-babel-lines/10 hover:border-babel-gold/30 transition-all duration-200 group"
                 >
                   <div className="flex justify-between items-start mb-1">
-                    <span className="text-babel-gold font-bold text-xs">{note.author}</span>
+                    <span className="text-babel-gold font-bold text-xs">{note.name}</span>
                     <span className="text-babel-dust/40 text-[10px]">
-                      {new Date(note.timestamp).toLocaleDateString()}
+                      {note.kind === 'rarity' ? '✦ rarity' : 'phrase'}
                     </span>
                   </div>
-                  <p className="text-babel-parchment/80 text-sm mb-2 italic leading-relaxed">"{note.content}"</p>
+                  <p className="text-babel-parchment/80 text-sm mb-2 italic leading-relaxed">
+                    &ldquo;{note.text}&rdquo;
+                  </p>
                   <span className="text-[10px] text-babel-lines group-hover:text-babel-gold transition-colors">
                     Visit Location →
                   </span>
