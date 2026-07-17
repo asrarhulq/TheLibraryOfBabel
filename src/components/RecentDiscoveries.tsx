@@ -50,12 +50,12 @@ export default function RecentDiscoveries() {
 
       {/* Sidebar Panel */}
       <div
-        className="fixed top-0 right-0 z-20 h-full w-80 bg-babel-dark/95 backdrop-blur-md border-l border-babel-lines/30 shadow-2xl flex flex-col pt-16 transition-transform duration-300 ease-in-out"
+        className="fixed top-0 right-0 z-20 h-full w-[85vw] max-w-xs bg-babel-dark/95 backdrop-blur-md border-l border-babel-lines/30 shadow-2xl flex flex-col pt-16 transition-transform duration-300 ease-in-out"
         style={{ transform: isOpen ? 'translateX(0)' : 'translateX(100%)' }}
       >
-        <div className="px-5 py-4 border-b border-babel-lines/20 flex-shrink-0">
+        <div className="px-5 py-4 border-b border-babel-lines/20 shrink-0">
           <h3 className="text-babel-gold text-sm tracking-widest uppercase flex items-center gap-2">
-            <History size={16} /> Recent Discoveries
+            <History size={16} /> My Discoveries
           </h3>
         </div>
 
@@ -64,7 +64,8 @@ export default function RecentDiscoveries() {
             <div className="text-center py-12">
               <p className="text-babel-dust/70 text-sm italic mb-2">No discoveries yet.</p>
               <p className="text-babel-dust/50 text-xs">
-                Search for a phrase or surface a rarity to see it appear here — for everyone.
+                Open any page and press <span className="text-babel-gold">Save page</span> to keep it
+                here. Your discoveries are private to you.
               </p>
             </div>
           ) : (

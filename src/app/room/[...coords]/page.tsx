@@ -45,9 +45,9 @@ export default async function RoomPage({ params }: RoomPageProps) {
   const nextPage = page < 410 ? `/room/${roomId}/${wall}/${shelf}/${book}/${page + 1}` : null;
 
   return (
-    <div className="w-full h-full flex bg-babel-dark text-babel-parchment font-mono">
-      {/* Sidebar Navigation */}
-      <div className="w-64 border-r border-babel-lines/30 p-6 flex flex-col gap-6 shrink-0 bg-babel-wall overflow-y-auto">
+    <div className="w-full h-full flex flex-col-reverse md:flex-row bg-babel-dark text-babel-parchment font-mono overflow-hidden">
+      {/* Sidebar Navigation — below the reader on mobile, beside it on desktop */}
+      <div className="w-full md:w-64 md:h-full max-h-[45%] md:max-h-none border-t md:border-t-0 md:border-r border-babel-lines/30 p-5 md:p-6 flex flex-col gap-5 md:gap-6 shrink-0 bg-babel-wall overflow-y-auto">
         <div>
           <Link href="/" className="flex items-center gap-2 hover:text-babel-gold transition-colors text-sm mb-8">
             <ArrowLeft size={16} /> Exit to Void
@@ -94,32 +94,32 @@ export default async function RoomPage({ params }: RoomPageProps) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative h-full">
+      <div className="flex-1 min-h-0 flex flex-col relative">
         {/* Book Reader */}
-        <div className="flex-1 relative bg-[#0a0a0c] shadow-inner overflow-hidden">
+        <div className="flex-1 min-h-0 relative bg-[#0a0a0c] shadow-inner overflow-hidden">
           <BookReader text={text} searchQuery={searchQuery} roomId={roomId} wall={wall} shelf={shelf} book={book} page={page} />
         </div>
 
         {/* Page Controls */}
-        <div className="h-16 border-t border-babel-lines/30 flex items-center justify-between px-8 bg-babel-wall shrink-0">
+        <div className="h-14 md:h-16 border-t border-babel-lines/30 flex items-center justify-between px-4 md:px-8 bg-babel-wall shrink-0 text-sm md:text-base">
           {prevPage ? (
             <Link href={prevPage} className="flex items-center gap-2 hover:text-babel-gold transition-colors">
-              <ChevronLeft size={20} /> Previous Page
+              <ChevronLeft size={20} /> <span className="hidden sm:inline">Previous Page</span>
             </Link>
           ) : (
-            <div className="w-32" /> // spacer
+            <div className="w-8 sm:w-32" /> // spacer
           )}
-          
-          <div className="text-babel-dust">
+
+          <div className="text-babel-dust tabular-nums">
             {page} / 410
           </div>
 
           {nextPage ? (
             <Link href={nextPage} className="flex items-center gap-2 hover:text-babel-gold transition-colors">
-              Next Page <ChevronRight size={20} />
+              <span className="hidden sm:inline">Next Page</span> <ChevronRight size={20} />
             </Link>
           ) : (
-            <div className="w-32" /> // spacer
+            <div className="w-8 sm:w-32" /> // spacer
           )}
         </div>
       </div>

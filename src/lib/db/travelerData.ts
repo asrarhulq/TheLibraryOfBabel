@@ -297,13 +297,75 @@ export async function saveNote(
   return { ...note, _id: res.insertedId.toString() };
 }
 
-export async function getRecentDiscoveries(limit = 12): Promise<DiscoveryDoc[]> {
+// Personal discoveries: only the given traveler's own saved pages.
+export async function getRecentDiscoveries(
+  travelerId: string,
+  limit = 20
+): Promise<DiscoveryDoc[]> {
+  if (!travelerId) return [];
   const db = await getDb();
   const docs = await db
     .collection<DiscoveryDoc>('discoveries')
-    .find({})
+    .find({ travelerId })
     .sort({ timestamp: -1 })
     .limit(Math.min(50, limit))
     .toArray();
   return docs.map((d) => ({ ...d, _id: undefined } as DiscoveryDoc));
+}
+
+/**
+ * Explicitly save the current page to the traveler's own discoveries (opt-in via a button).
+ * De-duped per (traveler, page). Records any rarities on the page as the discovery's detail.
+ */
+export async function saveDiscovery(
+  travelerId: string,
+  name: string,
+  label: string,
+  coord: Coordinate,
+  rarities: { kind: string; text: string; weight: number }[],
+  now: number
+): Promise<{ isNew: boolean; newlyUnlocked: string[] }> {
+  const db = await getDb();
+  const disc = db.collection<DiscoveryDoc>('discoveries');
+
+  const dupe = await disc.findOne({
+    travelerId,
+    kind: 'rarity',
+    'coord.roomId': coord.roomId,
+    'coord.wall': coord.wall,
+    'coord.shelf': coord.shelf,
+    'coord.book': coord.book,
+    'coord.page': coord.page,
+  });
+  if (dupe) return { isNew: false, newlyUnlocked: [] };
+
+  const top = rarities[0];
+  await disc.insertOne({
+    travelerId,
+    name,
+    kind: 'rarity',
+    rarityKind: top?.kind,
+    text: top?.text || label || 'a saved page',
+    weight: top?.weight,
+    coord,
+    timestamp: now,
+  });
+
+  await db
+    .collection<TravelerStats>('travelers')
+    .updateOne(
+      { travelerId },
+      { $inc: { rareFinds: rarities.length > 0 ? 1 : 0, score: 15 } }
+    );
+
+  const toUnlock: string[] = [];
+  for (const r of rarities) {
+    if (r.kind === 'palindrome') toUnlock.push('palindrome');
+    if (r.kind === 'your-name') toUnlock.push('namesake');
+    if (r.kind === 'word-chain') toUnlock.push('chain');
+    if (r.kind === 'long-word' && r.text.length >= 6) toUnlock.push('long-word');
+    toUnlock.push('first-rarity');
+  }
+  const newlyUnlocked = await unlock(travelerId, toUnlock);
+  return { isNew: true, newlyUnlocked };
 }

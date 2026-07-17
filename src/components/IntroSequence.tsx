@@ -139,6 +139,15 @@ export default function IntroSequence() {
     } catch {
       /* localStorage blocked — just skip the intro */
     }
+
+    // Allow replaying the intro on demand (e.g. clicking the logo).
+    const replay = () => {
+      setAct(0);
+      setLeaving(false);
+      setShow(true);
+    };
+    window.addEventListener('babel:replay-intro', replay);
+    return () => window.removeEventListener('babel:replay-intro', replay);
   }, []);
 
   const finish = useCallback(() => {

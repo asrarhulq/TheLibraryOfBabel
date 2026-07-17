@@ -66,3 +66,25 @@ export async function grantClaim(
 
   return { ok: true, claim: doc };
 }
+
+export interface OwnerRank {
+  owner: string;
+  count: number;
+  latest: number;
+}
+
+// Leaderboard: owners ranked by how many chambers they hold.
+export async function getOwnershipLeaderboard(limit = 25): Promise<OwnerRank[]> {
+  const db = await getDb();
+  const rows = await db
+    .collection<ClaimDoc>('claims')
+    .aggregate<OwnerRank>([
+      { $match: { paid: true } },
+      { $group: { _id: '$owner', count: { $sum: 1 }, latest: { $max: '$claimedAt' } } },
+      { $project: { _id: 0, owner: '$_id', count: 1, latest: 1 } },
+      { $sort: { count: -1, latest: 1 } },
+      { $limit: Math.min(100, limit) },
+    ])
+    .toArray();
+  return rows;
+}

@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { isEnglishWord } from '@/lib/babel/dictionary';
 import { detectRarities, Rarity } from '@/lib/babel/rarity';
-import { Download } from 'lucide-react';
+import { Download, Bookmark, BookmarkCheck } from 'lucide-react';
 import * as htmlToImage from 'html-to-image';
 import { getEngine } from '@/lib/audio/SoundEngine';
 import { getLocalName, travelerApi } from '@/lib/traveler/client';
@@ -78,11 +78,14 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
     return { rarities: found, intervals: ivs, wordCount: count };
   }, [text, searchQuery, travelerName]);
 
-  // ---- Report progress to the DB (fire-and-forget) ----
+  // ---- Track the visit (personal stats only) + gently reveal any rarity ----
+  // NOTE: rarities are NO LONGER auto-saved to discoveries. They're only celebrated
+  // with a toast; the visitor chooses what to keep via the "Save this page" button.
   useEffect(() => {
     const eng = getEngine();
     eng.setRoom(roomId);
     eng.playPageTurn(roomId, page);
+    setSaved(false); // reset save state for the new page
 
     let cancelled = false;
     const totalWords = wordCount + rarities.length;
@@ -98,19 +101,10 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
       const w = await travelerApi.words(coord, totalWords);
       if (!cancelled && w?.newlyUnlocked?.length) pushAchievements(w.newlyUnlocked);
 
-      // Log each rarity; the first time one is seen, celebrate it.
-      const name = getLocalName() || 'Anonymous Traveler';
-      for (const r of rarities) {
-        const res = await travelerApi.rarity(coord, name, {
-          kind: r.kind,
-          text: r.text,
-          weight: r.weight,
-        });
-        if (cancelled) break;
-        if (res?.isNew) {
-          pushRarity(r.label, r.text);
-          if (res.newlyUnlocked?.length) pushAchievements(res.newlyUnlocked);
-        }
+      // Celebrate the rarest find on this page (visual only — not persisted).
+      if (!cancelled && rarities.length > 0) {
+        const top = rarities[0];
+        pushRarity(top.label, top.text);
       }
     })();
 
@@ -153,6 +147,27 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
     return out;
   }, [intervals, text]);
 
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSavePage = async () => {
+    if (saved || saving) return;
+    setSaving(true);
+    const name = getLocalName() || 'Anonymous Traveler';
+    const label = searchQuery || rarities[0]?.text || `${roomId} · p${page}`;
+    const res = await travelerApi.savePage(
+      coord,
+      name,
+      label,
+      rarities.map((r) => ({ kind: r.kind, text: r.text, weight: r.weight }))
+    );
+    if (res) {
+      setSaved(true);
+      if (res.newlyUnlocked?.length) pushAchievements(res.newlyUnlocked);
+    }
+    setSaving(false);
+  };
+
   const handleExport = async () => {
     if (contentRef.current) {
       try {
@@ -178,6 +193,19 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
             ✦ {rarities.length} {rarities.length === 1 ? 'rarity' : 'rarities'} on this page
           </span>
         )}
+        <button
+          onClick={handleSavePage}
+          disabled={saving}
+          className={`flex items-center gap-2 text-xs uppercase tracking-widest border px-3 py-2 rounded transition-colors bg-[#0a0a0c] disabled:opacity-60 ${
+            saved
+              ? 'text-babel-gold border-babel-gold'
+              : 'text-babel-dust hover:text-babel-gold border-babel-lines/30 hover:border-babel-gold'
+          }`}
+          title="Save this page to your discoveries"
+        >
+          {saved ? <BookmarkCheck size={14} /> : <Bookmark size={14} />}
+          <span className="hidden sm:inline">{saved ? 'Saved' : 'Save page'}</span>
+        </button>
         <ShareCard
           searchQuery={searchQuery}
           rarities={rarities.map((r) => r.text)}
@@ -187,7 +215,7 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
           onClick={handleExport}
           className="flex items-center gap-2 text-xs uppercase tracking-widest text-babel-dust hover:text-babel-gold border border-babel-lines/30 hover:border-babel-gold px-3 py-2 rounded transition-colors bg-[#0a0a0c]"
         >
-          <Download size={14} /> Export PNG
+          <Download size={14} /> <span className="hidden sm:inline">Export PNG</span>
         </button>
       </div>
 
