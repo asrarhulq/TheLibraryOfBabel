@@ -129,6 +129,52 @@ body::before {
   transform: scaleX(1);
 }
 
+/* ── First-visit intro sequence ───────────────────────────────────────────── */
+
+/* Each act fades up softly, holds, then fades away (driven by JS timers). */
+@keyframes babel-act-in {
+  0% { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+.babel-act {
+  animation: babel-act-in 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Gentle drifting glow behind the intro text */
+@keyframes babel-aura {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.08); }
+}
+.babel-aura { animation: babel-aura 9s ease-in-out infinite; }
+
+/* The progress line that fills across the bottom while an act plays */
+@keyframes babel-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.babel-progress-fill {
+  transform-origin: left;
+  animation: babel-progress linear both;
+}
+
+/* Faint falling characters — the raw material of the Library */
+@keyframes babel-rain {
+  0% { opacity: 0; transform: translateY(-8vh); }
+  15% { opacity: 0.5; }
+  85% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(108vh); }
+}
+.babel-rain-col {
+  animation: babel-rain linear infinite;
+}
+
+/* Overlay entrance / exit */
+@keyframes babel-veil-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.babel-veil-out { animation: babel-veil-out 0.9s ease-out both; }
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

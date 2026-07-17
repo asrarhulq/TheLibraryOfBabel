@@ -10,7 +10,9 @@ class SoundEngine {
   private reverb: ConvolverNode | null = null;
   private reverbGain: GainNode | null = null;
   private whisperTimer: ReturnType<typeof setTimeout> | null = null;
-  private isEnabled: boolean = true;
+  // Ambient sound is OFF by default — it only begins once the visitor explicitly
+  // enables it via the speaker toggle, so nothing plays on an incidental first click.
+  private isEnabled: boolean = false;
   private currentRoomId: string = '';
   private hasInteracted: boolean = false;
 
