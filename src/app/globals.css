@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --color-babel-dark: #0d0e12;
+  --color-babel-parchment: #f4f1ea;
+  --color-babel-gold: #d4af37;
+  --color-babel-dust: rgba(244, 241, 234, 0.6);
+  --color-babel-lines: rgba(212, 175, 55, 0.15);
+  --color-babel-wall: #1a1b22;
+}
+
+:root {
+  --background: var(--color-babel-dark);
+  --foreground: var(--color-babel-parchment);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* For full screen 3D app */
+}
+
+/* Custom scrollbar for text reading */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-babel-dark);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-babel-lines);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-babel-gold);
+}
