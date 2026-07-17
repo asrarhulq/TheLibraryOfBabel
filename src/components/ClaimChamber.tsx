@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Crown, X, Heart } from 'lucide-react';
+import { Crown, X } from 'lucide-react';
 import { ClaimDoc } from '@/lib/babel/types';
 import { getTravelerId } from '@/lib/traveler/client';
 
@@ -134,16 +134,6 @@ export default function ClaimChamber({ roomId, initialClaim, price, currency, li
 
               {error && <p className="text-red-400 text-sm">{error}</p>}
 
-              {/* Charitable pledge — a genuine commitment, honored with public records. */}
-              <div className="flex items-start gap-2 border border-babel-gold/30 bg-babel-gold/5 rounded p-3 mt-1">
-                <Heart size={14} className="text-babel-gold shrink-0 mt-0.5" />
-                <p className="text-babel-parchment/80 text-[11px] leading-relaxed">
-                  <span className="text-babel-gold">80%</span> of every claim goes toward education
-                  for underprivileged children in Kashmir. This pledge is honored, and the records
-                  are made publicly available.
-                </p>
-              </div>
-
               <button
                 type="submit"
                 disabled={busy}
@@ -158,8 +148,8 @@ export default function ClaimChamber({ roomId, initialClaim, price, currency, li
 
               {!live && (
                 <p className="text-babel-dust/50 text-[11px] text-center leading-relaxed">
-                  Demo mode — no payment is taken yet. Live checkout (and the pledge above) activate
-                  once Stripe is connected.
+                  Demo mode — no payment is taken yet. Live checkout activates once Stripe is
+                  connected.
                 </p>
               )}
             </form>
