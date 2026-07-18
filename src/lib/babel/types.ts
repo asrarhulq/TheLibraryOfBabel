@@ -21,7 +21,7 @@ export interface ClaimDoc {
 }
 
 // A "declaration" — a phrase or date immortalized at its deterministic coordinate.
-export type DeclarationKind = 'love' | 'future' | 'anniversary';
+export type DeclarationKind = 'love' | 'future' | 'anniversary' | 'other';
 
 export interface DeclarationDoc {
   id: string; // short, URL-safe share id

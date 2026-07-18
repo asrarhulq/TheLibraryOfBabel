@@ -7,6 +7,7 @@ const KIND_EYEBROW: Record<string, string> = {
   love: 'Immortalized in the Infinite Library',
   future: 'A message left for the future',
   anniversary: 'A moment, kept forever',
+  other: 'Immortalized in the Infinite Library',
 };
 
 // The visual certificate. `forwardRef` so callers can render it to a PNG.
@@ -26,6 +27,8 @@ const DeclarationCertificate = forwardRef<HTMLDivElement, { d: DeclarationDoc }>
       );
     } else if (d.kind === 'anniversary') {
       headline = <span className="text-babel-parchment">{d.dateLabel || d.phrase}</span>;
+    } else if (d.kind === 'other') {
+      headline = <span className="text-babel-parchment">These words, forever</span>;
     } else {
       headline = <span className="text-babel-parchment">A letter to the future</span>;
     }

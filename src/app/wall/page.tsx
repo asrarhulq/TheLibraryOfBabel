@@ -2,19 +2,28 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Heart, Clock, CalendarHeart, Plus } from 'lucide-react';
+import { ArrowLeft, Heart, Clock, CalendarHeart, Sparkles, Plus } from 'lucide-react';
 import { DeclarationDoc } from '@/lib/babel/types';
 
 const KIND_ICON: Record<string, React.ReactNode> = {
   love: <Heart size={14} />,
   future: <Clock size={14} />,
   anniversary: <CalendarHeart size={14} />,
+  other: <Sparkles size={14} />,
+};
+
+const KIND_LABEL: Record<string, string> = {
+  love: 'A love',
+  future: 'To the future',
+  anniversary: 'A moment',
+  other: 'Immortalized',
 };
 
 function headline(d: DeclarationDoc): string {
   if (d.kind === 'love') return `${d.from} loves ${d.to}`;
   if (d.kind === 'anniversary') return d.dateLabel || d.phrase;
-  return 'A letter to the future';
+  if (d.kind === 'future') return 'A letter to the future';
+  return d.message || d.phrase || 'These words, forever';
 }
 
 export default function WallPage() {
@@ -81,7 +90,7 @@ export default function WallPage() {
               >
                 <div className="flex items-center gap-2 text-babel-gold/70 text-[10px] uppercase tracking-widest mb-3">
                   {KIND_ICON[d.kind]}
-                  <span>{d.kind === 'love' ? 'A love' : d.kind === 'anniversary' ? 'A moment' : 'To the future'}</span>
+                  <span>{KIND_LABEL[d.kind] || 'Immortalized'}</span>
                 </div>
                 <p className="font-serif text-lg text-babel-parchment mb-2 leading-snug">
                   {headline(d)}

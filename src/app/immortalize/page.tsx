@@ -3,18 +3,19 @@
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import * as htmlToImage from 'html-to-image';
-import { ArrowLeft, Heart, Clock, CalendarHeart, Check, Copy, MapPin, Download } from 'lucide-react';
+import { ArrowLeft, Heart, Clock, CalendarHeart, Sparkles, Check, Copy, MapPin, Download } from 'lucide-react';
 import { DeclarationDoc, DeclarationKind } from '@/lib/babel/types';
 import DeclarationCertificate from '@/components/DeclarationCertificate';
 
 const MODES: { kind: DeclarationKind; label: string; icon: React.ReactNode; blurb: string }[] = [
-  { kind: 'love', label: 'A Love', icon: <Heart size={16} />, blurb: 'Two names, bound at a coordinate forever.' },
   { kind: 'future', label: 'Future Self', icon: <Clock size={16} />, blurb: 'A message waiting for you to return.' },
   { kind: 'anniversary', label: 'A Moment', icon: <CalendarHeart size={16} />, blurb: 'A date or occasion, kept in the stacks.' },
+  { kind: 'love', label: 'A Love', icon: <Heart size={16} />, blurb: 'Two names, bound at a coordinate forever.' },
+  { kind: 'other', label: 'Other', icon: <Sparkles size={16} />, blurb: 'Any words at all — immortalize them.' },
 ];
 
 export default function ImmortalizePage() {
-  const [kind, setKind] = useState<DeclarationKind>('love');
+  const [kind, setKind] = useState<DeclarationKind>('future');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [dateLabel, setDateLabel] = useState('');
@@ -111,7 +112,7 @@ export default function ImmortalizePage() {
             </p>
 
             {/* Mode selector */}
-            <div className="grid grid-cols-3 gap-2 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-8">
               {MODES.map((m) => (
                 <button
                   key={m.kind}
@@ -141,7 +142,7 @@ export default function ImmortalizePage() {
                 <input className={inputCls} placeholder="The moment — e.g. the day we met" value={dateLabel} onChange={(e) => setDateLabel(e.target.value)} maxLength={40} required />
               )}
 
-              {kind === 'future' && (
+              {(kind === 'future' || kind === 'other') && (
                 <input className={inputCls} placeholder="Sign it (your name, optional)" value={from} onChange={(e) => setFrom(e.target.value)} maxLength={40} />
               )}
 
@@ -152,12 +153,14 @@ export default function ImmortalizePage() {
                     ? 'A message for them…'
                     : kind === 'future'
                       ? 'Dear future me…'
-                      : 'What made this moment matter…'
+                      : kind === 'other'
+                        ? 'Any words you want to immortalize…'
+                        : 'What made this moment matter…'
                 }
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 maxLength={500}
-                required={kind === 'future'}
+                required={kind === 'future' || kind === 'other'}
               />
 
               <label className="flex items-center gap-3 text-sm text-babel-dust cursor-pointer select-none">

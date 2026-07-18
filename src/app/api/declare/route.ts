@@ -3,7 +3,7 @@ import { createDeclaration } from '@/lib/db/declarations';
 import { DeclarationKind } from '@/lib/babel/types';
 import { ALPHABET } from '@/lib/babel/alphabet';
 
-const KINDS: DeclarationKind[] = ['love', 'future', 'anniversary'];
+const KINDS: DeclarationKind[] = ['love', 'future', 'anniversary', 'other'];
 
 // Keep only characters the Library can address.
 function sanitize(s: string): string {
