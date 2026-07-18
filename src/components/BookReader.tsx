@@ -38,13 +38,27 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
     const found = detectRarities(text, travelerName);
     const ivs: Interval[] = [];
 
-    // The searched phrase (white) is added FIRST and always wins — every ALL occurrence.
-    // Nothing else may overlap it, so gold words inside the phrase never steal its letters.
+    // The searched phrase (white) is added FIRST and always wins — every occurrence.
+    // The page text has a newline inserted every 80 chars for formatting, so a long phrase
+    // can be split by a '\n'. We therefore match against a newline-stripped copy and map
+    // the position back to the original text (the highlighted span may span a line break,
+    // which simply renders as a wrapped white highlight).
     if (searchQuery && searchQuery.length > 0) {
-      let from = text.indexOf(searchQuery);
+      // stripped[k] = character at original index origIdx[k], with newlines removed
+      const origIdx: number[] = [];
+      let stripped = '';
+      for (let i = 0; i < text.length; i++) {
+        if (text[i] !== '\n') {
+          stripped += text[i];
+          origIdx.push(i);
+        }
+      }
+      let from = stripped.indexOf(searchQuery);
       while (from !== -1) {
-        ivs.push({ start: from, end: from + searchQuery.length, type: 'query' });
-        from = text.indexOf(searchQuery, from + searchQuery.length);
+        const start = origIdx[from];
+        const lastCharOrig = origIdx[from + searchQuery.length - 1];
+        ivs.push({ start, end: lastCharOrig + 1, type: 'query' });
+        from = stripped.indexOf(searchQuery, from + searchQuery.length);
       }
     }
 
