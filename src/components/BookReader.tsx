@@ -38,32 +38,36 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
     const found = detectRarities(text, travelerName);
     const ivs: Interval[] = [];
 
+    // The searched phrase (white) is added FIRST and always wins — every ALL occurrence.
+    // Nothing else may overlap it, so gold words inside the phrase never steal its letters.
     if (searchQuery && searchQuery.length > 0) {
-      const queryIndex = text.indexOf(searchQuery);
-      if (queryIndex !== -1) {
-        ivs.push({ start: queryIndex, end: queryIndex + searchQuery.length, type: 'query' });
+      let from = text.indexOf(searchQuery);
+      while (from !== -1) {
+        ivs.push({ start: from, end: from + searchQuery.length, type: 'query' });
+        from = text.indexOf(searchQuery, from + searchQuery.length);
       }
     }
 
-    // Rarities take precedence over ordinary word highlights.
+    // Proper interval-overlap test: [a,b) overlaps [c,d) iff a < d && c < b.
+    const overlapsExisting = (start: number, end: number) =>
+      ivs.some((iv) => start < iv.end && iv.start < end);
+
+    // Rarities take precedence over ordinary word highlights (but not over the query).
     for (const r of found) {
-      const overlaps = ivs.some((iv) => r.start < iv.end && r.end > iv.start);
-      if (!overlaps) ivs.push({ start: r.start, end: r.end, type: 'rarity', rarity: r });
+      if (!overlapsExisting(r.start, r.end)) {
+        ivs.push({ start: r.start, end: r.end, type: 'rarity', rarity: r });
+      }
     }
 
     let count = 0;
     for (let i = 0; i < text.length; i++) {
-      if (ivs.some((interval) => i >= interval.start && i < interval.end)) continue;
+      // Skip any index already inside a claimed interval (query/rarity/word).
+      if (ivs.some((iv) => i >= iv.start && i < iv.end)) continue;
       for (let len = 15; len >= 4; len--) {
         if (i + len <= text.length) {
           const sub = text.substring(i, i + len);
           if (/^[a-z]+$/.test(sub) && isEnglishWord(sub)) {
-            const overlaps = ivs.some(
-              (interval) =>
-                (i >= interval.start && i < interval.end) ||
-                (i + len > interval.start && i + len <= interval.end)
-            );
-            if (!overlaps) {
+            if (!overlapsExisting(i, i + len)) {
               ivs.push({ start: i, end: i + len, type: 'word' });
               count++;
               i += len - 1;
