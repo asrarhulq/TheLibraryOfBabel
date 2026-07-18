@@ -12,21 +12,26 @@ import Google from 'next-auth/providers/google';
 // Until AUTH_GOOGLE_ID is set, no providers load and nothing crashes — the sign-in UI
 // simply reports that sign-in isn't configured yet.
 
-const googleConfigured = Boolean(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET);
+// Trim values defensively — a trailing space/newline from copy-paste in the Vercel dashboard
+// is a very common cause of "problem with the server configuration".
+const clean = (v: string | undefined) => (typeof v === 'string' ? v.trim() : v);
+
+const googleId = clean(process.env.AUTH_GOOGLE_ID);
+const googleSecret = clean(process.env.AUTH_GOOGLE_SECRET);
+const googleConfigured = Boolean(googleId && googleSecret);
 
 // Auth.js needs *a* secret to sign session tokens even when no providers are configured;
 // without one the /api/auth/* endpoints return 500. Use the real AUTH_SECRET when present,
 // otherwise a harmless placeholder so the app never crashes before sign-in is set up.
-// (No real sessions are issued until Google is configured, so the placeholder is safe.)
-const secret = process.env.AUTH_SECRET || 'babel-unconfigured-placeholder-secret-change-me';
+const secret = clean(process.env.AUTH_SECRET) || 'babel-unconfigured-placeholder-secret-change-me';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret,
   providers: googleConfigured
     ? [
         Google({
-          clientId: process.env.AUTH_GOOGLE_ID,
-          clientSecret: process.env.AUTH_GOOGLE_SECRET,
+          clientId: googleId,
+          clientSecret: googleSecret,
         }),
       ]
     : [],
