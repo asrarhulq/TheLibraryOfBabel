@@ -9,12 +9,12 @@ import SignInButton from '@/components/SignInButton';
 import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X } from 'lucide-react';
 
 // Links that live inside the menu (kept off the bar so it never crowds).
+// Search is not here — it sits centered on the bar.
 const MENU_LINKS = [
   { href: '/wall', label: 'Wall', icon: ScrollText },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
   { href: '/daily', label: 'Daily', icon: Sparkles },
   { href: '/journal', label: 'Journal', icon: BookMarked },
-  { href: '/search', label: 'Search', icon: Search },
 ];
 
 export default function Navbar() {
@@ -45,6 +45,15 @@ export default function Navbar() {
           Asrar ul Haq
         </a>
       </div>
+
+      {/* Search — centered on the bar */}
+      <Link
+        href="/search"
+        title="Search the Library"
+        className="hidden sm:flex absolute left-1/2 -translate-x-1/2 items-center gap-2 px-4 py-1.5 rounded border border-babel-lines/50 hover:border-babel-gold hover:text-babel-gold transition-colors duration-300 text-xs tracking-widest uppercase"
+      >
+        <Search size={14} /> Search
+      </Link>
 
       {/* Right side — a small, fixed set of controls at every width */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -89,6 +98,14 @@ export default function Navbar() {
             <div className="sm:hidden px-4 py-3 border-b border-babel-lines/20">
               <InfoModal />
             </div>
+            {/* Search in the menu on the smallest screens (on sm+ it's centered on the bar) */}
+            <Link
+              href="/search"
+              onClick={close}
+              className="sm:hidden flex items-center gap-3 px-4 py-3 border-b border-babel-lines/10 text-sm tracking-widest uppercase text-babel-parchment hover:text-babel-gold hover:bg-babel-gold/5 transition-colors"
+            >
+              <Search size={15} /> Search
+            </Link>
             {MENU_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
