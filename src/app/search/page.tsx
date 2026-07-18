@@ -64,8 +64,8 @@ export default function SearchPage() {
 
   const arrive = () => {
     if (!descent) return;
-    setBusy(false);
-    setDescent(null);
+    // Navigate immediately — don't clear state, as the component unmounts on navigation.
+    // Clearing descent first would briefly reveal the search form underneath (flash).
     router.push(
       `/room/${descent.roomId}/${descent.wall}/${descent.shelf}/${descent.book}/${descent.page}`
     );

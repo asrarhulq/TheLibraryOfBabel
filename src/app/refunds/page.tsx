@@ -19,15 +19,6 @@ export default function RefundsPage() {
         </p>
       </Section>
 
-      <Section heading="The charitable pledge">
-        <p>
-          A portion of proceeds is pledged toward education for underprivileged children in Kashmir.
-          Because pledged funds may be committed onward, this reinforces that claims are
-          non-refundable once made. (This pledge and its public records apply once live payments are
-          enabled.)
-        </p>
-      </Section>
-
       <Section heading="Exceptions">
         <p>
           If you were charged in error, charged more than once, or the keepsake failed to be created
