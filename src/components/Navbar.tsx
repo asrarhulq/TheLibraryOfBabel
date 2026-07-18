@@ -24,19 +24,35 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 w-full z-50 px-3 sm:px-4 py-3 bg-babel-dark/80 backdrop-blur-sm border-b border-babel-lines/30 text-babel-parchment flex justify-between items-center gap-3">
       {/* Brand */}
-      <div className="flex items-center gap-2.5 min-w-0">
-        <IntroLogo />
+      <div className="flex items-baseline gap-2.5 min-w-0">
+        <div className="self-center">
+          <IntroLogo />
+        </div>
         <Link
           href="/"
-          className="text-sm font-mono tracking-widest uppercase truncate hover:text-babel-gold transition-colors duration-300"
+          className="text-sm font-mono tracking-widest uppercase truncate hover:text-babel-gold transition-colors duration-300 shrink-0"
         >
           <span className="hidden sm:inline">The Infinite Library of Babel</span>
           <span className="sm:hidden">Babel</span>
         </Link>
+        <span className="text-babel-dust text-xs font-mono hidden lg:inline shrink-0">by</span>
+        <a
+          href="https://asrarul.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative hidden lg:inline-block text-xs font-mono tracking-widest uppercase shrink-0 hover:text-babel-gold transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-px after:bg-babel-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
+        >
+          Asrar ul Haq
+        </a>
       </div>
 
       {/* Right side — a small, fixed set of controls at every width */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Manual on the bar (hidden on the smallest screens; also in the menu) */}
+        <div className="hidden sm:block">
+          <InfoModal />
+        </div>
+
         <AudioToggle />
 
         {/* Primary action, always visible */}
@@ -69,7 +85,8 @@ export default function Navbar() {
           {/* click-away backdrop */}
           <div className="fixed inset-0 top-[57px] z-40" onClick={close} />
           <div className="absolute top-full right-3 sm:right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col">
-            <div className="px-4 py-3 border-b border-babel-lines/20 flex items-center justify-between">
+            {/* Manual here only on the smallest screens (on sm+ it's on the bar) */}
+            <div className="sm:hidden px-4 py-3 border-b border-babel-lines/20">
               <InfoModal />
             </div>
             {MENU_LINKS.map(({ href, label, icon: Icon }) => (
