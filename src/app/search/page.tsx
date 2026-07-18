@@ -29,11 +29,15 @@ export default function SearchPage() {
 
     try {
       // The coordinate math runs server-side so the encoding algorithm never ships to the browser.
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15_000); // 15s timeout
       const res = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       const data = await res.json();
       if (!res.ok) {
         setError(data?.error || 'An error occurred during search.');
@@ -49,13 +53,19 @@ export default function SearchPage() {
       // Play the cinematic descent, then navigate.
       setDescent(coord);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred during search.');
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        setError('The search took too long. Please try a shorter phrase.');
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred during search.');
+      }
       setBusy(false);
     }
   };
 
   const arrive = () => {
     if (!descent) return;
+    setBusy(false);
+    setDescent(null);
     router.push(
       `/room/${descent.roomId}/${descent.wall}/${descent.shelf}/${descent.book}/${descent.page}`
     );

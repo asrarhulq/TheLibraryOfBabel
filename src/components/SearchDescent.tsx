@@ -28,16 +28,22 @@ interface Props {
 export default function SearchDescent({ query, coord, onArrive }: Props) {
   const [phase, setPhase] = useState<'encode' | 'fall' | 'arrive'>('encode');
   const [revealed, setRevealed] = useState(0); // chars of the address revealed
+  const [mounted, setMounted] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number | null>(null);
   const doneRef = useRef(false);
+  const activeRef = useRef(true);
   const phaseRef = useRef<'encode' | 'fall' | 'arrive'>('encode'); // latest phase for the raf loop
 
   const address = `${coord.roomId}`;
   const fullLocation = `${coord.roomId} · ${coord.wall}/${coord.shelf}/${coord.book}/${coord.page}`;
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const finish = () => {
-    if (doneRef.current) return;
+    if (doneRef.current || !activeRef.current) return;
     doneRef.current = true;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     onArrive();
@@ -49,9 +55,16 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
 
   // ── Phase timeline ──────────────────────────────────────────────────────────
   useEffect(() => {
+    // IMPORTANT: Reset activeRef on every mount/re-mount so Strict Mode
+    // double-invocation doesn't deadlock the animation.
+    activeRef.current = true;
+
     if (reduced) {
       // Respect reduced motion — brief pause, then go.
-      const t = setTimeout(finish, 500);
+      const t = setTimeout(() => {
+        if (!activeRef.current) return;
+        finish();
+      }, 500);
       return () => clearTimeout(t);
     }
     const eng = getEngine();
@@ -61,20 +74,61 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
     const revealWindow = 1500;
     const step = Math.max(20, revealWindow / Math.max(1, address.length));
     address.split('').forEach((_, i) => {
-      timers.push(setTimeout(() => setRevealed(i + 1), 150 + i * step));
+      timers.push(
+        setTimeout(() => {
+          if (!activeRef.current) return;
+          setRevealed(i + 1);
+        }, 150 + i * step)
+      );
     });
     // Sound: encode sparkle now, plunge whoosh at 'fall', arrival bloom at 'arrive'.
-    try { eng.playDescent('encode'); } catch { /* audio optional */ }
+    try {
+      eng.playDescent('encode');
+    } catch {
+      /* audio optional */
+    }
     const encodeMs = 150 + revealWindow + 500; // ~2.15s of encode
-    timers.push(setTimeout(() => { setPhase('fall'); try { eng.playDescent('fall'); } catch {} }, encodeMs));
-    timers.push(setTimeout(() => { setPhase('arrive'); try { eng.playDescent('arrive'); } catch {} }, encodeMs + 1700));
-    timers.push(setTimeout(finish, encodeMs + 2900));
-    return () => timers.forEach(clearTimeout);
+    timers.push(
+      setTimeout(() => {
+        if (!activeRef.current) return;
+        setPhase('fall');
+        try {
+          eng.playDescent('fall');
+        } catch {
+          /* audio optional */
+        }
+      }, encodeMs)
+    );
+    timers.push(
+      setTimeout(() => {
+        if (!activeRef.current) return;
+        setPhase('arrive');
+        try {
+          eng.playDescent('arrive');
+        } catch {
+          /* audio optional */
+        }
+      }, encodeMs + 1700)
+    );
+    timers.push(
+      setTimeout(() => {
+        if (!activeRef.current) return;
+        finish();
+      }, encodeMs + 2900)
+    );
+    return () => {
+      activeRef.current = false;
+      timers.forEach(clearTimeout);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── The falling starfield / character stream (Canvas) ──────────────────────
   useEffect(() => {
+    // IMPORTANT: Reset activeRef so Strict Mode double-invocation doesn't
+    // prevent the canvas loop from starting.
+    activeRef.current = true;
+
     if (reduced) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -106,6 +160,7 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
     }
 
     const draw = () => {
+      if (!activeRef.current) return;
       // velocity ramps: gentle in encode, fast in fall, easing in arrive
       const p = phaseRef.current;
       const vel = p === 'fall' ? 1 : p === 'arrive' ? 0.35 : 0.5;
@@ -143,6 +198,7 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
     draw();
 
     return () => {
+      activeRef.current = false;
       window.removeEventListener('resize', onResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
@@ -153,6 +209,8 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
   useEffect(() => {
     phaseRef.current = phase;
   }, [phase]);
+
+  if (!mounted) return null;
 
   return createPortal(
     <div
