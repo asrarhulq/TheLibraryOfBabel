@@ -137,6 +137,13 @@ export default function Navbar() {
               <div className="px-6 py-5" onClick={close}>
                 <SignInButton variant="drawer" />
               </div>
+              {/* Policy links */}
+              <div className="mt-auto px-6 py-6 flex flex-wrap gap-x-5 gap-y-2 text-[11px] font-mono uppercase tracking-widest text-babel-dust/60">
+                <Link href="/terms" onClick={close} className="hover:text-babel-gold">Terms</Link>
+                <Link href="/privacy" onClick={close} className="hover:text-babel-gold">Privacy</Link>
+                <Link href="/refunds" onClick={close} className="hover:text-babel-gold">Refunds</Link>
+                <a href="mailto:contact@thelibrary.page" className="hover:text-babel-gold">Contact</a>
+              </div>
             </div>
           </div>,
           document.body
@@ -157,6 +164,11 @@ export default function Navbar() {
                 <Icon size={15} /> {label}
               </Link>
             ))}
+            <div className="flex flex-wrap gap-x-3 gap-y-1 px-4 py-3 text-[9px] font-mono uppercase tracking-widest text-babel-dust/50">
+              <Link href="/terms" onClick={close} className="hover:text-babel-gold">Terms</Link>
+              <Link href="/privacy" onClick={close} className="hover:text-babel-gold">Privacy</Link>
+              <Link href="/refunds" onClick={close} className="hover:text-babel-gold">Refunds</Link>
+            </div>
           </div>
         </div>
       )}

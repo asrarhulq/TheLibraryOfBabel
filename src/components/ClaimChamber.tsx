@@ -168,6 +168,12 @@ export default function ClaimChamber({ roomId, initialClaim, price, currency, li
                 >
                   {busy ? 'Sealing…' : `Claim · ${formatPrice(price, currency)}`}
                 </button>
+                <p className="text-babel-dust/50 text-[11px] text-center leading-relaxed">
+                  By claiming you agree to the{' '}
+                  <a href="/terms" className="text-babel-gold/80 hover:underline">Terms</a> and{' '}
+                  <a href="/refunds" className="text-babel-gold/80 hover:underline">Refund Policy</a>.
+                  All claims are final.
+                </p>
               </form>
             )}
           </div>

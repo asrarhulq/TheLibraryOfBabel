@@ -231,13 +231,19 @@ export default function InfoModal() {
               </div>
 
               {/* Footer */}
-              <div className="p-6 border-t border-babel-lines/20 bg-black/30 flex justify-center shrink-0">
+              <div className="p-6 border-t border-babel-lines/20 bg-black/30 flex flex-col items-center gap-4 shrink-0">
                 <button
                   onClick={() => setIsOpen(false)}
                   className="px-8 py-2 bg-babel-gold/10 hover:bg-babel-gold/20 border border-babel-gold text-babel-gold font-mono tracking-widest uppercase transition-colors duration-300"
                 >
                   Begin Exploration
                 </button>
+                <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-[10px] font-mono uppercase tracking-widest text-babel-dust/70">
+                  <a href="/terms" onClick={() => setIsOpen(false)} className="hover:text-babel-gold transition-colors">Terms</a>
+                  <a href="/privacy" onClick={() => setIsOpen(false)} className="hover:text-babel-gold transition-colors">Privacy</a>
+                  <a href="/refunds" onClick={() => setIsOpen(false)} className="hover:text-babel-gold transition-colors">Refunds</a>
+                  <a href="mailto:contact@thelibrary.page" className="hover:text-babel-gold transition-colors">Contact</a>
+                </div>
               </div>
             </div>
           </div>
