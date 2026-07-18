@@ -135,11 +135,12 @@ export const travelerApi = {
     api<{ note: unknown }>('/api/notes', { coord, author, content }),
   recent: () => api<{ discoveries: unknown[] }>('/api/discoveries'),
   // Explicitly save the current page to the traveler's OWN discoveries (opt-in).
-  savePage: (coord: unknown, name: string, label: string, rarities: unknown[]) =>
+    savePage: (coord: unknown, name: string, label: string, rarities: unknown[]) =>
     api<{ isNew: boolean; newlyUnlocked: string[] }>('/api/discoveries/save', {
       coord,
       name,
       label,
       rarities,
     }),
+  myClaims: () => api<{ claims: unknown[] }>('/api/claims/my'),
 };

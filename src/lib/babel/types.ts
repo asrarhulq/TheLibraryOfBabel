@@ -56,10 +56,12 @@ export interface TravelerStats {
 export interface DiscoveryDoc {
   travelerId: string;
   name: string;
-  kind: 'phrase' | 'rarity';
+  kind: 'phrase' | 'rarity' | 'saved';
   rarityKind?: string;
   text: string;
   weight?: number;
+  label?: string;
+  rarities?: { kind: string; text: string; weight: number }[];
   coord: Coordinate;
   timestamp: number;
 }

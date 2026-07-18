@@ -73,6 +73,15 @@ export interface OwnerRank {
   latest: number;
 }
 
+export async function getClaimsByTraveler(travelerId: string): Promise<ClaimDoc[]> {
+  const db = await getDb();
+  return db
+    .collection<ClaimDoc>('claims')
+    .find({ travelerId, paid: true }, { projection: { _id: 0 } })
+    .sort({ claimedAt: -1 })
+    .toArray();
+}
+
 // Leaderboard: owners ranked by how many chambers they hold.
 export async function getOwnershipLeaderboard(limit = 25): Promise<OwnerRank[]> {
   const db = await getDb();

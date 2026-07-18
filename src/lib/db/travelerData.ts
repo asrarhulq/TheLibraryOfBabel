@@ -358,7 +358,7 @@ export async function getRecentDiscoveries(
   const db = await getDb();
   const docs = await db
     .collection<DiscoveryDoc>('discoveries')
-    .find({ travelerId })
+    .find({ travelerId, kind: 'saved' })
     .sort({ timestamp: -1 })
     .limit(Math.min(50, limit))
     .toArray();
@@ -382,7 +382,7 @@ export async function saveDiscovery(
 
   const dupe = await disc.findOne({
     travelerId,
-    kind: 'rarity',
+    kind: 'saved',
     'coord.roomId': coord.roomId,
     'coord.wall': coord.wall,
     'coord.shelf': coord.shelf,
@@ -395,10 +395,10 @@ export async function saveDiscovery(
   await disc.insertOne({
     travelerId,
     name,
-    kind: 'rarity',
-    rarityKind: top?.kind,
+    kind: 'saved',
+    label,
     text: top?.text || label || 'a saved page',
-    weight: top?.weight,
+    rarities: rarities.map((r) => ({ kind: r.kind, text: r.text, weight: r.weight })),
     coord,
     timestamp: now,
   });

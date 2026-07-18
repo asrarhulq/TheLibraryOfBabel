@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Check, Pencil, Bookmark, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Check, Pencil, Bookmark, ExternalLink, Home } from 'lucide-react';
 import { travelerApi, getLocalName, setLocalName, initSession, isSignedIn } from '@/lib/traveler/client';
 import { ACHIEVEMENTS, TravelerStats } from '@/lib/babel/types';
 
@@ -20,10 +20,17 @@ interface DiscoveryItem {
   _id?: string;
   travelerId?: string;
   name: string;
-  label: string;
+  label?: string;
   coord: { roomId: string; wall: number; shelf: number; book: number; page: number };
-  rarities: { kind: string; text: string; weight: number }[];
+  rarities?: { kind: string; text: string; weight: number }[];
   timestamp: number;
+}
+
+interface ClaimItem {
+  roomId: string;
+  owner: string;
+  dedication?: string;
+  claimedAt: number;
 }
 
 // Wrapper with Suspense boundary required by useSearchParams() in Next.js App Router.
@@ -39,6 +46,7 @@ function JournalPage() {
   const searchParams = useSearchParams();
   const tab = searchParams?.get('tab');
   const showSaved = tab === 'saved';
+  const showOwned = tab === 'owned';
 
   const [stats, setStats] = useState<TravelerStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +58,10 @@ function JournalPage() {
   // Saved pages
   const [savedPages, setSavedPages] = useState<DiscoveryItem[]>([]);
   const [savedLoading, setSavedLoading] = useState(false);
+
+  // Owned chambers
+  const [ownedChambers, setOwnedChambers] = useState<ClaimItem[]>([]);
+  const [ownedLoading, setOwnedLoading] = useState(false);
 
   const load = async () => {
     const res = await travelerApi.stats();
@@ -68,6 +80,17 @@ function JournalPage() {
     setSavedLoading(false);
   }, []);
 
+  const loadOwned = useCallback(async () => {
+    setOwnedLoading(true);
+    try {
+      const res = await travelerApi.myClaims();
+      if (res?.claims) setOwnedChambers(res.claims as ClaimItem[]);
+    } catch {
+      /* ignore */
+    }
+    setOwnedLoading(false);
+  }, []);
+
   useEffect(() => {
     (async () => {
       await initSession();
@@ -79,7 +102,8 @@ function JournalPage() {
 
   useEffect(() => {
     if (showSaved) loadSaved();
-  }, [showSaved, loadSaved]);
+    if (showOwned) loadOwned();
+  }, [showSaved, showOwned, loadSaved, loadOwned]);
 
   const saveName = async () => {
     const clean = nameInput.trim().slice(0, 40);
@@ -136,6 +160,62 @@ function JournalPage() {
                         {d.rarities.length} rare find{d.rarities.length > 1 ? 's' : ''} on this page
                       </p>
                     )}
+                  </div>
+                  <ExternalLink size={14} className="text-babel-dust/40 group-hover:text-babel-gold shrink-0 transition-colors" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Chambers Owned tab ──────────────────────────────────────────────────────
+  if (showOwned) {
+    return (
+      <div className="w-full h-full overflow-y-auto bg-babel-dark text-babel-parchment font-mono">
+        <div className="max-w-4xl mx-auto p-6 md:p-12">
+          <Link href="/journal" className="flex items-center gap-2 hover:text-babel-gold transition-colors text-sm mb-8">
+            <ArrowLeft size={16} /> Back to Journal
+          </Link>
+
+          <h2 className="text-2xl text-babel-gold tracking-widest uppercase mb-2 flex items-center gap-3">
+            <Home size={20} /> Chambers Owned
+          </h2>
+          <p className="text-babel-dust/60 text-xs mb-8 italic">
+            Chambers you've claimed as your own. Each one is yours forever.
+          </p>
+
+          {ownedLoading ? (
+            <p className="text-babel-dust animate-pulse">Consulting the registry…</p>
+          ) : ownedChambers.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-babel-dust text-sm">No chambers owned yet.</p>
+              <p className="text-babel-dust/60 text-xs mt-2">
+                Visit a chamber and claim it to make it yours.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {ownedChambers.map((c, i) => (
+                <Link
+                  key={c.roomId || i}
+                  href={`/room/${c.roomId}/1/1/1/1`}
+                  className="flex items-center justify-between gap-4 p-4 bg-black/30 border border-babel-lines/20 rounded hover:border-babel-gold/50 hover:bg-babel-gold/5 transition-all group"
+                >
+                  <div className="min-w-0">
+                    <p className="text-babel-parchment text-sm truncate group-hover:text-babel-gold transition-colors">
+                      Chamber {c.roomId}
+                    </p>
+                    {c.dedication && (
+                      <p className="text-babel-dust/60 text-[10px] italic mt-1">
+                        &ldquo;{c.dedication}&rdquo;
+                      </p>
+                    )}
+                    <p className="text-babel-dust/60 text-[10px] tracking-wider uppercase mt-1">
+                      Claimed {new Date(c.claimedAt).toLocaleDateString()}
+                    </p>
                   </div>
                   <ExternalLink size={14} className="text-babel-dust/40 group-hover:text-babel-gold shrink-0 transition-colors" />
                 </Link>
@@ -216,6 +296,30 @@ function JournalPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Quick links */}
+            <div className="grid grid-cols-2 gap-4 mb-12">
+              <Link
+                href="/journal?tab=saved"
+                className="flex items-center gap-3 p-4 bg-black/30 border border-babel-lines/20 rounded hover:border-babel-gold/50 hover:bg-babel-gold/5 transition-all group"
+              >
+                <Bookmark size={20} className="text-babel-gold group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="text-babel-parchment text-sm group-hover:text-babel-gold transition-colors">Saved Pages</p>
+                  <p className="text-babel-dust/60 text-[10px]">Pages you've bookmarked</p>
+                </div>
+              </Link>
+              <Link
+                href="/journal?tab=owned"
+                className="flex items-center gap-3 p-4 bg-black/30 border border-babel-lines/20 rounded hover:border-babel-gold/50 hover:bg-babel-gold/5 transition-all group"
+              >
+                <Home size={20} className="text-babel-gold group-hover:scale-110 transition-transform" />
+                <div>
+                  <p className="text-babel-parchment text-sm group-hover:text-babel-gold transition-colors">Chambers Owned</p>
+                  <p className="text-babel-dust/60 text-[10px]">Your claimed chambers</p>
+                </div>
+              </Link>
             </div>
 
             {/* Stat grid */}
