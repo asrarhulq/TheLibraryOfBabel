@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import AudioToggle from '@/components/AudioToggle';
 import InfoModal from '@/components/InfoModal';
@@ -19,7 +20,10 @@ const MENU_LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const close = () => setMenuOpen(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 px-3 sm:px-4 py-3 bg-babel-dark/80 backdrop-blur-sm border-b border-babel-lines/30 text-babel-parchment flex justify-between items-center gap-3">
@@ -62,7 +66,20 @@ export default function Navbar() {
           <InfoModal />
         </div>
 
-        <AudioToggle />
+        {/* Sound on the bar only on sm+ (on phones it lives in the menu) */}
+        <div className="hidden sm:block">
+          <AudioToggle />
+        </div>
+
+        {/* Search icon — on the phone bar (on sm+ Search sits centered on the bar) */}
+        <Link
+          href="/search"
+          title="Search the Library"
+          aria-label="Search"
+          className="sm:hidden flex items-center text-babel-parchment hover:text-babel-gold p-1.5 border border-babel-lines/50 rounded transition-colors"
+        >
+          <Search size={18} />
+        </Link>
 
         {/* Primary action, always visible */}
         <Link
@@ -88,24 +105,48 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Dropdown menu */}
-      {menuOpen && (
-        <>
-          {/* click-away backdrop */}
-          <div className="fixed inset-0 top-[57px] z-40" onClick={close} />
-          <div className="absolute top-full right-3 sm:right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col">
-            {/* Manual here only on the smallest screens (on sm+ it's on the bar) */}
-            <div className="sm:hidden px-4 py-3 border-b border-babel-lines/20">
-              <InfoModal />
+      {/* Phone: full-screen menu, portalled to body so the nav can't clip it */}
+      {menuOpen && mounted && createPortal(
+        <div className="sm:hidden fixed inset-0 z-[120] bg-babel-void/98 backdrop-blur-md flex flex-col babel-fade-in">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-babel-lines/30">
+              <span className="font-mono text-sm tracking-widest uppercase text-babel-gold">Menu</span>
+              <button
+                onClick={close}
+                aria-label="Close menu"
+                className="text-babel-parchment hover:text-babel-gold p-1.5 border border-babel-lines/50 rounded"
+              >
+                <X size={20} />
+              </button>
             </div>
-            {/* Search in the menu on the smallest screens (on sm+ it's centered on the bar) */}
-            <Link
-              href="/search"
-              onClick={close}
-              className="sm:hidden flex items-center gap-3 px-4 py-3 border-b border-babel-lines/10 text-sm tracking-widest uppercase text-babel-parchment hover:text-babel-gold hover:bg-babel-gold/5 transition-colors"
-            >
-              <Search size={15} /> Search
-            </Link>
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              <div className="px-6 py-5 border-b border-babel-lines/15">
+                <InfoModal />
+              </div>
+              <Link href="/search" onClick={close} className="flex items-center gap-4 px-6 py-5 border-b border-babel-lines/15 text-lg tracking-widest uppercase text-babel-parchment hover:text-babel-gold">
+                <Search size={20} /> Search
+              </Link>
+              {MENU_LINKS.map(({ href, label, icon: Icon }) => (
+                <Link key={href} href={href} onClick={close} className="flex items-center gap-4 px-6 py-5 border-b border-babel-lines/15 text-lg tracking-widest uppercase text-babel-parchment hover:text-babel-gold">
+                  <Icon size={20} /> {label}
+                </Link>
+              ))}
+              {/* Sound toggle lives in the menu on phones */}
+              <div className="px-6 py-5 border-b border-babel-lines/15 flex items-center gap-4 text-lg tracking-widest uppercase text-babel-parchment">
+                <AudioToggle /> <span className="text-babel-dust text-sm normal-case tracking-wider">Ambient sound</span>
+              </div>
+              <div className="px-6 py-5" onClick={close}>
+                <SignInButton variant="drawer" />
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* Desktop: compact dropdown (not portalled — positioned under the toggle) */}
+      {menuOpen && (
+        <div className="hidden sm:block">
+          <div className="fixed inset-0 top-[57px] z-40" onClick={close} />
+          <div className="absolute top-full right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col">
             {MENU_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
@@ -116,12 +157,8 @@ export default function Navbar() {
                 <Icon size={15} /> {label}
               </Link>
             ))}
-            {/* Sign in also lives here for the smallest screens */}
-            <div className="sm:hidden" onClick={close}>
-              <SignInButton variant="drawer" />
-            </div>
           </div>
-        </>
+        </div>
       )}
     </nav>
   );
