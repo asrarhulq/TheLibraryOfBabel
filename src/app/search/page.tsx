@@ -5,11 +5,21 @@ import { useRouter } from 'next/navigation';
 import seedrandom from 'seedrandom';
 import { ALPHABET } from '@/lib/babel/alphabet';
 import { travelerApi, getLocalName } from '@/lib/traveler/client';
+import SearchDescent from '@/components/SearchDescent';
+
+interface Coord {
+  roomId: string;
+  wall: number;
+  shelf: number;
+  book: number;
+  page: number;
+}
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [descent, setDescent] = useState<Coord | null>(null);
   const router = useRouter();
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -32,13 +42,23 @@ export default function SearchPage() {
       }
       const { roomId, wall, shelf, book, page } = data;
       const coord = { roomId, wall, shelf, book, page };
-      // Record the phrase discovery (fire-and-forget) before navigating.
+      // Record the phrase discovery (fire-and-forget).
       travelerApi.phrase(coord, getLocalName() || 'Anonymous Traveler', query.trim());
-      router.push(`/room/${roomId}/${wall}/${shelf}/${book}/${page}`);
+      // Prefetch the room so it's ready the instant the descent finishes.
+      router.prefetch(`/room/${roomId}/${wall}/${shelf}/${book}/${page}`);
+      // Play the cinematic descent, then navigate.
+      setDescent(coord);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An error occurred during search.');
       setBusy(false);
     }
+  };
+
+  const arrive = () => {
+    if (!descent) return;
+    router.push(
+      `/room/${descent.roomId}/${descent.wall}/${descent.shelf}/${descent.book}/${descent.page}`
+    );
   };
 
   // Stable, deterministic character rain for the backdrop (computed once).
@@ -49,6 +69,8 @@ export default function SearchPage() {
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center bg-babel-dark text-babel-parchment font-mono p-4 relative overflow-hidden">
+      {descent && <SearchDescent query={query.trim()} coord={descent} onArrive={arrive} />}
+
       {/* Background decoration */}
       <div className="absolute inset-0 opacity-[0.04] pointer-events-none flex flex-wrap content-start overflow-hidden select-none leading-4 text-xs">
         {backdrop.map((ch, i) => (
