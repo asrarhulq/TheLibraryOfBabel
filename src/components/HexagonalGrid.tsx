@@ -56,13 +56,15 @@ function HexRoom({ room, meshRef, onClick }: HexRoomProps) {
         <meshStandardMaterial
           color={hovered ? '#1a1b22' : '#0d0e12'}
           transparent
-          opacity={hovered ? 0.92 : 0.62}
-          roughness={0.8}
+          opacity={hovered ? 0.92 : 0.7}
+          roughness={0.7}
+          emissive={hovered ? '#d4af37' : '#8b6914'}
+          emissiveIntensity={hovered ? 0.4 : 0.25}
         />
         <Edges
           scale={1}
           threshold={15}
-          color={hovered ? '#d4af37' : '#6b5a1f'}
+          color={hovered ? '#e8c547' : '#b8941f'}
         />
       </mesh>
 

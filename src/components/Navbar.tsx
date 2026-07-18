@@ -7,7 +7,7 @@ import AudioToggle from '@/components/AudioToggle';
 import InfoModal from '@/components/InfoModal';
 import IntroLogo from '@/components/IntroLogo';
 import SignInButton from '@/components/SignInButton';
-import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X } from 'lucide-react';
+import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X, Bookmark, LogOut } from 'lucide-react';
 
 // Links that live inside the menu (kept off the bar so it never crowds).
 // Search is not here — it sits centered on the bar.
@@ -17,6 +17,49 @@ const MENU_LINKS = [
   { href: '/daily', label: 'Daily', icon: Sparkles },
   { href: '/journal', label: 'Journal', icon: BookMarked },
 ];
+const SAVED_LINK = { href: '/journal?tab=saved', label: 'Saved Pages', icon: Bookmark };
+
+// Dedicated logout button that only renders when the user is signed in.
+function LogoutButton() {
+  const [signedIn, setSignedIn] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/session', { credentials: 'same-origin' });
+        const data = await res.json().catch(() => null);
+        if (data?.user) setSignedIn(true);
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, []);
+
+  if (!signedIn) return null;
+
+  const doSignOut = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const { signOut } = await import('next-auth/react');
+      await signOut({ callbackUrl: '/' });
+    } catch {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={doSignOut}
+      disabled={busy}
+      className="hidden sm:flex items-center gap-1 px-2 py-1 rounded border border-babel-lines/50 text-babel-dust hover:text-red-400 hover:border-red-400/50 transition-colors text-xs tracking-wider disabled:opacity-60"
+      title="Sign out"
+    >
+      <LogOut size={13} />
+    </button>
+  );
+}
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -90,10 +133,13 @@ export default function Navbar() {
           <Heart size={13} /> <span className="hidden sm:inline">IMMORTALIZE</span>
         </Link>
 
-        {/* Sign in, always visible from small-up */}
+        {/* Sign in & logout, always visible from small-up */}
         <div className="hidden sm:block">
           <SignInButton variant="bar" />
         </div>
+
+        {/* Dedicated logout — only visible when signed in */}
+        <LogoutButton />
 
         {/* Menu toggle — holds everything else, at all widths */}
         <button
@@ -125,8 +171,8 @@ export default function Navbar() {
               <Link href="/search" onClick={close} className="flex items-center gap-4 px-6 py-5 border-b border-babel-lines/15 text-lg tracking-widest uppercase text-babel-parchment hover:text-babel-gold">
                 <Search size={20} /> Search
               </Link>
-              {MENU_LINKS.map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} onClick={close} className="flex items-center gap-4 px-6 py-5 border-b border-babel-lines/15 text-lg tracking-widest uppercase text-babel-parchment hover:text-babel-gold">
+              {[...MENU_LINKS, SAVED_LINK].map(({ href, label, icon: Icon }) => (
+                <Link key={href + label} href={href} onClick={close} className="flex items-center gap-4 px-6 py-5 border-b border-babel-lines/15 text-lg tracking-widest uppercase text-babel-parchment hover:text-babel-gold">
                   <Icon size={20} /> {label}
                 </Link>
               ))}
@@ -154,9 +200,9 @@ export default function Navbar() {
         <div className="hidden sm:block">
           <div className="fixed inset-0 top-[57px] z-40" onClick={close} />
           <div className="absolute top-full right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col">
-            {MENU_LINKS.map(({ href, label, icon: Icon }) => (
+            {[...MENU_LINKS, SAVED_LINK].map(({ href, label, icon: Icon }) => (
               <Link
-                key={href}
+                key={href + label}
                 href={href}
                 onClick={close}
                 className="flex items-center gap-3 px-4 py-3 border-b border-babel-lines/10 text-sm tracking-widest uppercase text-babel-parchment hover:text-babel-gold hover:bg-babel-gold/5 transition-colors"

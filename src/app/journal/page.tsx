@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Check, Pencil } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { ArrowLeft, Check, Pencil, Bookmark, ExternalLink } from 'lucide-react';
 import { travelerApi, getLocalName, setLocalName, initSession, isSignedIn } from '@/lib/traveler/client';
 import { ACHIEVEMENTS, TravelerStats } from '@/lib/babel/types';
 
@@ -15,7 +16,30 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export default function JournalPage() {
+interface DiscoveryItem {
+  _id?: string;
+  travelerId?: string;
+  name: string;
+  label: string;
+  coord: { roomId: string; wall: number; shelf: number; book: number; page: number };
+  rarities: { kind: string; text: string; weight: number }[];
+  timestamp: number;
+}
+
+// Wrapper with Suspense boundary required by useSearchParams() in Next.js App Router.
+export default function JournalPageWrapper() {
+  return (
+    <Suspense fallback={<div className="w-full h-full bg-babel-dark" />}>
+      <JournalPage />
+    </Suspense>
+  );
+}
+
+function JournalPage() {
+  const searchParams = useSearchParams();
+  const tab = searchParams?.get('tab');
+  const showSaved = tab === 'saved';
+
   const [stats, setStats] = useState<TravelerStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingName, setEditingName] = useState(false);
@@ -23,14 +47,28 @@ export default function JournalPage() {
 
   const [signedIn, setSignedIn] = useState(false);
 
+  // Saved pages
+  const [savedPages, setSavedPages] = useState<DiscoveryItem[]>([]);
+  const [savedLoading, setSavedLoading] = useState(false);
+
   const load = async () => {
     const res = await travelerApi.stats();
     if (res?.stats) setStats(res.stats as TravelerStats);
     setLoading(false);
   };
 
+  const loadSaved = useCallback(async () => {
+    setSavedLoading(true);
+    try {
+      const res = await travelerApi.recent();
+      if (res?.discoveries) setSavedPages(res.discoveries as DiscoveryItem[]);
+    } catch {
+      /* ignore */
+    }
+    setSavedLoading(false);
+  }, []);
+
   useEffect(() => {
-    // Resolve the session first so stats load under the right identity (account vs anon).
     (async () => {
       await initSession();
       setSignedIn(isSignedIn());
@@ -38,6 +76,10 @@ export default function JournalPage() {
       await load();
     })();
   }, []);
+
+  useEffect(() => {
+    if (showSaved) loadSaved();
+  }, [showSaved, loadSaved]);
 
   const saveName = async () => {
     const clean = nameInput.trim().slice(0, 40);
@@ -49,6 +91,63 @@ export default function JournalPage() {
 
   const unlocked = new Set(stats?.achievements || []);
 
+  // ── Saved Pages tab ─────────────────────────────────────────────────────────
+  if (showSaved) {
+    return (
+      <div className="w-full h-full overflow-y-auto bg-babel-dark text-babel-parchment font-mono">
+        <div className="max-w-4xl mx-auto p-6 md:p-12">
+          <Link href="/journal" className="flex items-center gap-2 hover:text-babel-gold transition-colors text-sm mb-8">
+            <ArrowLeft size={16} /> Back to Journal
+          </Link>
+
+          <h2 className="text-2xl text-babel-gold tracking-widest uppercase mb-2 flex items-center gap-3">
+            <Bookmark size={20} /> Saved Pages
+          </h2>
+          <p className="text-babel-dust/60 text-xs mb-8 italic">
+            Pages you've chosen to remember. Click to revisit them.
+          </p>
+
+          {savedLoading ? (
+            <p className="text-babel-dust animate-pulse">Retrieving your saved pages…</p>
+          ) : savedPages.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-babel-dust text-sm">No saved pages yet.</p>
+              <p className="text-babel-dust/60 text-xs mt-2">
+                When reading a book, tap "Save this page" to keep it here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {savedPages.map((d, i) => (
+                <Link
+                  key={d._id || i}
+                  href={`/room/${d.coord.roomId}/${d.coord.wall}/${d.coord.shelf}/${d.coord.book}/${d.coord.page}`}
+                  className="flex items-center justify-between gap-4 p-4 bg-black/30 border border-babel-lines/20 rounded hover:border-babel-gold/50 hover:bg-babel-gold/5 transition-all group"
+                >
+                  <div className="min-w-0">
+                    <p className="text-babel-parchment text-sm truncate group-hover:text-babel-gold transition-colors">
+                      {d.label || `${d.coord.roomId} · p.${d.coord.page}`}
+                    </p>
+                    <p className="text-babel-dust/60 text-[10px] tracking-wider uppercase mt-1">
+                      {d.coord.roomId} — {d.coord.wall}/{d.coord.shelf}/{d.coord.book}/{d.coord.page}
+                    </p>
+                    {d.rarities.length > 0 && (
+                      <p className="text-babel-gold/70 text-[10px] mt-1">
+                        {d.rarities.length} rare find{d.rarities.length > 1 ? 's' : ''} on this page
+                      </p>
+                    )}
+                  </div>
+                  <ExternalLink size={14} className="text-babel-dust/40 group-hover:text-babel-gold shrink-0 transition-colors" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main Journal tab ────────────────────────────────────────────────────────
   return (
     <div className="w-full h-full overflow-y-auto bg-babel-dark text-babel-parchment font-mono">
       <div className="max-w-4xl mx-auto p-6 md:p-12">
@@ -58,9 +157,8 @@ export default function JournalPage() {
 
         {/* Identity */}
         <div className="mb-10">
-          <p className="text-babel-dust text-xs tracking-widest uppercase mb-2">Seeker&apos;s Journal</p>
+          <p className="text-babel-dust text-xs tracking-widest uppercase mb-2">Seeker's Journal</p>
           {signedIn ? (
-            // Signed in — name comes from Google, not editable here.
             <div className="text-3xl md:text-4xl text-babel-gold tracking-wide">
               {stats?.name || getLocalName() || 'Traveler'}
             </div>
