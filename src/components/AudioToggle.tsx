@@ -5,7 +5,7 @@ import { Volume2, VolumeX } from 'lucide-react';
 import { getEngine } from '@/lib/audio/SoundEngine';
 
 export default function AudioToggle() {
-  const [enabled, setEnabled] = useState(false);
+  const [enabled, setEnabled] = useState(true);
 
   useEffect(() => {
     const engine = getEngine();

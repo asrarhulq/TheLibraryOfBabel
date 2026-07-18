@@ -21,18 +21,22 @@ function getClientPromise(): Promise<MongoClient> {
   if (!uri) {
     throw new Error(
       'MONGODB_URI is not set. Add it in your environment (e.g. .env.local locally, ' +
-        'or the Vercel project’s Environment Variables).'
+        'or the Vercel project\'s Environment Variables).'
     );
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    if (!globalWithMongo._babelMongoClientPromise) {
-      globalWithMongo._babelMongoClientPromise = new MongoClient(uri).connect();
-    }
-    return globalWithMongo._babelMongoClientPromise;
+  // Cache the connection promise on globalThis in ALL environments.
+  // Without this, production environments (Vercel serverless) create a new
+  // MongoClient on every function invocation, rapidly exhausting the Atlas
+  // connection pool (M0 free tier = 500 connections).
+  if (!globalWithMongo._babelMongoClientPromise) {
+    globalWithMongo._babelMongoClientPromise = new MongoClient(uri, {
+      maxPoolSize: 5,        // M0 free tier — keep pool small
+      minPoolSize: 0,
+      maxIdleTimeMS: 30_000, // release idle connections quickly
+    }).connect();
   }
-
-  return new MongoClient(uri).connect();
+  return globalWithMongo._babelMongoClientPromise;
 }
 
 export async function getDb(): Promise<Db> {

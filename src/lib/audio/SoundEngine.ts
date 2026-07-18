@@ -16,9 +16,8 @@ class SoundEngine {
   // directly anymore — everything goes through here.
   private master: GainNode | null = null;
   private limiter: DynamicsCompressorNode | null = null;
-  // Ambient sound is OFF by default — it only begins once the visitor explicitly
-  // enables it via the speaker toggle, so nothing plays on an incidental first click.
-  private isEnabled: boolean = false;
+  // Ambient sound is ON by default — soothing music starts on first interaction.
+  private isEnabled: boolean = true;
   private currentRoomId: string = '';
   private hasInteracted: boolean = false;
 
@@ -178,14 +177,14 @@ class SoundEngine {
 
       // Piano-like tone: triangle wave with a soft attack and quick decay
       const osc = ctx.createOscillator();
-      osc.type = 'triangle';
+      osc.type = 'sine'; // pure sine — softest, no harmonics
       osc.frequency.value = freq;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.07, t + 0.06); // soft attack
-      g.gain.setValueAtTime(0.07, t + 0.12); // brief sustain
-      g.gain.exponentialRampToValueAtTime(0.0008, t + arpTempo * 1.3); // gentle decay
-      g.gain.linearRampToValueAtTime(0, t + arpTempo * 1.4);
+      g.gain.linearRampToValueAtTime(0.05, t + 0.1); // very soft attack
+      g.gain.setValueAtTime(0.05, t + 0.18); // brief gentle sustain
+      g.gain.exponentialRampToValueAtTime(0.0004, t + arpTempo * 1.2); // slow gentle decay
+      g.gain.linearRampToValueAtTime(0, t + arpTempo * 1.3);
       osc.connect(g);
       g.connect(this.reverb!);
       osc.start(t);
@@ -215,21 +214,21 @@ class SoundEngine {
       osc.frequency.value = freq;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.06, t + 0.25);
-      g.gain.setValueAtTime(0.06, t + 0.9);
-      g.gain.exponentialRampToValueAtTime(0.0006, t + 2.2);
-      g.gain.linearRampToValueAtTime(0, t + 2.3);
+      g.gain.linearRampToValueAtTime(0.04, t + 0.35); // very gentle swell
+      g.gain.setValueAtTime(0.04, t + 1.1);
+      g.gain.exponentialRampToValueAtTime(0.0004, t + 2.5);
+      g.gain.linearRampToValueAtTime(0, t + 2.6);
       osc.connect(g);
       g.connect(this.reverb!);
       osc.start(t);
-      osc.stop(t + 2.4);
+      osc.stop(t + 2.7);
       melodyIdx++;
       this.whisperTimer = setTimeout(scheduleMelody, melodyInterval * 1000);
     };
     setTimeout(() => scheduleMelody(), 3500);
 
-    // Fade in over 6 seconds.
-    this.ambientGain.gain.linearRampToValueAtTime(0.24, now + 6);
+    // Fade in very gently over 8 seconds.
+    this.ambientGain.gain.linearRampToValueAtTime(0.18, now + 8);
 
     // ── Distant bell tones: occasional soft chimes harmonized with the current chord ──
     this.scheduleBell(roomId, rng, tonic, chordSeconds);
@@ -253,14 +252,14 @@ class SoundEngine {
         osc.type = 'sine';
         osc.frequency.value = bellFreq * p;
         const g = ctx.createGain();
-        const peak = 0.04 / (idx + 1);
+        const peak = 0.025 / (idx + 1);
         g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(peak, t + 0.8);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 8.0);
+        g.gain.linearRampToValueAtTime(peak, t + 1.2);
+        g.gain.exponentialRampToValueAtTime(0.00005, t + 9.0);
         osc.connect(g);
         g.connect(this.reverb!);
         osc.start(t);
-        osc.stop(t + 8.1);
+        osc.stop(t + 9.1);
       });
       this.scheduleBell(roomId, rng, tonic, chordSeconds);
     }, delay);
