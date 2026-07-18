@@ -153,21 +153,22 @@ class SoundEngine {
 
     const breathLfo = ctx.createOscillator();
     breathLfo.type = 'sine';
-    breathLfo.frequency.value = 0.045;
+    breathLfo.frequency.value = 0.03; // slower, calmer breath (~33s cycle)
     const breathGain = ctx.createGain();
-    breathGain.gain.value = rootFreq * 2.2;
+    breathGain.gain.value = rootFreq * 1.8;
     breathLfo.connect(breathGain);
     breathGain.connect(filter.frequency);
     breathLfo.start();
     this.ambientOscillators.push(breathLfo);
     this.ambientNodes.push(breathGain);
 
-    // ── Pad voices: a mystical minor chord (root, min3, 5th, min7, oct) ────────
-    const ratios = [1, 1.189, 1.498, 1.781, 2.0];
+    // ── Pad voices: a warm, consonant chord (root, 5th, octave, maj9, maj10) ──
+    // Softer/more soothing than a minor voicing — all gentle, open intervals.
+    const ratios = [1, 1.5, 2.0, 2.247, 2.52];
     ratios.forEach((ratio) => {
       const osc = ctx.createOscillator();
-      osc.type = rng() > 0.5 ? 'sine' : 'triangle';
-      const detune = rng() * 5 - 2.5; // thick chorus
+      osc.type = 'sine'; // pure sines only — the smoothest, least harsh timbre
+      const detune = rng() * 3 - 1.5; // gentler chorus
       osc.frequency.value = rootFreq * ratio + detune;
 
       // per-voice slow amplitude drift so the chord "evolves"
@@ -209,17 +210,17 @@ class SoundEngine {
     this.ambientOscillators.push(sub, subLfo);
     this.ambientNodes.push(subGain, subLfoAmt);
 
-    // ── Shimmer: a high, glassy partial that slowly fades in and out ──────────
+    // ── Shimmer: a soft, glassy partial that slowly fades in and out ──────────
     const shimmer = ctx.createOscillator();
     shimmer.type = 'sine';
-    shimmer.frequency.value = rootFreq * 6.02; // slightly detuned high partial
+    shimmer.frequency.value = rootFreq * 4.0; // a gentler consonant partial (2 octaves)
     const shimmerGain = ctx.createGain();
     shimmerGain.gain.value = 0.0;
     const shimmerLfo = ctx.createOscillator();
     shimmerLfo.type = 'sine';
-    shimmerLfo.frequency.value = 0.033;
+    shimmerLfo.frequency.value = 0.025;
     const shimmerAmt = ctx.createGain();
-    shimmerAmt.gain.value = 0.018;
+    shimmerAmt.gain.value = 0.012; // quieter — less piercing
     shimmerLfo.connect(shimmerAmt);
     shimmerAmt.connect(shimmerGain.gain);
     shimmerLfo.start();
@@ -229,8 +230,8 @@ class SoundEngine {
     this.ambientOscillators.push(shimmer, shimmerLfo);
     this.ambientNodes.push(shimmerGain, shimmerAmt);
 
-    // Fade the whole bed in gently over 4 seconds
-    this.ambientGain.gain.linearRampToValueAtTime(0.2, now + 4);
+    // Fade the whole bed in gently over 5 seconds (calmer entrance, softer level)
+    this.ambientGain.gain.linearRampToValueAtTime(0.17, now + 5);
 
     // ── Distant whispers: occasional soft bell-tones seeded by the room ───────
     this.scheduleWhisper(roomId, rng);
@@ -286,6 +287,104 @@ class SoundEngine {
           try { n.disconnect(); } catch { /* noop */ }
         });
       }, 1400);
+    }
+  }
+
+  /**
+   * The cinematic search descent. Three exciting beats matched to the visual:
+   *   phase 'encode'  — a rising sparkle as the coordinate assembles
+   *   phase 'fall'    — a whooshing pitch-rising plunge (the rush through the void)
+   *   phase 'arrive'  — a resonant chord bloom (the reward of arrival)
+   * Plays regardless of the ambient-hum toggle if the context is usable, so the
+   * moment always lands — but respects a fully-suspended context.
+   */
+  public playDescent(phase: 'encode' | 'fall' | 'arrive') {
+    const ctx = this.ctx;
+    if (!ctx || ctx.state === 'suspended') return;
+    const bus = this.out();
+    const t = ctx.currentTime;
+
+    if (phase === 'encode') {
+      // A quick ascending sparkle — four bell tones climbing.
+      const base = 440;
+      const steps = [1, 1.26, 1.5, 2.0];
+      steps.forEach((r, i) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = base * r;
+        const start = t + i * 0.09;
+        g.gain.setValueAtTime(0, start);
+        g.gain.linearRampToValueAtTime(0.06, start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0008, start + 0.5);
+        g.gain.linearRampToValueAtTime(0, start + 0.55);
+        osc.connect(g);
+        g.connect(this.reverb || bus);
+        osc.start(start);
+        osc.stop(start + 0.6);
+      });
+    } else if (phase === 'fall') {
+      // The plunge: a filtered-noise whoosh that opens up + a rising sub sweep.
+      const dur = 1.8;
+      const bufferSize = Math.floor(ctx.sampleRate * dur);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const nf = ctx.createBiquadFilter();
+      nf.type = 'bandpass';
+      nf.frequency.setValueAtTime(300, t);
+      nf.frequency.exponentialRampToValueAtTime(3500, t + dur * 0.8); // sweep upward = accelerating
+      nf.Q.value = 1.2;
+      const ng = ctx.createGain();
+      ng.gain.setValueAtTime(0, t);
+      ng.gain.linearRampToValueAtTime(0.12, t + 0.5);
+      ng.gain.linearRampToValueAtTime(0.14, t + dur * 0.75);
+      ng.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      ng.gain.linearRampToValueAtTime(0, t + dur + 0.05);
+      noise.connect(nf);
+      nf.connect(ng);
+      ng.connect(bus);
+      noise.start(t);
+      noise.stop(t + dur + 0.1);
+
+      // rising tone underneath — builds anticipation
+      const rise = ctx.createOscillator();
+      const rg = ctx.createGain();
+      rise.type = 'sawtooth';
+      rise.frequency.setValueAtTime(60, t);
+      rise.frequency.exponentialRampToValueAtTime(240, t + dur);
+      const rf = ctx.createBiquadFilter();
+      rf.type = 'lowpass';
+      rf.frequency.value = 600;
+      rg.gain.setValueAtTime(0, t);
+      rg.gain.linearRampToValueAtTime(0.08, t + 0.4);
+      rg.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      rg.gain.linearRampToValueAtTime(0, t + dur + 0.05);
+      rise.connect(rf);
+      rf.connect(rg);
+      rg.connect(bus);
+      rise.start(t);
+      rise.stop(t + dur + 0.1);
+    } else if (phase === 'arrive') {
+      // Arrival bloom — a warm major chord swelling out of the reverb.
+      const root = 220;
+      const chord = [1, 1.5, 2.0, 2.52];
+      chord.forEach((r) => {
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = root * r;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.09, t + 0.12);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 2.2);
+        g.gain.linearRampToValueAtTime(0, t + 2.3);
+        osc.connect(g);
+        g.connect(this.reverb || bus);
+        osc.start(t);
+        osc.stop(t + 2.4);
+      });
     }
   }
 

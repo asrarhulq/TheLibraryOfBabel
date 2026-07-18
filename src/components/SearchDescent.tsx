@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { getEngine } from '@/lib/audio/SoundEngine';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz, .';
 const HEX = '0123456789abcdef';
@@ -53,6 +54,7 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
       const t = setTimeout(finish, 500);
       return () => clearTimeout(t);
     }
+    const eng = getEngine();
     const timers: ReturnType<typeof setTimeout>[] = [];
     // Reveal the coordinate over a FIXED ~1.5s window regardless of length, so long
     // coordinates don't drag. Step through characters proportionally.
@@ -61,9 +63,11 @@ export default function SearchDescent({ query, coord, onArrive }: Props) {
     address.split('').forEach((_, i) => {
       timers.push(setTimeout(() => setRevealed(i + 1), 150 + i * step));
     });
+    // Sound: encode sparkle now, plunge whoosh at 'fall', arrival bloom at 'arrive'.
+    try { eng.playDescent('encode'); } catch { /* audio optional */ }
     const encodeMs = 150 + revealWindow + 500; // ~2.15s of encode
-    timers.push(setTimeout(() => setPhase('fall'), encodeMs));
-    timers.push(setTimeout(() => setPhase('arrive'), encodeMs + 1700));
+    timers.push(setTimeout(() => { setPhase('fall'); try { eng.playDescent('fall'); } catch {} }, encodeMs));
+    timers.push(setTimeout(() => { setPhase('arrive'); try { eng.playDescent('arrive'); } catch {} }, encodeMs + 1700));
     timers.push(setTimeout(finish, encodeMs + 2900));
     return () => timers.forEach(clearTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
