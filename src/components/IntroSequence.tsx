@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SEEN_KEY = 'babel_intro_seen';
 
@@ -180,6 +181,12 @@ export default function IntroSequence() {
     setTimeout(() => setShow(false), 900); // match babel-veil-out
   }, []);
 
+  // Manual navigation. Changing `act` restarts the auto-advance timer from the new
+  // act, so playback simply continues from wherever you jumped to.
+  const goPrev = useCallback(() => setAct((a) => Math.max(0, a - 1)), []);
+  const goNext = useCallback(() => setAct((a) => Math.min(TOTAL_ACTS - 1, a + 1)), []);
+  const goTo = useCallback((i: number) => setAct(i), []);
+
   // Auto-advance through the acts.
   useEffect(() => {
     if (!show || leaving) return;
@@ -193,13 +200,17 @@ export default function IntroSequence() {
     };
   }, [show, act, leaving, finish]);
 
-  // Escape = skip.
+  // Keyboard: Escape skips; ← / → step through the acts.
   useEffect(() => {
     if (!show) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && finish();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') finish();
+      else if (e.key === 'ArrowLeft') goPrev();
+      else if (e.key === 'ArrowRight') goNext();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [show, finish]);
+  }, [show, finish, goPrev, goNext]);
 
   // Falling-character columns for atmosphere (stable across renders).
   const rainCols = useMemo(() => {
@@ -255,15 +266,44 @@ export default function IntroSequence() {
         Skip intro
       </button>
 
+      {/* Previous — aesthetic chevron on the left (hidden on the first act) */}
+      <button
+        onClick={goPrev}
+        aria-label="Previous"
+        disabled={act === 0}
+        className={`absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-10 w-11 h-11 grid place-items-center rounded-full border border-babel-lines/30 text-babel-gold/60 transition-all duration-300 hover:text-babel-gold hover:border-babel-gold/60 hover:bg-babel-gold/5 ${
+          act === 0 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+      >
+        <ChevronLeft size={22} />
+      </button>
+
+      {/* Next — aesthetic chevron on the right */}
+      <button
+        onClick={goNext}
+        aria-label="Next"
+        disabled={act >= TOTAL_ACTS - 1}
+        className={`absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-10 w-11 h-11 grid place-items-center rounded-full border border-babel-lines/30 text-babel-gold/60 transition-all duration-300 hover:text-babel-gold hover:border-babel-gold/60 hover:bg-babel-gold/5 ${
+          act >= TOTAL_ACTS - 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+      >
+        <ChevronRight size={22} />
+      </button>
+
       {/* The act */}
-      <div key={act} className="babel-act relative z-[1] text-center px-6 max-w-3xl">
+      <div key={act} className="babel-act relative z-[1] text-center px-16 md:px-24 max-w-3xl">
         {current.render()}
       </div>
 
-      {/* Progress: one segment per act, current one fills over its duration */}
+      {/* Progress: one segment per act — click to jump. Current one fills over its duration. */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {ACTS.map((a, i) => (
-          <div key={i} className="w-10 h-[2px] bg-babel-lines/40 overflow-hidden rounded-full">
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            aria-label={`Go to part ${i + 1}`}
+            className="w-8 md:w-10 h-[3px] bg-babel-lines/40 overflow-hidden rounded-full transition-transform hover:scale-y-150 cursor-pointer"
+          >
             <div
               className="h-full bg-babel-gold"
               style={
@@ -274,7 +314,7 @@ export default function IntroSequence() {
                     : { transform: 'scaleX(0)' }
               }
             />
-          </div>
+          </button>
         ))}
       </div>
     </div>,
