@@ -63,6 +63,25 @@ const ACTS: Act[] = [
     ),
   },
   {
+    ms: 5000,
+    render: () => (
+      <>
+        <p className="font-sans text-babel-dust/70 text-xs md:text-sm tracking-widest uppercase mb-6">
+          First made real, in code, by
+        </p>
+        <p className="font-serif italic text-babel-parchment text-3xl md:text-5xl leading-tight">
+          Jonathan Basile
+        </p>
+        <p className="font-serif italic text-babel-dust text-base md:text-lg mt-4">
+          at <span className="text-babel-gold">libraryofbabel.info</span>
+        </p>
+        <p className="font-sans text-babel-dust/60 text-xs md:text-sm mt-6 max-w-lg">
+          Inspired by his work — this is an enhanced version of that vision.
+        </p>
+      </>
+    ),
+  },
+  {
     ms: 4600,
     render: () => (
       <>
