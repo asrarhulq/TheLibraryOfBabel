@@ -15,6 +15,7 @@ export default function SignInButton({ variant = 'bar' }: { variant?: 'bar' | 'd
   const [user, setUser] = useState<SessionUser | null>(null);
   const [ready, setReady] = useState(false);
   const [configured, setConfigured] = useState(true);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,28 +35,68 @@ export default function SignInButton({ variant = 'bar' }: { variant?: 'bar' | 'd
     };
   }, []);
 
-  const signIn = async () => {
-    // Probe whether providers exist; if not, tell the user instead of a dead redirect.
+  // Auth.js v5 requires starting sign-in/out with a POST that includes the CSRF token —
+  // a bare GET redirect throws a "Configuration" error. We fetch the token, then submit
+  // a form-encoded POST to the correct endpoint and follow the redirect.
+  const getCsrf = async (): Promise<string | null> => {
     try {
-      const res = await fetch('/api/auth/providers');
-      const providers = await res.json().catch(() => ({}));
-      if (!providers || !providers.google) {
+      const res = await fetch('/api/auth/csrf');
+      const data = await res.json();
+      return data?.csrfToken ?? null;
+    } catch {
+      return null;
+    }
+  };
+
+  const postAndRedirect = async (url: string, callbackUrl: string) => {
+    const csrfToken = await getCsrf();
+    if (!csrfToken) return false;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ csrfToken, callbackUrl, json: 'true' }),
+    });
+    // Auth.js returns the URL to visit (Google's consent page) as JSON.
+    const data = await res.json().catch(() => null);
+    if (data?.url) {
+      window.location.href = data.url;
+      return true;
+    }
+    return false;
+  };
+
+  const signIn = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      // Confirm the google provider is loaded before attempting.
+      const providers = await fetch('/api/auth/providers').then((r) => r.json()).catch(() => ({}));
+      if (!providers?.google) {
         setConfigured(false);
         return;
       }
-    } catch {
-      setConfigured(false);
-      return;
+      const ok = await postAndRedirect(
+        '/api/auth/signin/google',
+        `${window.location.origin}${window.location.pathname}`
+      );
+      if (!ok) setConfigured(false);
+    } finally {
+      setBusy(false);
     }
-    window.location.href = `/api/auth/signin/google?callbackUrl=${encodeURIComponent(
-      window.location.pathname
-    )}`;
   };
 
-  const signOut = () => {
-    window.location.href = `/api/auth/signout?callbackUrl=${encodeURIComponent(
-      window.location.pathname
-    )}`;
+  const signOut = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const ok = await postAndRedirect(
+        '/api/auth/signout',
+        `${window.location.origin}/`
+      );
+      if (!ok) window.location.reload();
+    } finally {
+      setBusy(false);
+    }
   };
 
   if (!ready) return null;
@@ -69,7 +110,8 @@ export default function SignInButton({ variant = 'bar' }: { variant?: 'bar' | 'd
     return (
       <button
         onClick={signOut}
-        className={`${base} border-babel-lines/50 text-babel-parchment hover:text-babel-gold`}
+        disabled={busy}
+        className={`${base} border-babel-lines/50 text-babel-parchment hover:text-babel-gold disabled:opacity-60`}
         title={user.email || undefined}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -86,11 +128,12 @@ export default function SignInButton({ variant = 'bar' }: { variant?: 'bar' | 'd
   return (
     <button
       onClick={signIn}
-      className={`${base} border-babel-lines/50 text-babel-parchment hover:text-babel-gold`}
+      disabled={busy}
+      className={`${base} border-babel-lines/50 text-babel-parchment hover:text-babel-gold disabled:opacity-60`}
       title={configured ? 'Sign in with Google' : 'Sign-in not configured yet'}
     >
       <LogIn size={variant === 'drawer' ? 16 : 13} />
-      {configured ? 'SIGN IN' : 'SIGN-IN SOON'}
+      {configured ? (busy ? '...' : 'SIGN IN') : 'SIGN-IN SOON'}
     </button>
   );
 }
