@@ -40,7 +40,8 @@ export default function SignInButton({ variant = 'bar' }: { variant?: 'bar' | 'd
   // a form-encoded POST to the correct endpoint and follow the redirect.
   const getCsrf = async (): Promise<string | null> => {
     try {
-      const res = await fetch('/api/auth/csrf');
+      // include credentials so the CSRF cookie is set and readable
+      const res = await fetch('/api/auth/csrf', { credentials: 'same-origin' });
       const data = await res.json();
       return data?.csrfToken ?? null;
     } catch {
@@ -54,6 +55,9 @@ export default function SignInButton({ variant = 'bar' }: { variant?: 'bar' | 'd
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      // credentials:'same-origin' sends the CSRF cookie back, which Auth.js requires —
+      // without it the POST is rejected as MissingCSRF.
+      credentials: 'same-origin',
       body: new URLSearchParams({ csrfToken, callbackUrl, json: 'true' }),
     });
     // Auth.js returns the URL to visit (Google's consent page) as JSON.
