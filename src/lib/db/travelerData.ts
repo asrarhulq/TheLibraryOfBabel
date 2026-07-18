@@ -61,6 +61,58 @@ async function unlock(
   return newly;
 }
 
+/**
+ * Merge an anonymous traveler's data into an account on first sign-in.
+ * Re-points discoveries/notes/visits to the account id and folds numeric stats together.
+ * Idempotent-ish: safe if the anon id has no data.
+ */
+export async function mergeTraveler(
+  accountId: string,
+  fromId: string,
+  name: string,
+  now: number
+): Promise<void> {
+  if (!accountId || !fromId || accountId === fromId) return;
+  const db = await getDb();
+
+  // Re-point owned documents to the account.
+  await db.collection('discoveries').updateMany({ travelerId: fromId }, { $set: { travelerId: accountId } });
+  await db.collection('notes').updateMany({ travelerId: fromId }, { $set: { travelerId: accountId } });
+  await db.collection('visits').updateMany(
+    { key: { $regex: `^${escapeRegex(fromId)}::` } },
+    [{ $set: { key: { $replaceOne: { input: '$key', find: `${fromId}::`, replacement: `${accountId}::` } } } }]
+  ).catch(() => {});
+
+  // Fold the anonymous stat totals into the account, then remove the anon profile.
+  const col = db.collection<TravelerStats>('travelers');
+  const account = await getOrCreateTraveler(accountId, now);
+  const anon = await col.findOne({ travelerId: fromId });
+  if (anon) {
+    await col.updateOne(
+      { travelerId: accountId },
+      {
+        $inc: {
+          chambersVisited: anon.chambersVisited || 0,
+          pagesRead: anon.pagesRead || 0,
+          wordsUncovered: anon.wordsUncovered || 0,
+          rareFinds: anon.rareFinds || 0,
+          phrasesSought: anon.phrasesSought || 0,
+          score: anon.score || 0,
+        },
+        $addToSet: { achievements: { $each: anon.achievements || [] } },
+        $max: { longestStreak: anon.longestStreak || 0 },
+      }
+    );
+    await col.deleteOne({ travelerId: fromId });
+  }
+
+  // Set the account's display name from Google (only if it still has the default).
+  const clean = (name || '').trim().slice(0, 60);
+  if (clean && (account.name === 'Anonymous Traveler' || !account.name)) {
+    await col.updateOne({ travelerId: accountId }, { $set: { name: clean } });
+  }
+}
+
 export async function setName(travelerId: string, name: string, now: number) {
   await getOrCreateTraveler(travelerId, now);
   const db = await getDb();

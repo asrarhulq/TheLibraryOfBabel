@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/ToastProvider";
 import IntroSequence from "@/components/IntroSequence";
+import SessionInit from "@/components/SessionInit";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider>
+          <SessionInit />
           <Navbar />
           <main className="pt-16 h-screen w-screen overflow-hidden relative z-10">
             {children}

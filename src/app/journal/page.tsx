@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Check, Pencil } from 'lucide-react';
-import { travelerApi, getLocalName, setLocalName } from '@/lib/traveler/client';
+import { travelerApi, getLocalName, setLocalName, initSession, isSignedIn } from '@/lib/traveler/client';
 import { ACHIEVEMENTS, TravelerStats } from '@/lib/babel/types';
 
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
@@ -21,6 +21,8 @@ export default function JournalPage() {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(() => getLocalName() || '');
 
+  const [signedIn, setSignedIn] = useState(false);
+
   const load = async () => {
     const res = await travelerApi.stats();
     if (res?.stats) setStats(res.stats as TravelerStats);
@@ -28,7 +30,13 @@ export default function JournalPage() {
   };
 
   useEffect(() => {
-    load();
+    // Resolve the session first so stats load under the right identity (account vs anon).
+    (async () => {
+      await initSession();
+      setSignedIn(isSignedIn());
+      setNameInput(getLocalName() || '');
+      await load();
+    })();
   }, []);
 
   const saveName = async () => {
@@ -51,7 +59,12 @@ export default function JournalPage() {
         {/* Identity */}
         <div className="mb-10">
           <p className="text-babel-dust text-xs tracking-widest uppercase mb-2">Seeker&apos;s Journal</p>
-          {editingName ? (
+          {signedIn ? (
+            // Signed in — name comes from Google, not editable here.
+            <div className="text-3xl md:text-4xl text-babel-gold tracking-wide">
+              {stats?.name || getLocalName() || 'Traveler'}
+            </div>
+          ) : editingName ? (
             <div className="flex items-center gap-2">
               <input
                 autoFocus
@@ -76,9 +89,11 @@ export default function JournalPage() {
             </button>
           )}
           <p className="text-babel-dust/60 text-xs mt-2 italic">
-            {stats?.name && stats.name !== 'Anonymous Traveler'
-              ? 'Your name may already lie hidden somewhere in the stacks…'
-              : 'Name yourself to hunt for your own name embedded in the void.'}
+            {signedIn
+              ? 'Signed in — your progress follows you across devices.'
+              : stats?.name && stats.name !== 'Anonymous Traveler'
+                ? 'Your name may already lie hidden somewhere in the stacks…'
+                : 'Name yourself to hunt for your own name embedded in the void.'}
           </p>
         </div>
 

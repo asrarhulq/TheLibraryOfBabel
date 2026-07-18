@@ -1,17 +1,39 @@
 'use client';
 
-// Anonymous traveler identity — a random id persisted in localStorage.
-// No login, no personal data; it simply lets the server attribute progress.
+// Traveler identity.
+//  • Signed out → an anonymous random id kept in localStorage.
+//  • Signed in with Google → a stable account id ("google:<sub>") so progress follows
+//    the person across devices, with their Google name and photo.
 
-const ID_KEY = 'babel_traveler_id';
-const NAME_KEY = 'babel_traveler_name';
+const ID_KEY = 'babel_traveler_id'; // anonymous device id
+const NAME_KEY = 'babel_traveler_name'; // manually-set name (anonymous mode)
+const MERGED_KEY = 'babel_merged_into'; // marks that we already merged anon→account
+
+interface SessionUser {
+  id?: string;
+  sub?: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+// The signed-in user is cached in-module after the first session fetch so the many
+// getTravelerId() callers stay synchronous.
+let cachedUser: SessionUser | null = null;
+let sessionLoaded = false;
 
 function randomId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return 'trav_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 }
 
-export function getTravelerId(): string {
+// A stable id for a signed-in Google user.
+function accountId(u: SessionUser): string {
+  const key = u.id || u.sub || u.email || '';
+  return 'google:' + key;
+}
+
+export function getAnonId(): string {
   if (typeof window === 'undefined') return '';
   let id = localStorage.getItem(ID_KEY);
   if (!id) {
@@ -21,14 +43,62 @@ export function getTravelerId(): string {
   return id;
 }
 
+export function getTravelerId(): string {
+  if (typeof window === 'undefined') return '';
+  if (cachedUser) return accountId(cachedUser);
+  return getAnonId();
+}
+
+export function isSignedIn(): boolean {
+  return Boolean(cachedUser);
+}
+
 export function getLocalName(): string {
   if (typeof window === 'undefined') return '';
+  if (cachedUser?.name) return cachedUser.name; // Google name wins when signed in
   return localStorage.getItem(NAME_KEY) || '';
 }
 
 export function setLocalName(name: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(NAME_KEY, name);
+}
+
+/**
+ * Load the session once and, on first sign-in, merge any anonymous progress into the
+ * account. Call this early (e.g. from a top-level effect). Safe to call repeatedly.
+ */
+export async function initSession(): Promise<SessionUser | null> {
+  if (sessionLoaded) return cachedUser;
+  try {
+    const res = await fetch('/api/auth/session', { credentials: 'same-origin' });
+    const data = await res.json().catch(() => null);
+    cachedUser = data?.user ?? null;
+  } catch {
+    cachedUser = null;
+  }
+  sessionLoaded = true;
+
+  // First time signed in on this device → merge anon data into the account.
+  if (cachedUser && typeof window !== 'undefined') {
+    const acct = accountId(cachedUser);
+    const anon = localStorage.getItem(ID_KEY);
+    const alreadyMerged = localStorage.getItem(MERGED_KEY);
+    if (anon && anon !== acct && alreadyMerged !== acct) {
+      try {
+        await fetch('/api/traveler/merge', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-traveler-id': acct },
+          credentials: 'same-origin',
+          body: JSON.stringify({ fromId: anon, name: cachedUser.name || '' }),
+        });
+        localStorage.setItem(MERGED_KEY, acct);
+      } catch {
+        /* non-fatal */
+      }
+    }
+  }
+  return cachedUser;
 }
 
 // All API calls carry the traveler id as a header.

@@ -42,8 +42,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   // Stateless JWT sessions — no database adapter needed for sign-in itself.
   session: { strategy: 'jwt' },
   trustHost: true, // required on Vercel / behind a proxy
-  // Surface the real reason in the server logs instead of a generic message.
-  debug: true,
+  callbacks: {
+    // Put a stable user id (Google's `sub`) onto the token…
+    async jwt({ token, profile }) {
+      if (profile?.sub) token.uid = profile.sub;
+      return token;
+    },
+    // …and expose it on the session so client + server agree on the account id.
+    async session({ session, token }) {
+      if (session.user && token.uid) {
+        (session.user as { id?: string }).id = token.uid as string;
+      }
+      return session;
+    },
+  },
 });
 
 export const isAuthConfigured = googleConfigured;
