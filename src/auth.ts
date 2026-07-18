@@ -32,12 +32,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         Google({
           clientId: googleId,
           clientSecret: googleSecret,
+          // Ask only for basic profile; avoids scope-related config issues.
+          authorization: {
+            params: { scope: 'openid email profile', prompt: 'select_account' },
+          },
         }),
       ]
     : [],
   // Stateless JWT sessions — no database adapter needed for sign-in itself.
   session: { strategy: 'jwt' },
   trustHost: true, // required on Vercel / behind a proxy
+  // Surface the real reason in the server logs instead of a generic message.
+  debug: true,
 });
 
 export const isAuthConfigured = googleConfigured;
