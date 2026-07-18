@@ -365,6 +365,68 @@ export async function getRecentDiscoveries(
   return docs.map((d) => ({ ...d, _id: undefined } as DiscoveryDoc));
 }
 
+// Global: recent saved discoveries from ALL travelers (for the Great Hall).
+export async function getRecentGlobalDiscoveries(
+  limit = 6
+): Promise<DiscoveryDoc[]> {
+  const db = await getDb();
+  const docs = await db
+    .collection<DiscoveryDoc>('discoveries')
+    .find({ kind: 'saved' })
+    .sort({ timestamp: -1 })
+    .limit(Math.min(30, limit))
+    .toArray();
+  return docs.map((d) => ({ ...d, _id: undefined } as DiscoveryDoc));
+}
+
+// Simple daily chamber info (the date string for today).
+export function getDailyChamberInfo(): { today: string } {
+  const d = new Date();
+  return { today: d.toISOString().slice(0, 10) };
+}
+
+// Rarity collection stats: aggregate counts of rarity kinds found by a traveler.
+export async function getRarityCollection(
+  travelerId: string
+): Promise<{ kind: string; count: number; latest: number }[]> {
+  if (!travelerId) return [];
+  const db = await getDb();
+  const pipeline = [
+    { $match: { travelerId, kind: 'rarity' } },
+    { $group: { _id: '$rarityKind', count: { $sum: 1 }, latest: { $max: '$timestamp' } } },
+    { $sort: { count: -1 } },
+    { $project: { kind: '$_id', count: 1, latest: 1, _id: 0 } },
+  ];
+  return (await db
+    .collection<DiscoveryDoc>('discoveries')
+    .aggregate(pipeline)
+    .toArray()) as { kind: string; count: number; latest: number }[];
+}
+
+// Word collection stats: alphabetical badge tracking.
+export async function getWordBadgeCollection(
+  travelerId: string
+): Promise<string[]> {
+  if (!travelerId) return [];
+  const db = await getDb();
+  const pipeline = [
+    {
+      $match: {
+        travelerId,
+        kind: 'rarity',
+        rarityKind: { $in: ['long-word', 'palindrome'] },
+      },
+    },
+    { $group: { _id: { $substrCP: ['$text', 0, 1] } } },
+    { $project: { letter: '$_id', _id: 0 } },
+  ];
+  const rows = await db
+    .collection<DiscoveryDoc>('discoveries')
+    .aggregate(pipeline)
+    .toArray();
+  return (rows as { letter: string }[]).map((r) => r.letter);
+}
+
 /**
  * Explicitly save the current page to the traveler's own discoveries (opt-in via a button).
  * De-duped per (traveler, page). Records any rarities on the page as the discovery's detail.

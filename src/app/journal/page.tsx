@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Check, Pencil, Bookmark, ExternalLink, Home } from 'lucide-react';
+import { ArrowLeft, Check, Pencil, Bookmark, ExternalLink, Home, Gem, Star, Swords, HeartHandshake, LetterText, Flame } from 'lucide-react';
 import { travelerApi, getLocalName, setLocalName, initSession, isSignedIn } from '@/lib/traveler/client';
 import { ACHIEVEMENTS, TravelerStats } from '@/lib/babel/types';
 
@@ -31,6 +31,126 @@ interface ClaimItem {
   owner: string;
   dedication?: string;
   claimedAt: number;
+}
+
+const RARITY_BADGE_DEFS: { kind: string; label: string; icon: React.ReactNode; description: string }[] = [
+  { kind: 'long-word', label: 'Long Words', icon: <LetterText size={16} />, description: 'Uncover words 5+ letters long in the void' },
+  { kind: 'palindrome', label: 'Palindromes', icon: <Swords size={16} />, description: 'Words that read the same forwards and backwards' },
+  { kind: 'word-chain', label: 'Word Chains', icon: <Flame size={16} />, description: 'Three or more real words in a row' },
+  { kind: 'your-name', label: 'Namesake', icon: <HeartHandshake size={16} />, description: 'Your own name, hidden in the stacks' },
+];
+
+// Alphabet rarity badges: a-z
+const ALPHABET_GRID = 'abcdefghijklmnopqrstuvwxyz'.split('');
+
+function RarityBadges() {
+  const [collections, setCollections] = useState<{ kind: string; count: number; latest: number }[]>([]);
+  const [wordBadges, setWordBadges] = useState<string[]>([]);
+  const [badgesLoading, setBadgesLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await travelerApi.badges();
+      if (!cancelled && res) {
+        setCollections(res.collections || []);
+        setWordBadges(res.wordBadges || []);
+      }
+      if (!cancelled) setBadgesLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (badgesLoading) {
+    return (
+      <div className="mb-12">
+        <h2 className="text-babel-gold text-sm tracking-widest uppercase mb-4 flex items-center gap-2">
+          <Gem size={16} /> Rarity Collections
+        </h2>
+        <p className="text-babel-dust/60 text-xs animate-pulse">Assembling your collection…</p>
+      </div>
+    );
+  }
+
+  const hasAny = collections.length > 0 || wordBadges.length > 0;
+  if (!hasAny) {
+    return (
+      <div className="mb-12">
+        <h2 className="text-babel-gold text-sm tracking-widest uppercase mb-4 flex items-center gap-2">
+          <Gem size={16} /> Rarity Collections
+        </h2>
+        <p className="text-babel-dust/60 text-xs italic">
+          Explore pages to collect rare words, palindromes, and more. Each rarity type you find earns a badge.
+        </p>
+      </div>
+    );
+  }
+
+  const collectMap = new Map(collections.map((c) => [c.kind, c.count]));
+
+  return (
+    <div className="mb-12">
+      <h2 className="text-babel-gold text-sm tracking-widest uppercase mb-4 flex items-center gap-2">
+        <Gem size={16} /> Rarity Collections
+      </h2>
+
+      {/* Rarity kind badges */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        {RARITY_BADGE_DEFS.map((b) => {
+          const count = collectMap.get(b.kind) || 0;
+          const unlocked = count > 0;
+          return (
+            <div
+              key={b.kind}
+              className={`flex flex-col items-center gap-2 p-4 rounded border transition-colors text-center ${
+                unlocked
+                  ? 'border-babel-gold/50 bg-babel-gold/5'
+                  : 'border-babel-lines/20 bg-black/20 opacity-50'
+              }`}
+            >
+              <span className={unlocked ? 'text-babel-gold' : 'text-babel-dust/60'}>
+                {b.icon}
+              </span>
+              <div>
+                <p className={`text-xs ${unlocked ? 'text-babel-gold' : 'text-babel-dust'}`}>
+                  {b.label}
+                </p>
+                <p className="text-[10px] text-babel-dust/60 mt-0.5">
+                  {unlocked ? `${count} found` : 'Locked'}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Alphabet badge hunt: which starting letters have been found */}
+      <h3 className="text-babel-gold/70 text-xs tracking-widest uppercase mb-3 flex items-center gap-2">
+        <Star size={12} /> Alphabet Badge Hunt
+      </h3>
+      <p className="text-babel-dust/60 text-[10px] mb-3 italic">
+        Find a rare word or palindrome starting with each letter to complete the alphabet.
+      </p>
+      <div className="flex flex-wrap gap-1.5 mb-6">
+        {ALPHABET_GRID.map((letter) => {
+          const found = wordBadges.includes(letter);
+          return (
+            <div
+              key={letter}
+              className={`w-8 h-8 flex items-center justify-center rounded text-xs font-mono uppercase border transition-colors ${
+                found
+                  ? 'border-babel-gold/60 bg-babel-gold/10 text-babel-gold'
+                  : 'border-babel-lines/20 bg-black/20 text-babel-dust/40'
+              }`}
+              title={found ? `Found: ${letter}` : `Not yet found: ${letter}`}
+            >
+              {letter}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // Wrapper with Suspense boundary required by useSearchParams() in Next.js App Router.
@@ -335,8 +455,11 @@ function JournalPage() {
               />
             </div>
 
+            {/* Rarity Collection Badges */}
+            <RarityBadges />
+
             {/* Achievements */}
-            <h2 className="text-babel-gold text-sm tracking-widest uppercase mb-4">Achievements</h2>
+            <h2 className="text-babel-gold text-sm tracking-widest uppercase mb-4 mt-10">Achievements</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {ACHIEVEMENTS.map((a) => {
                 const has = unlocked.has(a.id);

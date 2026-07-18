@@ -7,13 +7,15 @@ import AudioToggle from '@/components/AudioToggle';
 import InfoModal from '@/components/InfoModal';
 import IntroLogo from '@/components/IntroLogo';
 import SignInButton from '@/components/SignInButton';
-import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X, Bookmark, LogOut } from 'lucide-react';
+import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X, Bookmark, LogOut, Users } from 'lucide-react';
 
 // Links that live inside the menu (kept off the bar so it never crowds).
 // Search is not here — it sits centered on the bar.
 const MENU_LINKS = [
+  { href: '/hall', label: 'Hall', icon: Users },
   { href: '/wall', label: 'Wall', icon: ScrollText },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+  { href: '/oracle', label: 'Oracle', icon: Sparkles },
   { href: '/daily', label: 'Daily', icon: Sparkles },
   { href: '/journal', label: 'Journal', icon: BookMarked },
 ];
@@ -153,7 +155,10 @@ export default function Navbar() {
 
       {/* Phone: full-screen menu, portalled to body so the nav can't clip it */}
       {menuOpen && mounted && createPortal(
-        <div className="sm:hidden fixed inset-0 z-[120] bg-babel-void/98 backdrop-blur-md flex flex-col babel-fade-in">
+        <div
+          className="sm:hidden fixed inset-0 z-[120] bg-babel-void/98 backdrop-blur-md flex flex-col babel-fade-in"
+          onClick={(e) => e.target === e.currentTarget && close()}
+        >
             <div className="flex items-center justify-between px-4 py-3 border-b border-babel-lines/30">
               <span className="font-mono text-sm tracking-widest uppercase text-babel-gold">Menu</span>
               <button

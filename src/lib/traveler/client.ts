@@ -143,4 +143,8 @@ export const travelerApi = {
       rarities,
     }),
   myClaims: () => api<{ claims: unknown[] }>('/api/claims/my'),
+  badges: () =>
+    api<{ collections: { kind: string; count: number; latest: number }[]; wordBadges: string[] }>(
+      '/api/badges'
+    ),
 };
