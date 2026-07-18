@@ -162,19 +162,27 @@ class SoundEngine {
     this.ambientGain.connect(this.reverb); // wet
     this.ambientNodes.push(this.ambientGain, this.reverb, this.reverbGain);
 
+    // ── Highpass shelf: shave off excessive low-end hum before it builds up ──
+    const highpass = ctx.createBiquadFilter();
+    highpass.type = 'highpass';
+    highpass.frequency.value = 70; // cut everything below ~70 Hz — sub rumble, not musical notes
+    highpass.Q.value = 0.5;
+    highpass.connect(this.ambientGain);
+    this.ambientNodes.push(highpass);
+
     // ── Breathing lowpass filter ──────────────────────────────────────────────
     const filter = ctx.createBiquadFilter();
     filter.type = 'lowpass';
-    filter.frequency.value = tonic * 6;
-    filter.Q.value = 0.5;
-    filter.connect(this.ambientGain);
+    filter.frequency.value = tonic * 8;
+    filter.Q.value = 0.3; // lower resonance — no whistling peak
+    filter.connect(highpass);
     this.ambientNodes.push(filter);
 
     const breathLfo = ctx.createOscillator();
     breathLfo.type = 'sine';
     breathLfo.frequency.value = 0.025;
     const breathGain = ctx.createGain();
-    breathGain.gain.value = tonic * 2;
+    breathGain.gain.value = tonic * 0.8; // much gentler sweep — doesn't create a resonant hum
     breathLfo.connect(breathGain);
     breathGain.connect(filter.frequency);
     breathLfo.start();
@@ -193,13 +201,13 @@ class SoundEngine {
       osc.type = 'sine';
       osc.frequency.value = tonic; // placeholder — will be set by the progression loop
       const g = ctx.createGain();
-      g.gain.value = 0.06 + rng() * 0.04;
+      g.gain.value = 0.03 + rng() * 0.025; // much quieter — 6 voices sum to ~0.25 max
       // Slow individual amplitude drift
       const driftLfo = ctx.createOscillator();
       driftLfo.type = 'sine';
       driftLfo.frequency.value = 0.01 + rng() * 0.06;
       const driftAmt = ctx.createGain();
-      driftAmt.gain.value = 0.04;
+      driftAmt.gain.value = 0.02;
       driftLfo.connect(driftAmt);
       driftAmt.connect(g.gain);
       driftLfo.start();
@@ -295,7 +303,7 @@ class SoundEngine {
     };
     setTimeout(() => scheduleMelody(), 4000);
 
-    // ── Sub-bass: a felt-more-than-heard pulse tracking the chord roots ───────
+    // ── Sub-bass: a felt-more-than-heard pulse — kept very subtle ─────────────
     const sub = ctx.createOscillator();
     sub.type = 'sine';
     sub.frequency.value = tonic / 2;
@@ -305,7 +313,7 @@ class SoundEngine {
     subLfo.type = 'sine';
     subLfo.frequency.value = 0.04;
     const subLfoAmt = ctx.createGain();
-    subLfoAmt.gain.value = 0.18;
+    subLfoAmt.gain.value = 0.06; // barely there — just a felt undertone, not a hum
     subLfo.connect(subLfoAmt);
     subLfoAmt.connect(subGain.gain);
     subLfo.start();
@@ -316,7 +324,7 @@ class SoundEngine {
     this.ambientNodes.push(subGain, subLfoAmt);
 
     // Fade the whole piece in gently over 8 seconds.
-    this.ambientGain.gain.linearRampToValueAtTime(0.19, now + 8);
+    this.ambientGain.gain.linearRampToValueAtTime(0.22, now + 8);
 
     // ── Distant bell tones: occasional soft chimes harmonized with the current chord ──
     this.scheduleBell(roomId, rng, tonic, chordSeconds);
