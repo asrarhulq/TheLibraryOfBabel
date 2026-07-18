@@ -6,94 +6,88 @@ import AudioToggle from '@/components/AudioToggle';
 import InfoModal from '@/components/InfoModal';
 import IntroLogo from '@/components/IntroLogo';
 import SignInButton from '@/components/SignInButton';
-import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Menu, X } from 'lucide-react';
+import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X } from 'lucide-react';
 
-const LINKS = [
-  { href: '/immortalize', label: 'Immortalize', icon: Heart, accent: true },
+// Links that live inside the menu (kept off the bar so it never crowds).
+const MENU_LINKS = [
   { href: '/wall', label: 'Wall', icon: ScrollText },
   { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
   { href: '/daily', label: 'Daily', icon: Sparkles },
   { href: '/journal', label: 'Journal', icon: BookMarked },
-  { href: '/search', label: 'Search', icon: null },
+  { href: '/search', label: 'Search', icon: Search },
 ];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const close = () => setMenuOpen(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 px-4 py-3 bg-babel-dark/80 backdrop-blur-sm border-b border-babel-lines/30 text-babel-parchment flex justify-between items-center gap-3">
+    <nav className="fixed top-0 left-0 w-full z-50 px-3 sm:px-4 py-3 bg-babel-dark/80 backdrop-blur-sm border-b border-babel-lines/30 text-babel-parchment flex justify-between items-center gap-3">
       {/* Brand */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0">
         <IntroLogo />
-        <div className="text-sm font-mono tracking-widest uppercase truncate">
-          <Link href="/" className="hover:text-babel-gold transition-colors duration-300">
-            <span className="hidden sm:inline">The Infinite Library of Babel</span>
-            <span className="sm:hidden">Babel</span>
-          </Link>
-          <span className="text-babel-dust mx-2 text-xs hidden lg:inline">by</span>
-          <a
-            href="https://asrarul.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative hidden lg:inline-block text-xs hover:text-babel-gold transition-colors duration-300 after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-px after:bg-babel-gold after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
-          >
-            Asrar ul Haq
-          </a>
+        <Link
+          href="/"
+          className="text-sm font-mono tracking-widest uppercase truncate hover:text-babel-gold transition-colors duration-300"
+        >
+          <span className="hidden sm:inline">The Infinite Library of Babel</span>
+          <span className="sm:hidden">Babel</span>
+        </Link>
+      </div>
+
+      {/* Right side — a small, fixed set of controls at every width */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        <AudioToggle />
+
+        {/* Primary action, always visible */}
+        <Link
+          href="/immortalize"
+          title="Immortalize a love, a moment, or a message"
+          className="flex items-center gap-1 text-babel-gold border border-babel-gold/60 bg-babel-gold/5 hover:bg-babel-gold/15 transition-colors duration-300 px-2.5 sm:px-3 py-1 rounded text-xs tracking-wider"
+        >
+          <Heart size={13} /> <span className="hidden sm:inline">IMMORTALIZE</span>
+        </Link>
+
+        {/* Sign in, always visible from small-up */}
+        <div className="hidden sm:block">
+          <SignInButton variant="bar" />
         </div>
-      </div>
 
-      {/* Desktop links */}
-      <div className="hidden md:flex gap-3 items-center text-xs tracking-wider">
-        <InfoModal />
-        <AudioToggle />
-        {LINKS.map(({ href, label, icon: Icon, accent }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`flex items-center gap-1 px-3 py-1 rounded border transition-colors duration-300 ${
-              accent
-                ? 'text-babel-gold border-babel-gold/60 bg-babel-gold/5 hover:bg-babel-gold/15'
-                : 'border-babel-lines/50 hover:text-babel-gold'
-            }`}
-          >
-            {Icon && <Icon size={13} />} {label.toUpperCase()}
-          </Link>
-        ))}
-        <SignInButton variant="bar" />
-      </div>
-
-      {/* Mobile: audio + hamburger */}
-      <div className="flex md:hidden items-center gap-2">
-        <AudioToggle />
+        {/* Menu toggle — holds everything else, at all widths */}
         <button
           onClick={() => setMenuOpen((o) => !o)}
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          className="text-babel-parchment hover:text-babel-gold p-1 border border-babel-lines/50 rounded"
+          className="flex items-center text-babel-parchment hover:text-babel-gold p-1.5 border border-babel-lines/50 rounded transition-colors"
         >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Dropdown menu */}
       {menuOpen && (
-        <div className="absolute top-full left-0 w-full bg-babel-dark/98 backdrop-blur-md border-b border-babel-lines/30 flex flex-col md:hidden">
-          <div className="px-4 py-3 border-b border-babel-lines/20">
-            <InfoModal />
+        <>
+          {/* click-away backdrop */}
+          <div className="fixed inset-0 top-[57px] z-40" onClick={close} />
+          <div className="absolute top-full right-3 sm:right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col">
+            <div className="px-4 py-3 border-b border-babel-lines/20 flex items-center justify-between">
+              <InfoModal />
+            </div>
+            {MENU_LINKS.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={close}
+                className="flex items-center gap-3 px-4 py-3 border-b border-babel-lines/10 text-sm tracking-widest uppercase text-babel-parchment hover:text-babel-gold hover:bg-babel-gold/5 transition-colors"
+              >
+                <Icon size={15} /> {label}
+              </Link>
+            ))}
+            {/* Sign in also lives here for the smallest screens */}
+            <div className="sm:hidden" onClick={close}>
+              <SignInButton variant="drawer" />
+            </div>
           </div>
-          {LINKS.map(({ href, label, icon: Icon, accent }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => setMenuOpen(false)}
-              className={`flex items-center gap-3 px-5 py-4 border-b border-babel-lines/10 text-sm tracking-widest uppercase transition-colors ${
-                accent ? 'text-babel-gold' : 'text-babel-parchment hover:text-babel-gold'
-              }`}
-            >
-              {Icon && <Icon size={16} />} {label}
-            </Link>
-          ))}
-          <SignInButton variant="drawer" />
-        </div>
+        </>
       )}
     </nav>
   );
