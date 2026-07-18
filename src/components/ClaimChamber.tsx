@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Crown, X } from 'lucide-react';
+import { Crown, X, Mail } from 'lucide-react';
 import { ClaimDoc } from '@/lib/babel/types';
 import { getTravelerId } from '@/lib/traveler/client';
 
@@ -89,7 +89,7 @@ export default function ClaimChamber({ roomId, initialClaim, price, currency, li
         <div>
           <p className="text-babel-parchment text-sm">Claim this chamber</p>
           <p className="text-babel-dust text-xs">
-            Own it forever · {formatPrice(price, currency)}
+            {live ? `Own it forever · ${formatPrice(price, currency)}` : 'Own it forever · enquire'}
           </p>
         </div>
       </button>
@@ -115,44 +115,61 @@ export default function ClaimChamber({ roomId, initialClaim, price, currency, li
               rest on it, for everyone who ever finds their way here.
             </p>
 
-            <form onSubmit={submit} className="flex flex-col gap-3">
-              <input
-                value={owner}
-                onChange={(e) => setOwner(e.target.value)}
-                maxLength={60}
-                required
-                placeholder="Name for the plaque"
-                className="w-full bg-black/50 border border-babel-lines/50 p-3 text-babel-parchment focus:outline-none focus:border-babel-gold transition-colors placeholder:text-babel-dust/60"
-              />
-              <input
-                value={dedication}
-                onChange={(e) => setDedication(e.target.value)}
-                maxLength={140}
-                placeholder="A dedication (optional)"
-                className="w-full bg-black/50 border border-babel-lines/50 p-3 text-babel-parchment focus:outline-none focus:border-babel-gold transition-colors placeholder:text-babel-dust/60"
-              />
-
-              {error && <p className="text-red-400 text-sm">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={busy}
-                className="w-full bg-babel-gold/10 hover:bg-babel-gold/20 text-babel-gold border border-babel-gold p-4 transition-all uppercase tracking-widest font-mono disabled:opacity-50 mt-2"
-              >
-                {busy
-                  ? 'Sealing…'
-                  : live
-                    ? `Claim · ${formatPrice(price, currency)}`
-                    : `Claim (demo · ${formatPrice(price, currency)})`}
-              </button>
-
-              {!live && (
-                <p className="text-babel-dust/50 text-[11px] text-center leading-relaxed">
-                  Demo mode — no payment is taken yet. Live checkout activates once Stripe is
-                  connected.
+            {!live ? (
+              // Purchasing isn't open yet — direct them to get in touch.
+              <div className="flex flex-col gap-4">
+                <div className="border border-babel-gold/30 bg-babel-gold/5 rounded p-4 text-center">
+                  <p className="text-babel-gold text-sm font-mono tracking-widest uppercase mb-2">
+                    Claiming opens soon
+                  </p>
+                  <p className="text-babel-parchment/70 text-sm leading-relaxed">
+                    Chambers can&rsquo;t be claimed just yet. To reserve this exact coordinate or ask
+                    about owning a chamber, reach out and we&rsquo;ll arrange it.
+                  </p>
+                </div>
+                <a
+                  href={`mailto:contact@thelibrary.page?subject=${encodeURIComponent(
+                    `Claim chamber ${roomId}`
+                  )}&body=${encodeURIComponent(
+                    `I'd like to claim the chamber at ${roomId}.\n\nName for the plaque:\nDedication (optional):`
+                  )}`}
+                  className="w-full flex items-center justify-center gap-2 bg-babel-gold/10 hover:bg-babel-gold/20 text-babel-gold border border-babel-gold p-4 transition-all uppercase tracking-widest font-mono"
+                >
+                  <Mail size={15} /> Contact to claim
+                </a>
+                <p className="text-babel-dust/50 text-[11px] text-center">
+                  contact@thelibrary.page
                 </p>
-              )}
-            </form>
+              </div>
+            ) : (
+              <form onSubmit={submit} className="flex flex-col gap-3">
+                <input
+                  value={owner}
+                  onChange={(e) => setOwner(e.target.value)}
+                  maxLength={60}
+                  required
+                  placeholder="Name for the plaque"
+                  className="w-full bg-black/50 border border-babel-lines/50 p-3 text-babel-parchment focus:outline-none focus:border-babel-gold transition-colors placeholder:text-babel-dust/60"
+                />
+                <input
+                  value={dedication}
+                  onChange={(e) => setDedication(e.target.value)}
+                  maxLength={140}
+                  placeholder="A dedication (optional)"
+                  className="w-full bg-black/50 border border-babel-lines/50 p-3 text-babel-parchment focus:outline-none focus:border-babel-gold transition-colors placeholder:text-babel-dust/60"
+                />
+
+                {error && <p className="text-red-400 text-sm">{error}</p>}
+
+                <button
+                  type="submit"
+                  disabled={busy}
+                  className="w-full bg-babel-gold/10 hover:bg-babel-gold/20 text-babel-gold border border-babel-gold p-4 transition-all uppercase tracking-widest font-mono disabled:opacity-50 mt-2"
+                >
+                  {busy ? 'Sealing…' : `Claim · ${formatPrice(price, currency)}`}
+                </button>
+              </form>
+            )}
           </div>
         </div>,
         document.body
