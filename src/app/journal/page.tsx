@@ -131,7 +131,7 @@ function JournalPage() {
                     <p className="text-babel-dust/60 text-[10px] tracking-wider uppercase mt-1">
                       {d.coord.roomId} — {d.coord.wall}/{d.coord.shelf}/{d.coord.book}/{d.coord.page}
                     </p>
-                    {d.rarities.length > 0 && (
+                    {(d.rarities && d.rarities.length > 0) && (
                       <p className="text-babel-gold/70 text-[10px] mt-1">
                         {d.rarities.length} rare find{d.rarities.length > 1 ? 's' : ''} on this page
                       </p>

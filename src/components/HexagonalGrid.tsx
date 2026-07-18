@@ -106,7 +106,7 @@ export default function HexagonalGrid() {
           z: HEX_VERT_DIST * r,
           phase: q + r,
           label: `${xStr}-${yStr}-${zCoord}`,
-          showLabel: ring <= LABEL_RING_LIMIT,
+          showLabel: true,
         });
       }
     }
