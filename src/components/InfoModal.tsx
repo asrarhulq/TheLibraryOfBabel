@@ -69,9 +69,9 @@ export default function InfoModal() {
       {/* Navbar trigger */}
       <button
         onClick={() => setIsOpen(true)}
-        className="hover:text-babel-gold transition-colors duration-300 border border-transparent hover:border-babel-lines/50 px-3 py-1 rounded tracking-wider"
+        className="text-xs uppercase tracking-wider hover:text-babel-gold transition-colors duration-300 border border-babel-lines/50 hover:border-babel-gold px-3 py-1 rounded"
       >
-        MANUAL
+        Manual
       </button>
 
       {isOpen && mounted && createPortal(
