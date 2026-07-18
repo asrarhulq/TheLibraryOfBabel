@@ -143,9 +143,8 @@ class SoundEngine {
     const now = ctx.currentTime;
     const rng = seedrandom(roomId || 'default');
 
-    // Pick a key — low enough to feel subterranean, high enough to be musical.
-    // C2 (~65 Hz) to A2 (~110 Hz) in just intonation.
-    const keys = [65.41, 69.30, 73.42, 77.78, 82.41, 87.31, 92.50, 98.00, 103.83, 110.00];
+    // Pick a key — piano range: C3 (~131 Hz) to A3 (~220 Hz).
+    const keys = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00];
     const tonic = keys[Math.floor(rng() * keys.length)];
 
     // ── Master ambient bus + reverb send ──────────────────────────────────────
@@ -154,96 +153,19 @@ class SoundEngine {
 
     this.reverb = this.buildReverb();
     this.reverbGain = ctx.createGain();
-    this.reverbGain.gain.value = 0.6;
+    this.reverbGain.gain.value = 0.55;
     const bus = this.out();
     this.reverb.connect(this.reverbGain);
     this.reverbGain.connect(bus);
-    this.ambientGain.connect(bus); // dry
-    this.ambientGain.connect(this.reverb); // wet
+    this.ambientGain.connect(bus);
+    this.ambientGain.connect(this.reverb);
     this.ambientNodes.push(this.ambientGain, this.reverb, this.reverbGain);
 
-    // ── Highpass shelf: shave off excessive low-end hum before it builds up ──
-    const highpass = ctx.createBiquadFilter();
-    highpass.type = 'highpass';
-    highpass.frequency.value = 70; // cut everything below ~70 Hz — sub rumble, not musical notes
-    highpass.Q.value = 0.5;
-    highpass.connect(this.ambientGain);
-    this.ambientNodes.push(highpass);
+    const chordSeconds = 18 + rng() * 10; // each chord lasts 18-28 seconds
 
-    // ── Breathing lowpass filter ──────────────────────────────────────────────
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = tonic * 8;
-    filter.Q.value = 0.3; // lower resonance — no whistling peak
-    filter.connect(highpass);
-    this.ambientNodes.push(filter);
-
-    const breathLfo = ctx.createOscillator();
-    breathLfo.type = 'sine';
-    breathLfo.frequency.value = 0.025;
-    const breathGain = ctx.createGain();
-    breathGain.gain.value = tonic * 0.8; // much gentler sweep — doesn't create a resonant hum
-    breathLfo.connect(breathGain);
-    breathGain.connect(filter.frequency);
-    breathLfo.start();
-    this.ambientOscillators.push(breathLfo);
-    this.ambientNodes.push(breathGain);
-
-    // ── Drone pad: a soft, evolving chord bed that changes with the progression ──
-    // We keep a set of sine oscillators and crossfade their frequencies.
-    const padOscs: OscillatorNode[] = [];
-    const padGains: GainNode[] = [];
-    const chordSeconds = 16 + rng() * 8; // each chord lasts 16-24 seconds
-
-    // Create 6 pad voices (enough for the richest chord).
-    for (let i = 0; i < 6; i++) {
-      const osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = tonic; // placeholder — will be set by the progression loop
-      const g = ctx.createGain();
-      g.gain.value = 0.03 + rng() * 0.025; // much quieter — 6 voices sum to ~0.25 max
-      // Slow individual amplitude drift
-      const driftLfo = ctx.createOscillator();
-      driftLfo.type = 'sine';
-      driftLfo.frequency.value = 0.01 + rng() * 0.06;
-      const driftAmt = ctx.createGain();
-      driftAmt.gain.value = 0.02;
-      driftLfo.connect(driftAmt);
-      driftAmt.connect(g.gain);
-      driftLfo.start();
-      osc.connect(g);
-      g.connect(filter);
-      osc.start();
-      padOscs.push(osc);
-      padGains.push(g);
-      this.ambientOscillators.push(osc, driftLfo);
-      this.ambientNodes.push(g, driftAmt);
-    }
-
-    // ── Chord progression loop ────────────────────────────────────────────────
-    const scheduleChord = (step: number) => {
-      if (!this.ctx || !this.isEnabled) return;
-      const chord = SoundEngine.PROGRESSION[step % SoundEngine.PROGRESSION.length];
-      const chordRoot = tonic * SoundEngine.MAJOR[chord.root];
-
-      // Crossfade each pad voice to a new chord tone.
-      padOscs.forEach((osc, i) => {
-        const ratio = chord.ratios[i % chord.ratios.length];
-        const targetFreq = chordRoot * ratio;
-        // Slight detune per voice for warmth
-        const detune = (rng() * 4 - 2);
-        const t = ctx.currentTime;
-        osc.frequency.cancelScheduledValues(t);
-        osc.frequency.setTargetAtTime(targetFreq + detune, t, 0.8);
-      });
-
-      this.whisperTimer = setTimeout(() => scheduleChord(step + 1), chordSeconds * 1000);
-    };
-    scheduleChord(0);
-
-    // ── Arpeggio: a gentle, repeating pattern picking through chord tones ──────
-    const arpTempo = 0.9 + rng() * 0.6; // seconds between notes (very slow)
-    const arpPattern = [0, 2, 1, 3, 0, 2, 4, 1]; // pick pattern through chord tones
+    // ── Piano-like arpeggio: gentle, clear notes picking through chord tones ──
+    const arpTempo = 1.1 + rng() * 0.5; // seconds between notes
+    const arpPattern = [0, 2, 1, 3, 0, 2, 4, 1, 3, 1, 0, 2];
     let arpStep = 0;
     const scheduleArp = () => {
       if (!this.ctx || !this.isEnabled) return;
@@ -252,79 +174,62 @@ class SoundEngine {
       const chord = SoundEngine.PROGRESSION[progIdx];
       const chordRoot = tonic * SoundEngine.MAJOR[chord.root];
       const ratioIdx = arpPattern[arpStep % arpPattern.length] % chord.ratios.length;
-      const freq = chordRoot * chord.ratios[ratioIdx] * 2; // up an octave — sparkly
+      const freq = chordRoot * chord.ratios[ratioIdx];
 
+      // Piano-like tone: triangle wave with a soft attack and quick decay
       const osc = ctx.createOscillator();
       osc.type = 'triangle';
       osc.frequency.value = freq;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.03, t + 0.08);
-      g.gain.exponentialRampToValueAtTime(0.0005, t + arpTempo * 1.5);
-      g.gain.linearRampToValueAtTime(0, t + arpTempo * 1.6);
+      g.gain.linearRampToValueAtTime(0.07, t + 0.06); // soft attack
+      g.gain.setValueAtTime(0.07, t + 0.12); // brief sustain
+      g.gain.exponentialRampToValueAtTime(0.0008, t + arpTempo * 1.3); // gentle decay
+      g.gain.linearRampToValueAtTime(0, t + arpTempo * 1.4);
       osc.connect(g);
       g.connect(this.reverb!);
       osc.start(t);
-      osc.stop(t + arpTempo * 1.7);
+      osc.stop(t + arpTempo * 1.5);
       arpStep++;
       this.whisperTimer = setTimeout(scheduleArp, arpTempo * 1000);
     };
-    setTimeout(() => scheduleArp(), 2000);
+    setTimeout(() => scheduleArp(), 1500);
 
-    // ── Melody: a slow, wandering pentatonic line ─────────────────────────────
+    // ── Melody: a slow, wandering pentatonic line — the singing voice ─────────
     const melodyNotes: number[] = [];
-    const melodyLen = 12 + Math.floor(rng() * 8); // 12-20 note phrase
+    const melodyLen = 14 + Math.floor(rng() * 10);
     for (let i = 0; i < melodyLen; i++) {
       melodyNotes.push(SoundEngine.PENTATONIC[Math.floor(rng() * SoundEngine.PENTATONIC.length)]);
     }
     let melodyIdx = 0;
-    const melodyInterval = 3.0 + rng() * 3.0; // 3-6 seconds between melody notes
+    const melodyInterval = 2.8 + rng() * 2.5;
     const scheduleMelody = () => {
       if (!this.ctx || !this.isEnabled) return;
       const t = ctx.currentTime;
       const ratio = melodyNotes[melodyIdx % melodyNotes.length];
-      const freq = tonic * ratio * 2; // two octaves up — a clear, singing lead
+      const freq = tonic * ratio * 2; // two octaves up
 
+      // Warm, singing tone with a gentle swell
       const osc = ctx.createOscillator();
       osc.type = 'sine';
       osc.frequency.value = freq;
       const g = ctx.createGain();
       g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.05, t + 0.3);
-      g.gain.setValueAtTime(0.05, t + 1.0);
-      g.gain.exponentialRampToValueAtTime(0.0008, t + 2.5);
-      g.gain.linearRampToValueAtTime(0, t + 2.6);
+      g.gain.linearRampToValueAtTime(0.06, t + 0.25);
+      g.gain.setValueAtTime(0.06, t + 0.9);
+      g.gain.exponentialRampToValueAtTime(0.0006, t + 2.2);
+      g.gain.linearRampToValueAtTime(0, t + 2.3);
       osc.connect(g);
       g.connect(this.reverb!);
       osc.start(t);
-      osc.stop(t + 2.7);
+      osc.stop(t + 2.4);
       melodyIdx++;
       this.whisperTimer = setTimeout(scheduleMelody, melodyInterval * 1000);
     };
-    setTimeout(() => scheduleMelody(), 4000);
+    setTimeout(() => scheduleMelody(), 3500);
 
-    // ── Sub-bass: a felt-more-than-heard pulse — kept very subtle ─────────────
-    const sub = ctx.createOscillator();
-    sub.type = 'sine';
-    sub.frequency.value = tonic / 2;
-    const subGain = ctx.createGain();
-    subGain.gain.value = 0.0;
-    const subLfo = ctx.createOscillator();
-    subLfo.type = 'sine';
-    subLfo.frequency.value = 0.04;
-    const subLfoAmt = ctx.createGain();
-    subLfoAmt.gain.value = 0.06; // barely there — just a felt undertone, not a hum
-    subLfo.connect(subLfoAmt);
-    subLfoAmt.connect(subGain.gain);
-    subLfo.start();
-    sub.connect(subGain);
-    subGain.connect(this.ambientGain);
-    sub.start();
-    this.ambientOscillators.push(sub, subLfo);
-    this.ambientNodes.push(subGain, subLfoAmt);
-
-    // Fade the whole piece in gently over 8 seconds.
-    this.ambientGain.gain.linearRampToValueAtTime(0.22, now + 8);
+    // Fade in over 6 seconds.
+    this.ambientGain.gain.linearRampToValueAtTime(0.24, now + 6);
 
     // ── Distant bell tones: occasional soft chimes harmonized with the current chord ──
     this.scheduleBell(roomId, rng, tonic, chordSeconds);
@@ -333,7 +238,7 @@ class SoundEngine {
   // Occasional soft bell tones that harmonize with the current chord.
   private scheduleBell(roomId: string, rng: () => number, tonic: number, chordSeconds: number) {
     if (!this.ctx || !this.isEnabled) return;
-    const delay = 10000 + rng() * 18000; // every 10-28s
+    const delay = 12000 + rng() * 20000; // every 12-32s
     this.whisperTimer = setTimeout(() => {
       if (!this.ctx || !this.isEnabled || !this.reverb) { this.scheduleBell(roomId, rng, tonic, chordSeconds); return; }
       const ctx = this.ctx;
@@ -348,14 +253,14 @@ class SoundEngine {
         osc.type = 'sine';
         osc.frequency.value = bellFreq * p;
         const g = ctx.createGain();
-        const peak = 0.035 / (idx + 1);
+        const peak = 0.04 / (idx + 1);
         g.gain.setValueAtTime(0, t);
         g.gain.linearRampToValueAtTime(peak, t + 0.8);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + 7.0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 8.0);
         osc.connect(g);
         g.connect(this.reverb!);
         osc.start(t);
-        osc.stop(t + 7.1);
+        osc.stop(t + 8.1);
       });
       this.scheduleBell(roomId, rng, tonic, chordSeconds);
     }, delay);

@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "The Infinite Library of Babel",
   description: "An infinite, deterministic library containing every possible combination of letters.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
