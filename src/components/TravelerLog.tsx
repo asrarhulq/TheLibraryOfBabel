@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { PenLine, Send } from 'lucide-react';
-import { travelerApi, getLocalName } from '@/lib/traveler/client';
+import { PenLine, Send, LogIn } from 'lucide-react';
+import { signIn } from 'next-auth/react';
+import { travelerApi, getLocalName, initSession, isSignedIn } from '@/lib/traveler/client';
 
 interface TravelerLogProps {
   roomId: string;
@@ -22,16 +23,16 @@ interface Note {
 export default function TravelerLog({ roomId, wall, shelf, book, page }: TravelerLogProps) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [newNote, setNewNote] = useState('');
-  // Lazy initializer reads the saved name once on mount (client-only), avoiding a
-  // setState-in-effect cascade.
-  const [author, setAuthor] = useState(() => getLocalName() || 'Anonymous Traveler');
   const [saving, setSaving] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   const coord = { roomId, wall, shelf, book, page };
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      await initSession();
+      if (!cancelled) setSignedIn(isSignedIn());
       const res = await travelerApi.notes(coord);
       if (!cancelled && res?.notes) setNotes(res.notes as Note[]);
     })();
@@ -43,9 +44,10 @@ export default function TravelerLog({ roomId, wall, shelf, book, page }: Travele
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newNote.trim() || saving) return;
+    if (!newNote.trim() || saving || !signedIn) return;
     setSaving(true);
-    const res = await travelerApi.saveNote(coord, author, newNote.trim());
+    // Name comes from the signed-in Google account.
+    const res = await travelerApi.saveNote(coord, getLocalName() || 'Traveler', newNote.trim());
     if (res?.note) {
       setNotes((prev) => [...prev, res.note as Note]);
       setNewNote('');
@@ -72,23 +74,14 @@ export default function TravelerLog({ roomId, wall, shelf, book, page }: Travele
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-        <input
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          placeholder="Your Name (Optional)"
-          className="bg-black/50 border border-babel-lines/30 p-2 text-xs text-babel-parchment focus:border-babel-gold focus:outline-none placeholder:text-babel-dust/50"
-          maxLength={30}
-        />
-        <div className="flex gap-2">
+      {signedIn ? (
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
             value={newNote}
             onChange={(e) => setNewNote(e.target.value)}
             placeholder="Leave a mark..."
             className="flex-1 bg-black/50 border border-babel-lines/30 p-2 text-sm text-babel-parchment focus:border-babel-gold focus:outline-none placeholder:text-babel-dust/50"
-            required
             maxLength={140}
           />
           <button
@@ -98,8 +91,15 @@ export default function TravelerLog({ roomId, wall, shelf, book, page }: Travele
           >
             <Send size={16} />
           </button>
-        </div>
-      </form>
+        </form>
+      ) : (
+        <button
+          onClick={() => signIn('google', { callbackUrl: window.location.pathname })}
+          className="w-full flex items-center justify-center gap-2 bg-babel-gold/10 hover:bg-babel-gold/20 text-babel-gold border border-babel-gold/50 p-3 rounded transition-colors text-xs tracking-widest uppercase"
+        >
+          <LogIn size={14} /> Sign in to leave a mark
+        </button>
+      )}
     </div>
   );
 }
