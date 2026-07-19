@@ -11,7 +11,7 @@ export default function AudioToggle() {
     const engine = getEngine();
     setEnabled(engine.getEnabled());
 
-    // Register first-interaction listener to unlock audio
+    // Register first-interaction listener to unlock audio context
     const handleInteraction = () => {
       engine.handleUserInteraction();
     };
