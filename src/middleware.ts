@@ -5,6 +5,8 @@ import { NextResponse } from 'next/server';
 const PUBLIC_PREFIXES = [
   '/api/auth/',
   '/_next/',
+  '/robots.txt',
+  '/sitemap.xml',
   '/favicon.ico',
   '/icon.svg',
   '/file.svg',
@@ -18,6 +20,7 @@ const PUBLIC_PREFIXES = [
 // so the site remains usable. Set AUTH_REQUIRED=true in production to enforce sign-in.
 function authConfigured(): boolean {
   if (process.env.AUTH_REQUIRED === 'true') return true;
+  if (process.env.AUTH_REQUIRED === 'false') return false;
   const id = (process.env.AUTH_GOOGLE_ID || '').trim();
   const secret = (process.env.AUTH_GOOGLE_SECRET || '').trim();
   return Boolean(id && secret);

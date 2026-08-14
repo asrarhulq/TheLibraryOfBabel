@@ -153,10 +153,15 @@ export default function HallPage() {
   }, []);
 
   useEffect(() => {
+    if (!chatOpen) return;
     loadChat();
-    const interval = setInterval(loadChat, 4000);
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        loadChat();
+      }
+    }, 10000);
     return () => clearInterval(interval);
-  }, [loadChat]);
+  }, [chatOpen, loadChat]);
 
   useEffect(() => {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });

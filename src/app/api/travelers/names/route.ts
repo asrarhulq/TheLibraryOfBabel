@@ -20,14 +20,28 @@ export async function GET(_req: NextRequest) {
       .sort({ score: -1 })
       .limit(200)
       .toArray();
-    return Response.json({
-      travelers: docs.map((d: Record<string, unknown>) => ({
-        name: d.name,
-        score: d.score,
-        chambersVisited: d.chambersVisited,
-      })) as TravelerName[],
-    });
+    return Response.json(
+      {
+        travelers: docs.map((d: Record<string, unknown>) => ({
+          name: d.name,
+          score: d.score,
+          chambersVisited: d.chambersVisited,
+        })) as TravelerName[],
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+        },
+      }
+    );
   } catch {
-    return Response.json({ travelers: [] });
+    return Response.json(
+      { travelers: [] },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
+        },
+      }
+    );
   }
 }

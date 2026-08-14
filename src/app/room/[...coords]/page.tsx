@@ -15,6 +15,10 @@ interface RoomPageProps {
   }>;
 }
 
+// Revalidate / cache rendered room pages at Vercel Edge CDN for 24 hours.
+// This prevents serverless function invocations & DB queries on repeated hits to room coordinates.
+export const revalidate = 86400;
+
 export default async function RoomPage({ params }: RoomPageProps) {
   const resolvedParams = await params;
   const coords = resolvedParams.coords;
