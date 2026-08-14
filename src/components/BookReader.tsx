@@ -10,6 +10,8 @@ import { getLocalName, travelerApi } from '@/lib/traveler/client';
 import { useToast } from '@/components/ToastProvider';
 import ShareCard from '@/components/ShareCard';
 
+import { useRouter } from 'next/navigation';
+
 interface BookReaderProps {
   text: string;
   searchQuery?: string;
@@ -18,15 +20,44 @@ interface BookReaderProps {
   shelf: number;
   book: number;
   page: number;
+  prevPage?: string | null;
+  nextPage?: string | null;
 }
 
 type Interval = { start: number; end: number; type: 'word' | 'query' | 'rarity'; rarity?: Rarity };
 
-export default function BookReader({ text, searchQuery = '', roomId, wall, shelf, book, page }: BookReaderProps) {
+export default function BookReader({ text, searchQuery = '', roomId, wall, shelf, book, page, prevPage, nextPage }: BookReaderProps) {
+  const router = useRouter();
   const contentRef = useRef<HTMLDivElement>(null);
   const { pushAchievements, pushRarity } = useToast();
 
   const coord = { roomId, wall, shelf, book, page };
+
+  // Prefetch prev/next pages for instantaneous page turns
+  useEffect(() => {
+    if (prevPage) router.prefetch(prevPage);
+    if (nextPage) router.prefetch(nextPage);
+  }, [prevPage, nextPage, router]);
+
+  // Keyboard navigation for arrow left / arrow right
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is typing in an input or textarea
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+      if (e.key === 'ArrowLeft' && prevPage) {
+        e.preventDefault();
+        router.push(prevPage);
+      } else if (e.key === 'ArrowRight' && nextPage) {
+        e.preventDefault();
+        router.push(nextPage);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [prevPage, nextPage, router]);
 
   // The traveler's saved name (client-only) feeds the "find your own name" rarity.
   const travelerName = typeof window !== 'undefined' ? getLocalName() : '';
@@ -238,8 +269,9 @@ export default function BookReader({ text, searchQuery = '', roomId, wall, shelf
       </div>
 
       <div
+        key={`${roomId}-${wall}-${shelf}-${book}-${page}`}
         ref={contentRef}
-        className="w-full h-full p-8 md:p-16 pt-20 overflow-y-auto font-mono text-sm md:text-base leading-relaxed tracking-wider whitespace-pre-wrap"
+        className="w-full h-full p-8 md:p-16 pt-20 overflow-y-auto font-mono text-sm md:text-base leading-relaxed tracking-wider whitespace-pre-wrap babel-fade-in gpu-accelerated"
       >
         {nodes}
       </div>

@@ -101,7 +101,7 @@ export default async function RoomPage({ params }: RoomPageProps) {
       <div className="flex-1 min-h-0 flex flex-col relative">
         {/* Book Reader */}
         <div className="flex-1 min-h-0 relative bg-[#0a0a0c] shadow-inner overflow-hidden">
-          <BookReader text={text} searchQuery={searchQuery} roomId={roomId} wall={wall} shelf={shelf} book={book} page={page} />
+          <BookReader text={text} searchQuery={searchQuery} roomId={roomId} wall={wall} shelf={shelf} book={book} page={page} prevPage={prevPage} nextPage={nextPage} />
         </div>
 
         {/* Page Controls */}

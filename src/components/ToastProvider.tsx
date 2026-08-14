@@ -67,7 +67,7 @@ export default function ToastProvider({ children }: { children: React.ReactNode 
           <div
             key={t.id}
             onClick={() => remove(t.id)}
-            className={`pointer-events-auto cursor-pointer flex items-start gap-3 p-4 rounded-md border backdrop-blur-md shadow-2xl font-mono babel-toast-in ${
+            className={`pointer-events-auto cursor-pointer flex items-start gap-3 p-4 rounded-md border backdrop-blur-md shadow-2xl font-mono babel-toast-in gpu-accelerated transition-all duration-200 hover:scale-[1.02] ${
               t.tone === 'rarity'
                 ? 'bg-babel-wall/90 border-babel-gold/70 shadow-[0_0_25px_rgba(212,175,55,0.35)]'
                 : 'bg-babel-wall/90 border-babel-lines/40'

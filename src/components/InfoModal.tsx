@@ -82,7 +82,7 @@ export default function InfoModal() {
           }}
         >
           <div className="min-h-full flex items-center justify-center p-4 md:p-6">
-            <div className="relative w-full max-w-2xl my-8 flex flex-col bg-babel-wall/95 border border-babel-lines/40 rounded-sm shadow-[0_0_60px_rgba(212,175,55,0.12)] babel-rise-in">
+            <div className="relative w-full max-w-2xl my-8 flex flex-col bg-babel-wall/95 border border-babel-lines/40 rounded-sm shadow-[0_0_60px_rgba(212,175,55,0.12)] babel-rise-in gpu-accelerated">
               {/* Header */}
               <div className="flex justify-between items-center p-6 border-b border-babel-lines/20 bg-black/30 shrink-0">
                 <div>

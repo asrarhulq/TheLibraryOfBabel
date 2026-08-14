@@ -9,6 +9,8 @@ import IntroLogo from '@/components/IntroLogo';
 import SignInButton from '@/components/SignInButton';
 import { BookMarked, Sparkles, Heart, ScrollText, Trophy, Search, Menu, X, Bookmark, LogOut, Users } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 // Links that live inside the menu (kept off the bar so it never crowds).
 // Search is not here — it sits centered on the bar.
 const MENU_LINKS = [
@@ -64,6 +66,7 @@ function LogoutButton() {
 }
 
 export default function Navbar() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const close = () => setMenuOpen(false);
@@ -204,12 +207,13 @@ export default function Navbar() {
       {menuOpen && (
         <div className="hidden sm:block">
           <div className="fixed inset-0 top-[57px] z-40" onClick={close} />
-          <div className="absolute top-full right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col">
+          <div className="absolute top-full right-4 mt-2 w-56 z-50 bg-babel-wall/98 backdrop-blur-md border border-babel-lines/30 rounded-md shadow-2xl overflow-hidden flex flex-col babel-rise-in gpu-accelerated">
             {[...MENU_LINKS, SAVED_LINK].map(({ href, label, icon: Icon }) => (
               <Link
                 key={href + label}
                 href={href}
                 onClick={close}
+                onMouseEnter={() => router.prefetch(href)}
                 className="flex items-center gap-3 px-4 py-3 border-b border-babel-lines/10 text-sm tracking-widest uppercase text-babel-parchment hover:text-babel-gold hover:bg-babel-gold/5 transition-colors"
               >
                 <Icon size={15} /> {label}
