@@ -19,6 +19,12 @@
   --foreground: var(--color-babel-parchment);
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -26,6 +32,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden; /* For full screen 3D app */
+  backface-visibility: hidden;
 }
 
 /* Atmospheric depth — a faint gold vignette that makes the void feel vast.
@@ -184,6 +191,21 @@ body::before {
 }
 .babel-title-cycle {
   animation: babel-title-cycle 6.5s ease-in-out both;
+}
+
+/* GPU hardware acceleration and smooth compositing utilities */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.smooth-transition {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.smooth-fade {
+  animation: babel-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

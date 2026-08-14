@@ -26,7 +26,9 @@ function SceneContent() {
       {introDone && (
         <MapControls
           enableDamping
-          dampingFactor={0.08}
+          dampingFactor={0.05}
+          rotateSpeed={0.8}
+          zoomSpeed={0.9}
           maxPolarAngle={Math.PI / 2.1}
           minDistance={5}
           maxDistance={50}
@@ -38,11 +40,17 @@ function SceneContent() {
 
 export default function LibraryCanvas() {
   return (
-    <div className="w-full h-full bg-babel-void absolute inset-0 z-0">
+    <div className="w-full h-full bg-babel-void absolute inset-0 z-0 gpu-accelerated">
       <Canvas
         camera={{ position: [0, 32, 28], fov: 45 }}
-        dpr={[1, 1.75]}
-        gl={{ powerPreference: 'high-performance', antialias: true, stencil: false, depth: true }}
+        dpr={[1, typeof window !== 'undefined' ? Math.min(2, window.devicePixelRatio) : 1.5]}
+        gl={{
+          powerPreference: 'high-performance',
+          antialias: true,
+          stencil: false,
+          depth: true,
+          alpha: false,
+        }}
       >
         <SceneContent />
       </Canvas>

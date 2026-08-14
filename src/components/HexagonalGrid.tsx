@@ -27,10 +27,11 @@ interface HexRoomProps {
   room: RoomData;
   meshRef: (m: THREE.Mesh | null) => void;
   onClick: () => void;
+  onHover: () => void;
 }
 
 // Presentational only — no per-hex frame loop. The parent animates all meshes at once.
-function HexRoom({ room, meshRef, onClick }: HexRoomProps) {
+function HexRoom({ room, meshRef, onClick, onHover }: HexRoomProps) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -44,6 +45,7 @@ function HexRoom({ room, meshRef, onClick }: HexRoomProps) {
         onPointerOver={(e) => {
           e.stopPropagation();
           setHovered(true);
+          onHover();
           document.body.style.cursor = 'pointer';
         }}
         onPointerOut={() => {
@@ -132,6 +134,7 @@ export default function HexagonalGrid() {
           meshRef={(m) => {
             meshes.current[i] = m;
           }}
+          onHover={() => router.prefetch(`/room/${room.label}/1/1/1/1`)}
           onClick={() => router.push(`/room/${room.label}/1/1/1/1`)}
         />
       ))}

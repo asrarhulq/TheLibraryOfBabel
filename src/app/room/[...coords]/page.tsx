@@ -69,14 +69,14 @@ export default async function RoomPage({ params }: RoomPageProps) {
         <div className="flex flex-col gap-2">
           <h3 className="text-babel-gold text-sm tracking-widest uppercase">Navigation</h3>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <Link href={`/room/${roomId}/${wall === 1 ? 4 : wall - 1}/${shelf}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded">Prev Wall</Link>
-            <Link href={`/room/${roomId}/${wall === 4 ? 1 : wall + 1}/${shelf}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded">Next Wall</Link>
+            <Link href={`/room/${roomId}/${wall === 1 ? 4 : wall - 1}/${shelf}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 hover:bg-babel-gold/10">Prev Wall</Link>
+            <Link href={`/room/${roomId}/${wall === 4 ? 1 : wall + 1}/${shelf}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 hover:bg-babel-gold/10">Next Wall</Link>
             
-            <Link href={`/room/${roomId}/${wall}/${Math.max(1, shelf - 1)}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded">Up Shelf</Link>
-            <Link href={`/room/${roomId}/${wall}/${Math.min(32, shelf + 1)}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded">Down Shelf</Link>
+            <Link href={`/room/${roomId}/${wall}/${Math.max(1, shelf - 1)}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 hover:bg-babel-gold/10">Up Shelf</Link>
+            <Link href={`/room/${roomId}/${wall}/${Math.min(32, shelf + 1)}/${book}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 hover:bg-babel-gold/10">Down Shelf</Link>
             
-            <Link href={`/room/${roomId}/${wall}/${shelf}/${Math.max(1, book - 1)}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded">Prev Book</Link>
-            <Link href={`/room/${roomId}/${wall}/${shelf}/${Math.min(32, book + 1)}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded">Next Book</Link>
+            <Link href={`/room/${roomId}/${wall}/${shelf}/${Math.max(1, book - 1)}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 hover:bg-babel-gold/10">Prev Book</Link>
+            <Link href={`/room/${roomId}/${wall}/${shelf}/${Math.min(32, book + 1)}/${page}`} className="p-2 border border-babel-lines/30 hover:border-babel-gold text-center rounded transition-all duration-200 ease-out hover:-translate-y-0.5 active:translate-y-0 hover:bg-babel-gold/10">Next Book</Link>
           </div>
         </div>
 
