@@ -5,7 +5,7 @@ import { FPS, starAt, type Scene } from "@/lib/missed/engine";
 import { drawFrame } from "./render";
 
 export type Program =
-  | { type: "play"; spotlight?: boolean; hideStar?: boolean }
+  | { type: "play"; spotlight?: boolean; hideStar?: boolean; from?: number }
   | { type: "rewind" } // from the end back to the star's mid-crossing at 2×, then highlight it
   | { type: "still"; t: number; highlight?: boolean };
 
@@ -62,7 +62,7 @@ export default function Arena({
 
     let raf = 0;
     let last = 0;
-    let t = program.type === "rewind" ? duration : program.type === "still" ? program.t : 0;
+    let t = program.type === "rewind" ? duration : program.type === "still" ? program.t : (program.from ?? 0);
     let glow = 0;
     let ended = false;
 

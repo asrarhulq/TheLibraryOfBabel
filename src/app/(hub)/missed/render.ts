@@ -158,9 +158,9 @@ export function drawFrame(ctx: CanvasRenderingContext2D, W: number, s: DrawState
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     const tag = (x: number, y: number, text: string, color: string) => {
-      const tx = px(x),
-        ty = px(y) - r * 1.35;
       const w = ctx.measureText(text).width + 10;
+      const tx = Math.min(W - w / 2 - 2, Math.max(w / 2 + 2, px(x))), // keep labels inside the arena
+        ty = Math.max(Math.max(14, W / 34) + 2, px(y) - r * 1.35);
       const h = Math.max(14, W / 34);
       ctx.fillStyle = "rgba(10,8,6,0.82)";
       ctx.fillRect(tx - w / 2, ty - h, w, h);
