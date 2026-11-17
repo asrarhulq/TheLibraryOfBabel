@@ -1,0 +1,437 @@
+/* Memory That Lies — scoped under .mem / .mem-* classes. Never loaded by Babel. */
+
+.mem {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mem-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(212, 166, 86, 0.12);
+  font-size: 13px;
+}
+.mem-back {
+  text-decoration: none;
+  color: var(--parchment-dim);
+  letter-spacing: 0.04em;
+}
+.mem-back:hover {
+  color: var(--gold);
+}
+.mem-nav-title {
+  font-size: 17px;
+  font-style: italic;
+  color: var(--gold-dim);
+}
+
+.mem-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.mem-foot {
+  padding: 18px 16px 22px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-faint);
+  border-top: 1px solid rgba(212, 166, 86, 0.1);
+}
+
+/* ── Shared stage pieces ─────────────────────────────── */
+
+.mem-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 0 48px;
+  min-height: 60vh;
+}
+
+.mem-enter {
+  animation: mem-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes mem-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.mem-kicker {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+}
+
+.mem-title {
+  margin: 0;
+  font-size: clamp(44px, 9vw, 80px);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.mem-h2 {
+  margin: 0;
+  font-size: clamp(30px, 5vw, 44px);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.mem-lede {
+  max-width: 54ch;
+  margin: 22px auto 30px;
+  font-size: 17px;
+  color: var(--parchment-dim);
+}
+
+.mem-hint {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--ink-faint);
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 1px 5px;
+  border: 1px solid rgba(236, 223, 198, 0.3);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font: 600 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-align: center;
+  color: var(--parchment-dim);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+
+.mem-btn {
+  appearance: none;
+  border: 1px solid rgba(212, 166, 86, 0.35);
+  background: rgba(38, 25, 16, 0.85);
+  color: var(--parchment);
+  font: inherit;
+  font-size: 15px;
+  padding: 13px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.15s;
+  touch-action: manipulation;
+}
+.mem-btn:hover {
+  border-color: var(--gold);
+  background: rgba(52, 34, 22, 0.95);
+}
+.mem-btn:active {
+  transform: translateY(1px);
+}
+
+.mem-btn--primary {
+  background: linear-gradient(180deg, #d9ae62, #b48a3f);
+  border-color: #e5c27f;
+  color: #1b120c;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 14px 30px;
+}
+.mem-btn--primary:hover {
+  background: linear-gradient(180deg, #e6bd72, #c29548);
+}
+
+.mem-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  color: var(--ink-faint);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 14px;
+  padding: 6px;
+}
+.mem-link:hover {
+  color: var(--parchment-dim);
+}
+
+/* ── Study ───────────────────────────────────────────── */
+
+.mem-study,
+.mem-test {
+  justify-content: flex-start;
+}
+
+.mem-study-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 420px;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.mem-progress,
+.mem-timer {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  background: rgba(236, 223, 198, 0.12);
+  overflow: hidden;
+  border-radius: 2px;
+}
+.mem-progress > span,
+.mem-timer > span {
+  position: absolute;
+  inset: 0;
+  background: var(--gold-dim);
+  transform-origin: left;
+  transition: transform 0.4s linear;
+}
+
+.mem-word-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 42vh;
+}
+
+.mem-word {
+  margin: 0;
+  font-size: clamp(54px, 13vw, 112px);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #f4e8cf;
+  text-shadow: 0 0 40px rgba(212, 166, 86, 0.18);
+  animation: mem-word 1.2s ease both;
+}
+
+@keyframes mem-word {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.985);
+  }
+  16% {
+    opacity: 1;
+    transform: none;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.mem-word--test {
+  animation: mem-word-in 0.35s ease both;
+}
+
+@keyframes mem-word-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mem-listcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  animation: mem-word 1.7s ease both;
+}
+.mem-listcard span {
+  font-size: clamp(30px, 6vw, 44px);
+  color: var(--gold);
+  font-style: italic;
+}
+.mem-listcard small {
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* ── Distractor ──────────────────────────────────────── */
+
+.mem-distract .mem-timer {
+  flex: none;
+  width: min(420px, 100%);
+  margin: 26px 0 10px;
+}
+.mem-distract .mem-timer > span {
+  transition: transform 0.2s linear;
+}
+
+.mem-sum {
+  margin: 30px 0 26px;
+  font-size: clamp(46px, 10vw, 76px);
+  font-weight: 500;
+  transition: color 0.25s;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.mem-sum.is-ok {
+  color: var(--ok);
+}
+.mem-sum.is-no {
+  color: var(--danger);
+}
+
+.mem-options {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.mem-btn--option {
+  min-width: 96px;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ── Test ────────────────────────────────────────────── */
+
+.mem-keys {
+  list-style: none;
+  margin: 0 0 30px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--parchment-dim);
+}
+
+.mem-word-wrap:has(.mem-word--test) {
+  min-height: 30vh;
+}
+
+.mem-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 520px;
+  animation: mem-word-in 0.25s ease both;
+}
+.mem-choice .mem-btn {
+  padding: 18px 12px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.mem-btn--yes:hover {
+  border-color: #c9a565;
+}
+
+.mem-confidence {
+  width: 100%;
+  max-width: 620px;
+  outline: none;
+  animation: mem-word-in 0.25s ease both;
+}
+.mem-conf-q {
+  margin: 0 0 14px;
+  color: var(--parchment-dim);
+}
+.mem-conf-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.mem-btn--conf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 4px;
+}
+.mem-btn--conf strong {
+  font-size: 22px;
+  font-family: var(--font-serif), Georgia, serif;
+  font-variant-numeric: lining-nums;
+}
+.mem-btn--conf small {
+  font-size: 11px;
+  color: var(--ink-faint);
+  line-height: 1.2;
+}
+
+@media (max-width: 520px) {
+  .mem-choice .mem-btn kbd {
+    display: none;
+  }
+  .mem-btn--conf small {
+    font-size: 10px;
+  }
+  .mem-word-wrap {
+    min-height: 34vh;
+  }
+}
+
+/* ── Reduced motion: keep timing, drop movement ──────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .mem-enter,
+  .mem-word--test,
+  .mem-choice,
+  .mem-confidence {
+    animation: none;
+  }
+  .mem-word,
+  .mem-listcard {
+    animation-name: mem-word-fade;
+  }
+  .mem-progress > span,
+  .mem-timer > span,
+  .mem-btn {
+    transition: none;
+  }
+}
+
+@keyframes mem-word-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  8%,
+  88% {
+    opacity: 1;
+  }
+}

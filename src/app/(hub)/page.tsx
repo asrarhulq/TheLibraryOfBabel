@@ -1,3 +1,4 @@
+import Link from "next/link";
 import "./home.css";
 
 type Experience = {
@@ -111,11 +112,15 @@ export default function Hub() {
             );
             return (
               <li key={x.slug} className="shelf-slot">
-                {x.href ? (
-                  // Plain <a>: Babel lives under a different root layout, so this is a full page load anyway.
+                {x.href === "/babel" ? (
+                  // Plain <a>: Babel has its own root layout, so this is a full page load either way.
                   <a className={`book book--${x.tone}`} href={x.href}>
                     {inner}
                   </a>
+                ) : x.href ? (
+                  <Link className={`book book--${x.tone}`} href={x.href}>
+                    {inner}
+                  </Link>
                 ) : (
                   <div className={`book book--${x.tone} book--soon`} aria-disabled="true">
                     {inner}
