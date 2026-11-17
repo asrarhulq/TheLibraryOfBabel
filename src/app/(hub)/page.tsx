@@ -99,6 +99,25 @@ const EXPERIENCES: Experience[] = [
       </svg>
     ),
   },
+  {
+    slug: "missed",
+    call: "No. 007",
+    title: "The Thing You Missed",
+    teaser: "Watch closely. Count carefully. Notice anything?",
+    href: "/missed",
+    cta: "Start watching",
+    tone: "slate",
+    emblem: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="7" y="7" width="34" height="34" rx="3" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="16" cy="17" r="3.2" fill="currentColor" />
+        <circle cx="31" cy="30" r="3.2" fill="currentColor" />
+        <circle cx="33" cy="15" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        <circle cx="15" cy="32" r="3.2" fill="none" stroke="currentColor" strokeWidth="1.2" />
+        <path d="M24 18.5l1.6 3.4 3.7.4-2.8 2.5.8 3.6-3.3-1.9-3.3 1.9.8-3.6-2.8-2.5 3.7-.4z" fill="none" stroke="currentColor" strokeWidth="1" opacity=".55" />
+      </svg>
+    ),
+  },
   { slug: "bias", call: "No. 004", title: "Bias Lab", teaser: "The shortcuts your mind takes without asking.", tone: "moss", emblem: Scale },
   { slug: "change", call: "No. 005", title: "Change Blindness", teaser: "What changed? You were looking right at it.", tone: "slate", emblem: Eye },
   { slug: "crowd", call: "No. 006", title: "Crowd Wisdom", teaser: "Are a thousand guesses smarter than one?", tone: "umber", emblem: Crowd },
