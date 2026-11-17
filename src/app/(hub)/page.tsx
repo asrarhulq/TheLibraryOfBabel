@@ -82,9 +82,26 @@ const EXPERIENCES: Experience[] = [
     tone: "oxblood",
     emblem: Mind,
   },
-  { slug: "bias", call: "No. 003", title: "Bias Lab", teaser: "The shortcuts your mind takes without asking.", tone: "moss", emblem: Scale },
-  { slug: "change", call: "No. 004", title: "Change Blindness", teaser: "What changed? You were looking right at it.", tone: "slate", emblem: Eye },
-  { slug: "crowd", call: "No. 005", title: "Crowd Wisdom", teaser: "Are a thousand guesses smarter than one?", tone: "umber", emblem: Crowd },
+  {
+    slug: "birth-lottery",
+    call: "No. 003",
+    title: "The Birth Lottery",
+    teaser: "You didn't choose when or where you were born. Roll the dice and see what you got.",
+    href: "/birth-lottery",
+    cta: "Roll the dice",
+    tone: "umber",
+    emblem: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="17" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <ellipse cx="24" cy="24" rx="7.5" ry="17" fill="none" stroke="currentColor" strokeWidth="1.1" opacity=".7" />
+        <path d="M7.5 18.5h33M7.5 29.5h33" stroke="currentColor" strokeWidth="1.1" opacity=".7" />
+        <circle cx="30" cy="16" r="2.6" fill="currentColor" />
+      </svg>
+    ),
+  },
+  { slug: "bias", call: "No. 004", title: "Bias Lab", teaser: "The shortcuts your mind takes without asking.", tone: "moss", emblem: Scale },
+  { slug: "change", call: "No. 005", title: "Change Blindness", teaser: "What changed? You were looking right at it.", tone: "slate", emblem: Eye },
+  { slug: "crowd", call: "No. 006", title: "Crowd Wisdom", teaser: "Are a thousand guesses smarter than one?", tone: "umber", emblem: Crowd },
 ];
 
 export default function Hub() {
