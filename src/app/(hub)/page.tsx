@@ -118,6 +118,24 @@ const EXPERIENCES: Experience[] = [
       </svg>
     ),
   },
+  {
+    slug: "you-said-that",
+    call: "No. 008",
+    title: "You Said That?",
+    teaser: "Explain your choice. Are you sure it was yours?",
+    href: "/you-said-that",
+    cta: "Make your choices",
+    tone: "moss",
+    emblem: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="6" y="11" width="15" height="21" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <rect x="27" y="11" width="15" height="21" rx="2" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="13.5" cy="21.5" r="4" fill="currentColor" />
+        <path d="M30.5 25.5h8M34.5 17v8.5" stroke="currentColor" strokeWidth="1.4" opacity=".75" />
+        <path d="M13 37c4 4.5 18 4.5 22 0M32.5 35.4l2.6 1.7-1.2 2.9" fill="none" stroke="currentColor" strokeWidth="1.2" opacity=".6" />
+      </svg>
+    ),
+  },
   { slug: "bias", call: "No. 004", title: "Bias Lab", teaser: "The shortcuts your mind takes without asking.", tone: "moss", emblem: Scale },
   { slug: "change", call: "No. 005", title: "Change Blindness", teaser: "What changed? You were looking right at it.", tone: "slate", emblem: Eye },
   { slug: "crowd", call: "No. 006", title: "Crowd Wisdom", teaser: "Are a thousand guesses smarter than one?", tone: "umber", emblem: Crowd },
