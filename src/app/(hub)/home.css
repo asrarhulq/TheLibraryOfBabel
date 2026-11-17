@@ -1,9 +1,16 @@
 /* Hub homepage — book-cover cards on a dark wood shelf. Scoped to hub classes only. */
 
 .hub {
+  position: relative;
   max-width: 1120px;
   margin: 0 auto;
   padding: clamp(40px, 8vw, 88px) 16px 40px;
+}
+
+.hub-topbar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
 }
 
 .hub-head {
@@ -56,7 +63,7 @@
 .book {
   --cloth: #1f2a3a;
   --cloth-deep: #121a26;
-  --foil: var(--gold);
+  --foil: #d4a656;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -65,17 +72,14 @@
   padding: 30px 22px 28px 30px;
   border-radius: 4px 10px 10px 4px;
   text-decoration: none;
-  color: var(--parchment);
+  color: #ecdfc6;
   background:
     /* spine hinge */
     linear-gradient(90deg, rgba(0, 0, 0, 0.45) 0, rgba(255, 255, 255, 0.06) 7px, rgba(0, 0, 0, 0.25) 10px, transparent 16px),
     /* cloth weave texture */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
     linear-gradient(160deg, var(--cloth), var(--cloth-deep));
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.05) inset,
-    0 10px 24px -12px rgba(0, 0, 0, 0.8),
-    0 2px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--book-shadow);
   transition:
     transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 0.35s ease;
@@ -85,10 +89,7 @@
 a.book:hover,
 a.book:focus-visible {
   transform: translateY(-6px) rotate(-0.4deg);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 22px 38px -16px rgba(0, 0, 0, 0.9),
-    0 0 0 1px rgba(212, 166, 86, 0.35);
+  box-shadow: var(--book-shadow-hover);
 }
 
 .book--ink {
@@ -159,7 +160,7 @@ a.book:focus-visible {
 .book-teaser {
   margin-top: 12px;
   font-size: 14.5px;
-  color: rgba(236, 223, 198, 0.78);
+  color: #c8b896; /* on cloth: fixed in both themes */
 }
 
 .book-cta {
@@ -174,8 +175,8 @@ a.book:focus-visible {
 /* Coming soon: faded, not interactive */
 .book--soon {
   cursor: default;
-  filter: grayscale(0.85) brightness(0.72);
-  opacity: 0.7;
+  filter: var(--soon-filter);
+  opacity: var(--soon-opacity);
 }
 .book--soon .book-cta {
   display: inline-block;
@@ -184,7 +185,7 @@ a.book:focus-visible {
   margin-top: auto;
   border: 1px dashed currentColor;
   border-radius: 3px;
-  color: var(--parchment-dim);
+  color: #b9a888;
 }
 .book--soon .book-cta {
   margin-bottom: 4px;
@@ -196,7 +197,7 @@ a.book:focus-visible {
 .hub-foot {
   margin-top: 56px;
   padding-top: 20px;
-  border-top: 1px solid rgba(212, 166, 86, 0.15);
+  border-top: 1px solid rgb(var(--gold-rgb) / 0.18);
   text-align: center;
   font-size: 13px;
   color: var(--ink-faint);

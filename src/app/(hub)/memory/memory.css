@@ -13,7 +13,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(212, 166, 86, 0.12);
+  border-bottom: 1px solid rgb(var(--gold-rgb) / 0.12);
   font-size: 13px;
 }
 .mem-back {
@@ -23,6 +23,16 @@
 }
 .mem-back:hover {
   color: var(--gold);
+}
+.mem-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+@media (max-width: 480px) {
+  .mem-nav-title {
+    display: none;
+  }
 }
 .mem-nav-title {
   font-size: 17px;
@@ -45,7 +55,7 @@
   text-align: center;
   font-size: 12px;
   color: var(--ink-faint);
-  border-top: 1px solid rgba(212, 166, 86, 0.1);
+  border-top: 1px solid rgb(var(--gold-rgb) / 0.1);
 }
 
 /* ── Shared stage pieces ─────────────────────────────── */
@@ -115,21 +125,21 @@ kbd {
   display: inline-block;
   min-width: 1.6em;
   padding: 1px 5px;
-  border: 1px solid rgba(236, 223, 198, 0.3);
+  border: 1px solid rgb(var(--fg-rgb) / 0.3);
   border-bottom-width: 2px;
   border-radius: 4px;
   font: 600 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-align: center;
   color: var(--parchment-dim);
-  background: rgba(0, 0, 0, 0.25);
+  background: rgb(var(--surface-rgb) / 0.6);
 }
 
 /* ── Buttons ─────────────────────────────────────────── */
 
 .mem-btn {
   appearance: none;
-  border: 1px solid rgba(212, 166, 86, 0.35);
-  background: rgba(38, 25, 16, 0.85);
+  border: 1px solid rgb(var(--gold-rgb) / 0.35);
+  background: var(--btn-bg);
   color: var(--parchment);
   font: inherit;
   font-size: 15px;
@@ -144,7 +154,7 @@ kbd {
 }
 .mem-btn:hover {
   border-color: var(--gold);
-  background: rgba(52, 34, 22, 0.95);
+  background: var(--btn-bg-hover);
 }
 .mem-btn:active {
   transform: translateY(1px);
@@ -153,7 +163,7 @@ kbd {
 .mem-btn--primary {
   background: linear-gradient(180deg, #d9ae62, #b48a3f);
   border-color: #e5c27f;
-  color: #1b120c;
+  color: #1b120c; /* dark ink on gold in both themes */
   font-weight: 600;
   letter-spacing: 0.02em;
   padding: 14px 30px;
@@ -202,7 +212,7 @@ kbd {
   position: relative;
   flex: 1;
   height: 2px;
-  background: rgba(236, 223, 198, 0.12);
+  background: rgb(var(--fg-rgb) / 0.12);
   overflow: hidden;
   border-radius: 2px;
 }
@@ -229,8 +239,8 @@ kbd {
   font-size: clamp(54px, 13vw, 112px);
   font-weight: 500;
   letter-spacing: 0.01em;
-  color: #f4e8cf;
-  text-shadow: 0 0 40px rgba(212, 166, 86, 0.18);
+  color: var(--word);
+  text-shadow: 0 0 40px rgb(var(--gold-rgb) / 0.18);
   animation: mem-word 1.2s ease both;
 }
 
@@ -483,7 +493,7 @@ kbd {
 }
 .rv-score em {
   font-style: normal;
-  color: #f08d6f;
+  color: var(--danger-text);
   font-variant-numeric: lining-nums;
 }
 
@@ -504,12 +514,12 @@ kbd {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 1.5px solid rgba(236, 223, 198, 0.4);
+  border: 1.5px solid rgb(var(--fg-rgb) / 0.4);
 }
 .rv-token.is-fooled {
-  background: #a8392c;
-  border-color: #e07a5f;
-  box-shadow: 0 0 18px rgba(224, 122, 95, 0.45);
+  background: var(--danger-deep);
+  border-color: var(--danger);
+  box-shadow: 0 0 18px rgb(var(--danger-rgb) / 0.45);
 }
 
 /* bars */
@@ -518,9 +528,9 @@ kbd {
   gap: 14px;
   text-align: left;
   padding: 22px;
-  border: 1px solid rgba(212, 166, 86, 0.16);
+  border: 1px solid rgb(var(--gold-rgb) / 0.16);
   border-radius: 12px;
-  background: rgba(27, 18, 12, 0.6);
+  background: rgb(var(--surface-rgb) / 0.6);
 }
 .rv-bar {
   display: grid;
@@ -540,7 +550,7 @@ kbd {
 .rv-bar-track {
   height: 10px;
   border-radius: 6px;
-  background: rgba(236, 223, 198, 0.08);
+  background: rgb(var(--fg-rgb) / 0.08);
   overflow: hidden;
 }
 .rv-bar-track span {
@@ -561,7 +571,7 @@ kbd {
   background: var(--ok);
 }
 .rv-bar--lure .rv-bar-track span {
-  background: #e07a5f;
+  background: var(--danger);
 }
 .rv-bar--ctrl .rv-bar-track span {
   background: var(--parchment-dim);
@@ -572,7 +582,7 @@ kbd {
   font-weight: 600;
 }
 .rv-bar--lure .rv-bar-val {
-  color: #f08d6f;
+  color: var(--danger-text);
 }
 
 .rv-crowd-line {
@@ -594,10 +604,10 @@ kbd {
   align-items: center;
   padding: 28px;
   border-radius: 14px;
-  border: 1px solid rgba(212, 166, 86, 0.14);
+  border: 1px solid rgb(var(--gold-rgb) / 0.14);
   background:
-    radial-gradient(ellipse at 70% 50%, rgba(212, 166, 86, 0.06), transparent 60%),
-    rgba(27, 18, 12, 0.55);
+    radial-gradient(ellipse at 70% 50%, rgb(var(--gold-rgb) / 0.06), transparent 60%),
+    rgb(var(--surface-rgb) / 0.55);
   opacity: 0;
   transform: translateY(16px);
   transition:
@@ -609,7 +619,7 @@ kbd {
   transform: none;
 }
 .rv-lure.is-fooled {
-  border-color: rgba(224, 122, 95, 0.28);
+  border-color: rgb(var(--danger-rgb) / 0.28);
 }
 
 .rv-lure-n {
@@ -635,14 +645,14 @@ kbd {
   text-transform: uppercase;
 }
 .rv-verdict.is-fooled {
-  background: rgba(168, 57, 44, 0.3);
-  color: #f3a58e;
-  border: 1px solid rgba(224, 122, 95, 0.5);
+  background: rgb(var(--danger-deep-rgb) / 0.3);
+  color: var(--danger-soft);
+  border: 1px solid rgb(var(--danger-rgb) / 0.5);
 }
 .rv-verdict.is-held {
-  background: rgba(143, 176, 138, 0.15);
-  color: #b5d2b0;
-  border: 1px solid rgba(143, 176, 138, 0.45);
+  background: rgb(var(--ok-rgb) / 0.15);
+  color: var(--ok-soft);
+  border: 1px solid rgb(var(--ok-rgb) / 0.45);
 }
 .rv-lure-line {
   margin: 0 0 10px;
@@ -673,7 +683,7 @@ kbd {
 }
 .assoc-line {
   fill: none;
-  stroke: rgba(212, 166, 86, 0.45);
+  stroke: rgb(var(--gold-rgb) / 0.45);
   stroke-width: 1;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
@@ -686,12 +696,12 @@ kbd {
   opacity: 0;
 }
 .assoc-halo {
-  fill: rgba(212, 166, 86, 0.06);
+  fill: rgb(var(--gold-rgb) / 0.06);
   opacity: 0;
 }
 .assoc-ring {
-  fill: #1b120c;
-  stroke: rgba(236, 223, 198, 0.5);
+  fill: var(--core-fill);
+  stroke: rgb(var(--fg-rgb) / 0.5);
   stroke-width: 1.4;
   stroke-dasharray: 4 4;
 }
@@ -710,16 +720,16 @@ kbd {
   opacity: 0;
 }
 .assoc--fooled .assoc-ring {
-  stroke: #e07a5f;
+  stroke: var(--danger);
 }
 .assoc--fooled .assoc-halo {
-  fill: rgba(224, 122, 95, 0.18);
+  fill: rgb(var(--danger-rgb) / 0.18);
 }
 .assoc--fooled .assoc-lure {
-  fill: #f3a58e;
+  fill: var(--danger-soft);
 }
 .assoc--held .assoc-ring {
-  stroke: rgba(143, 176, 138, 0.8);
+  stroke: rgb(var(--ok-rgb) / 0.8);
 }
 
 .is-in .assoc-line {
@@ -794,8 +804,8 @@ kbd {
 .rv-share-card {
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.9);
-  border: 1px solid rgba(212, 166, 86, 0.2);
+  box-shadow: 0 18px 40px -18px rgb(var(--shadow-rgb) / 0.9);
+  border: 1px solid rgb(var(--gold-rgb) / 0.2);
 }
 .rv-share-card img {
   display: block;
@@ -804,7 +814,7 @@ kbd {
 }
 .rv-share-ph {
   aspect-ratio: 1200 / 630;
-  background: #1b120c;
+  background: #1b120c; /* the share image itself is always dark */
 }
 .rv-share-actions {
   display: flex;

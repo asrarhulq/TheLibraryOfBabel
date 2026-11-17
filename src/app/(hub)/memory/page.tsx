@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ThemeToggle from "../ThemeToggle";
 import MemoryExperience from "./MemoryExperience";
 import "./memory.css";
 
@@ -20,7 +21,10 @@ export default function MemoryPage() {
         <Link href="/" className="mem-back">
           <span aria-hidden="true">←</span> The Library
         </Link>
-        <span className="mem-nav-title serif">Memory That Lies</span>
+        <div className="mem-nav-right">
+          <span className="mem-nav-title serif">Memory That Lies</span>
+          <ThemeToggle />
+        </div>
       </nav>
 
       <main className="mem-main">

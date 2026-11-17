@@ -1,17 +1,140 @@
-/* Hub + experiments base styles. Loaded only by app/(hub)/layout.tsx — never by Babel. */
+/* Hub + experiments base styles. Loaded only by app/(hub)/layout.tsx — never by Babel.
+ *
+ * Theming: dark ("the stacks at night") is the default. Light ("the reading room by day")
+ * applies when the visitor picks it, or when they chose "System" and their OS is light.
+ * <html data-theme="light|dark"> is set before first paint by the inline script in layout.tsx.
+ * Colours are tokens; *-rgb tokens are bare channels for use as rgb(var(--x-rgb) / alpha).
+ */
+
 :root {
-  --wood-900: #120c08;
-  --wood-800: #1b120c;
-  --wood-700: #261910;
-  --wood-600: #342216;
-  --parchment: #ecdfc6;
-  --parchment-dim: #b9a888;
-  --ink-faint: #8a7a60;
-  --gold: #d4a656;
+  color-scheme: dark;
+
+  --bg: #120c08;
+  --bg-glow-a: rgba(212, 166, 86, 0.12);
+  --bg-glow-b: rgba(122, 46, 36, 0.14);
+  --grain-opacity: 0.5;
+
+  --parchment: #ecdfc6; /* primary text */
+  --parchment-dim: #b9a888; /* secondary text */
+  --ink-faint: #8a7a60; /* tertiary text */
+  --gold: #d4a656; /* accent */
   --gold-dim: #9c7a3e;
-  --oxblood: #7a2e24;
-  --danger: #e07a5f;
+  --word: #f4e8cf; /* the big study/test word */
+  --word-glow: rgba(212, 166, 86, 0.18);
+
+  --fg-rgb: 236 223 198;
+  --gold-rgb: 212 166 86;
+  --surface-rgb: 27 18 12;
+  --shadow-rgb: 0 0 0;
+
+  --btn-bg: rgba(38, 25, 16, 0.85);
+  --btn-bg-hover: rgba(52, 34, 22, 0.95);
+  --core-fill: #1b120c;
+
   --ok: #8fb08a;
+  --ok-rgb: 143 176 138;
+  --ok-soft: #b5d2b0;
+  --danger: #e07a5f;
+  --danger-rgb: 224 122 95;
+  --danger-deep: #a8392c;
+  --danger-deep-rgb: 168 57 44;
+  --danger-text: #f08d6f;
+  --danger-soft: #f3a58e;
+
+  --soon-filter: grayscale(0.85) brightness(0.72);
+  --soon-opacity: 0.7;
+  --book-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 10px 24px -12px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.4);
+  --book-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 22px 38px -16px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(212, 166, 86, 0.35);
+}
+
+/* Light tokens — defined once per entry point (explicit choice, or System + light OS). */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f3ead8;
+  --bg-glow-a: rgba(214, 160, 72, 0.22);
+  --bg-glow-b: rgba(168, 84, 56, 0.09);
+  --grain-opacity: 0.35;
+
+  --parchment: #2a1c11;
+  --parchment-dim: #5c4733;
+  --ink-faint: #85705a;
+  --gold: #946420;
+  --gold-dim: #9a7440;
+  --word: #24170d;
+  --word-glow: rgba(196, 140, 60, 0.16);
+
+  --fg-rgb: 58 38 22;
+  --gold-rgb: 160 112 40;
+  --surface-rgb: 255 251 243;
+  --shadow-rgb: 92 60 28;
+
+  --btn-bg: rgba(255, 251, 243, 0.9);
+  --btn-bg-hover: #fffdf8;
+  --core-fill: #fbf5e8;
+
+  --ok: #4f8148;
+  --ok-rgb: 79 129 72;
+  --ok-soft: #3a6a34;
+  --danger: #c0533a;
+  --danger-rgb: 192 83 58;
+  --danger-deep: #b5432f;
+  --danger-deep-rgb: 181 67 47;
+  --danger-text: #b5432f;
+  --danger-soft: #a33b28;
+
+  --soon-filter: grayscale(0.7) sepia(0.3) brightness(1.18) contrast(0.92);
+  --soon-opacity: 0.62;
+  --book-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 14px 24px -14px rgba(74, 46, 20, 0.55),
+    0 2px 5px rgba(74, 46, 20, 0.22);
+  --book-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 26px 40px -18px rgba(74, 46, 20, 0.6),
+    0 0 0 1px rgba(160, 112, 40, 0.45);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+
+    --bg: #f3ead8;
+    --bg-glow-a: rgba(214, 160, 72, 0.22);
+    --bg-glow-b: rgba(168, 84, 56, 0.09);
+    --grain-opacity: 0.35;
+
+    --parchment: #2a1c11;
+    --parchment-dim: #5c4733;
+    --ink-faint: #85705a;
+    --gold: #946420;
+    --gold-dim: #9a7440;
+    --word: #24170d;
+    --word-glow: rgba(196, 140, 60, 0.16);
+
+    --fg-rgb: 58 38 22;
+    --gold-rgb: 160 112 40;
+    --surface-rgb: 255 251 243;
+    --shadow-rgb: 92 60 28;
+
+    --btn-bg: rgba(255, 251, 243, 0.9);
+    --btn-bg-hover: #fffdf8;
+    --core-fill: #fbf5e8;
+
+    --ok: #4f8148;
+    --ok-rgb: 79 129 72;
+    --ok-soft: #3a6a34;
+    --danger: #c0533a;
+    --danger-rgb: 192 83 58;
+    --danger-deep: #b5432f;
+    --danger-deep-rgb: 181 67 47;
+    --danger-text: #b5432f;
+    --danger-soft: #a33b28;
+
+    --soon-filter: grayscale(0.7) sepia(0.3) brightness(1.18) contrast(0.92);
+  --soon-opacity: 0.62;
+  --book-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 14px 24px -14px rgba(74, 46, 20, 0.55),
+      0 2px 5px rgba(74, 46, 20, 0.22);
+    --book-shadow-hover: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 26px 40px -18px rgba(74, 46, 20, 0.6),
+      0 0 0 1px rgba(160, 112, 40, 0.45);
+  }
 }
 
 *,
@@ -26,16 +149,37 @@ body {
   padding: 0;
 }
 
+html {
+  background-color: var(--bg);
+}
+
 .hub-body {
+  position: relative;
   min-height: 100vh;
-  background-color: var(--wood-900);
+  background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse at 50% -10%, rgba(212, 166, 86, 0.12), transparent 60%),
-    radial-gradient(ellipse at 50% 120%, rgba(122, 46, 36, 0.14), transparent 55%);
+    radial-gradient(ellipse at 50% -10%, var(--bg-glow-a), transparent 60%),
+    radial-gradient(ellipse at 50% 120%, var(--bg-glow-b), transparent 55%);
+  background-attachment: fixed;
   color: var(--parchment);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Paper / wood grain over everything, very faint. */
+.hub-body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.32 0 0 0 0 0.18 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hub-body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .hub-body a {
@@ -58,4 +202,52 @@ body {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ── Theme toggle ───────────────────────────────────── */
+
+.theme-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--gold-rgb) / 0.28);
+  background: rgb(var(--surface-rgb) / 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.theme-toggle button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    background 0.25s;
+}
+.theme-toggle button:hover {
+  color: var(--parchment);
+}
+.theme-toggle button[aria-pressed="true"] {
+  color: var(--gold);
+  background: rgb(var(--gold-rgb) / 0.16);
+  box-shadow: inset 0 0 0 1px rgb(var(--gold-rgb) / 0.35);
+}
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Ink-spread reveal when switching themes (View Transitions; skipped under reduced motion). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }

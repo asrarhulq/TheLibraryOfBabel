@@ -24,13 +24,23 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#17100b",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#120c08" },
+    { media: "(prefers-color-scheme: light)", color: "#f3ead8" },
+  ],
+  colorScheme: "dark light",
 };
+
+// Runs before first paint so a saved theme never flashes the wrong colours.
+// Keep the storage key in sync with THEME_KEY in ThemeToggle.tsx.
+const THEME_BOOT = `try{var t=localStorage.getItem("library-theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
 
 export default function HubRootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={serif.variable}>
+    <html lang="en" className={serif.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body className="hub-body">{children}</body>
     </html>
   );

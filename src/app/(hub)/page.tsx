@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
 import "./home.css";
 
 type Experience = {
@@ -89,6 +90,9 @@ const EXPERIENCES: Experience[] = [
 export default function Hub() {
   return (
     <div className="hub">
+      <div className="hub-topbar">
+        <ThemeToggle />
+      </div>
       <header className="hub-head">
         <p className="hub-kicker">thelibrary.page</p>
         <h1 className="serif hub-title">The Library</h1>
