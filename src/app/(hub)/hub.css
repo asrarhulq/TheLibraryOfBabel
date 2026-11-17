@@ -1,0 +1,61 @@
+/* Hub + experiments base styles. Loaded only by app/(hub)/layout.tsx — never by Babel. */
+:root {
+  --wood-900: #120c08;
+  --wood-800: #1b120c;
+  --wood-700: #261910;
+  --wood-600: #342216;
+  --parchment: #ecdfc6;
+  --parchment-dim: #b9a888;
+  --ink-faint: #8a7a60;
+  --gold: #d4a656;
+  --gold-dim: #9c7a3e;
+  --oxblood: #7a2e24;
+  --danger: #e07a5f;
+  --ok: #8fb08a;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.hub-body {
+  min-height: 100vh;
+  background-color: var(--wood-900);
+  background-image:
+    radial-gradient(ellipse at 50% -10%, rgba(212, 166, 86, 0.12), transparent 60%),
+    radial-gradient(ellipse at 50% 120%, rgba(122, 46, 36, 0.14), transparent 55%);
+  color: var(--parchment);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hub-body a {
+  color: inherit;
+}
+
+.serif {
+  font-family: var(--font-serif), Georgia, "Times New Roman", serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
