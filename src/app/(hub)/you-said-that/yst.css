@@ -1276,3 +1276,38 @@
   font-size: 14.5px;
   color: var(--parchment-dim);
 }
+
+/* ── Share & permalink ───────────────────────────────── */
+
+.yst-share-text {
+  max-width: 40ch;
+  margin: 6px auto 16px;
+  font-size: 19px;
+  color: var(--parchment);
+}
+.yst-share-img {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgb(var(--gold-rgb) / 0.2);
+}
+.yst-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.yst-spoiler {
+  max-width: 640px;
+  margin-top: 30px;
+  text-align: center;
+}
+.yst-spoiler summary {
+  cursor: pointer;
+  min-height: 44px;
+  color: var(--parchment-dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

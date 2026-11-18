@@ -7,6 +7,7 @@ import { H2012, J2005, NW1977 } from "@/lib/you-said-that/research";
 import Debrief from "./Debrief";
 import Replay from "./Replay";
 import Ring, { type Seg } from "./Ring";
+import Share from "./Share";
 import type { Part2Log, ServerResult, TrialLog } from "./types";
 
 interface Stats {
@@ -280,6 +281,8 @@ export default function Reveal({
       </section>
 
       {children}
+
+      {t && del !== "done" && <Share id={server?.id ?? null} seed={seed} totals={t} />}
 
       <div className="yst-again">
         <button className="yst-btn yst-btn--primary" onClick={onAgain}>
