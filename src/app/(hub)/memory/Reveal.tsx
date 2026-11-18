@@ -96,11 +96,11 @@ export default function Reveal({
     <div className="rv" aria-live="polite">
       <section className="rv-hero">
         <p className="mem-kicker rv-fade" style={{ "--d": "0ms" } as React.CSSProperties}>
-          Your results
+          Results · the DRM false-memory effect
         </p>
         <h1 className="serif rv-score rv-fade" style={{ "--d": "150ms" } as React.CSSProperties}>
           {n === 0 ? (
-            <>Your memory held.</>
+            <>No false memories this time.</>
           ) : (
             <>
               You remembered <em>{n}</em> {n === 1 ? "word" : "words"} you never saw.
@@ -109,7 +109,7 @@ export default function Reveal({
         </h1>
         <p className="rv-sub rv-fade" style={{ "--d": "400ms" } as React.CSSProperties}>
           {n === 0
-            ? "Five words were planted in the test that never appeared in any list. You rejected every one — most people don’t."
+            ? "Five of the test words never appeared on any list. You turned all five down. Most people don’t."
             : `Five words in the test never appeared in any list. ${n === 5 ? "You said you’d seen all five." : `You said you’d seen ${n} of them.`}`}
         </p>
 
@@ -136,18 +136,18 @@ export default function Reveal({
       </section>
 
       <section className="rv-explain">
-        <h2 className="serif">Why this happens</h2>
+        <h2 className="serif">What happened</h2>
         <p>
-          Memory is <strong>reconstructive, not a recording</strong>. When you read <em>bed, rest, tired, dream, snooze…</em>, your
-          brain didn&rsquo;t file away fifteen separate words. It kept the gist — <em>this list is about sleep</em> — and every word
-          quietly lit up its strongest associate. At test, &ldquo;sleep&rdquo; felt just as familiar as the words you really saw,
-          so your brain filled the gap and handed you the feeling of having seen it.
+          Memory keeps the gist of things rather than a recording. Reading <em>bed, rest, tired, dream, snooze…</em>, you didn&rsquo;t
+          store fifteen separate words. You stored the fact that the list was about sleep, and each word also nudged the word
+          &ldquo;sleep&rdquo; itself. By the test, &ldquo;sleep&rdquo; felt as familiar as the words you had actually read, and that
+          familiarity is most of what &ldquo;I saw it&rdquo; is based on.
         </p>
         <p>
-          This is the Deese–Roediger–McDermott effect, one of the most replicated findings in memory research (Roediger &amp;
-          McDermott, 1995, building on Deese, 1959). It doesn&rsquo;t mean memory is useless: storing meaning instead of exact
-          detail is efficient, and it&rsquo;s usually right. It does mean that <strong>feeling certain isn&rsquo;t proof</strong> —
-          worth remembering in arguments about who said what, and in eyewitness testimony.
+          This is the Deese–Roediger–McDermott (DRM) effect, one of the most replicated findings in memory research (Roediger &amp;
+          McDermott, 1995, building on Deese, 1959). Keeping meaning instead of exact detail is efficient, and most of the time
+          it&rsquo;s right. It also means that being sure you remember something isn&rsquo;t evidence that it happened, which
+          matters for eyewitness testimony and for arguments about who said what.
         </p>
       </section>
 
@@ -155,14 +155,14 @@ export default function Reveal({
 
       <div className="rv-actions">
         <button className="mem-btn mem-btn--primary" onClick={onRestart}>
-          Try again with new words
+          Try another set
         </button>
         <Link className="mem-btn" href="/">
           Back to the library
         </Link>
       </div>
       <p className="rv-fine">
-        Educational demo, not a clinical test. Your answers were saved anonymously — a random id, your scores, nothing about you.
+        Not a clinical test. Your answers were saved anonymously: a random id and your scores, nothing else.
       </p>
     </div>
   );
@@ -173,8 +173,8 @@ export default function Reveal({
 function Bars({ hit, lure, ctrl }: { hit: number; lure: number; ctrl: number }) {
   const rows = [
     { label: "Real words you saw", sub: "you said “I saw this”", v: hit, cls: "real" },
-    { label: "Planted related words", sub: "never shown — you said you saw them", v: lure, cls: "lure" },
-    { label: "Unrelated words", sub: "never shown — you said you saw them", v: ctrl, cls: "ctrl" },
+    { label: "Planted related words", sub: "never shown, but you said yes", v: lure, cls: "lure" },
+    { label: "Unrelated words", sub: "never shown, but you said yes", v: ctrl, cls: "ctrl" },
   ];
   return (
     <div className="rv-bars rv-fade" style={{ "--d": "800ms" } as React.CSSProperties}>
@@ -239,7 +239,7 @@ function LureCard({
       <div className="rv-lure-text">
         <p className="rv-lure-n">Planted word {index + 1} of 5</p>
         <h3 className="serif rv-lure-word">&ldquo;{r.lure}&rdquo;</h3>
-        <p className={`rv-verdict ${r.falselyRecalled ? "is-fooled" : "is-held"}`}>{r.falselyRecalled ? "False memory" : "Not fooled"}</p>
+        <p className={`rv-verdict ${r.falselyRecalled ? "is-fooled" : "is-held"}`}>{r.falselyRecalled ? "False memory" : "Correctly rejected"}</p>
         <p className="rv-lure-line">
           {r.falselyRecalled ? (
             <>
@@ -247,12 +247,12 @@ function LureCard({
             </>
           ) : (
             <>
-              You said you never saw &lsquo;{r.lure}&rsquo; ({r.confidence}/5 sure) — <strong>and you were right.</strong>
+              You said you hadn&rsquo;t seen &lsquo;{r.lure}&rsquo; ({r.confidence}/5 sure). <strong>Correct.</strong>
             </>
           )}
         </p>
         <p className="rv-lure-why">
-          You did see <em>{sample}</em> and twelve more words that all point straight at it.
+          The list had <em>{sample}</em> and twelve other words closely linked to it.
         </p>
         <p className="rv-lure-crowd">
           {crowdReady && crowd ? (
@@ -262,15 +262,15 @@ function LureCard({
               </>
             ) : (
               <>
-                <strong>{crowd.falseRecallPct}%</strong> of people fell for this one.
+                <strong>{crowd.falseRecallPct}%</strong> of people said they&rsquo;d seen this one.
               </>
             )
           ) : statsState === "loading" ? (
-            <span className="rv-dim">Comparing with everyone else…</span>
+            <span className="rv-dim">Loading other people&rsquo;s results…</span>
           ) : statsState === "error" ? (
             <span className="rv-dim">Couldn&rsquo;t load everyone else&rsquo;s results right now.</span>
           ) : (
-            <span className="rv-dim">You&rsquo;re one of the first to try this — crowd results appear after a few more runs.</span>
+            <span className="rv-dim">Not enough runs yet to compare with other people.</span>
           )}
         </p>
       </div>
@@ -289,8 +289,8 @@ function ShareBlock({ fooled, hitRate, n }: { fooled: boolean[]; hitRate: number
   const link = typeof window !== "undefined" ? `${window.location.origin}/memory` : "https://thelibrary.page/memory";
   const text =
     n === 0
-      ? "My memory didn’t lie — 0 of 5 false memories in Memory That Lies. Can you match that?"
-      : `I falsely remembered ${n} of 5 words in Memory That Lies. Can you beat me?`;
+      ? "0 of 5 false memories on Memory That Lies. Try it:"
+      : `I remembered ${n} of 5 words I never saw on Memory That Lies. Try it:`;
 
   useEffect(() => {
     let url = "";
@@ -321,7 +321,7 @@ function ShareBlock({ fooled, hitRate, n }: { fooled: boolean[]; hitRate: number
         setNote("Copied to clipboard.");
       }
     } catch (e) {
-      if ((e as Error).name !== "AbortError") setNote("Couldn’t share — try downloading the image instead.");
+      if ((e as Error).name !== "AbortError") setNote("Sharing didn’t work. Try downloading the image.");
     }
   };
 
@@ -336,7 +336,7 @@ function ShareBlock({ fooled, hitRate, n }: { fooled: boolean[]; hitRate: number
 
   return (
     <section className="rv-share">
-      <h2 className="serif">Dare a friend</h2>
+      <h2 className="serif">Send it to someone</h2>
       <div className="rv-share-card">
         {img ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -359,7 +359,7 @@ function ShareBlock({ fooled, hitRate, n }: { fooled: boolean[]; hitRate: number
         </button>
       </div>
       <p className="rv-dim" role="status">
-        {note || "The card doesn’t name the planted words, so it won’t spoil the trick."}
+        {note || "The image doesn’t show the planted words, so it won’t give anything away."}
       </p>
     </section>
   );

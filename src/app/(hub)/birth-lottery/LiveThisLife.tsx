@@ -78,14 +78,14 @@ export default function LiveThisLife({ r }: { r: RollResult }) {
       r.outcomeAge === 0
         ? "You did not live to see your first birthday."
         : r.outcomeAge! < 5
-          ? `You lived to ${r.outcomeAge}. Your life was short, as so many were.`
+          ? `You lived to ${r.outcomeAge}.`
           : `You lived to ${r.outcomeAge}.`;
   } else if (finished) reveal = "You were still alive at 80.";
 
   return (
     <section className="bl-life" aria-labelledby="bl-life-title">
       <h2 id="bl-life-title" className="serif">
-        Live this life
+        One life, year by year
       </h2>
       <p className="bl-life-sub">
         100 babies born in {r.region.name} around {r.yearLabel}. One of them is you.
@@ -122,7 +122,7 @@ export default function LiveThisLife({ r }: { r: RollResult }) {
 
       <div className="bl-controls">
         <button className="bl-btn" onClick={playing ? pause : play} aria-label={playing ? "Pause" : finished ? "Replay" : "Play"}>
-          {playing ? "Pause" : finished ? "Replay" : age > 0 ? "Resume" : "Live it"}
+          {playing ? "Pause" : finished ? "Replay" : age > 0 ? "Resume" : "Play"}
         </button>
         <div className="bl-scrub">
           <input

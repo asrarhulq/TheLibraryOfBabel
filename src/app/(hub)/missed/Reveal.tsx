@@ -51,7 +51,7 @@ export default function Reveal({
       <section className="ms-stage ms-reveal-top">
         {missed ? (
           <>
-            <p className="ms-kicker">Round 2, again</p>
+            <p className="ms-kicker">Round 2 again · inattentional blindness</p>
             <div className="ms-arena-wrap">
               <Arena scene={scene} program={REWIND} label="Round 2 rewinding to a magenta star crossing the middle" onEnd={() => setRewound(true)} />
             </div>
@@ -59,27 +59,27 @@ export default function Reveal({
               {rewound && (
                 <>
                   <h1 className="serif ms-h1">
-                    This was here. For {seconds} seconds.
+                    This crossed the middle of the screen.
                     <br />
-                    Right in the middle.
+                    It was visible for about {seconds} seconds.
                   </h1>
                   <p className="ms-lede">
                     {answers.noticed
-                      ? "You sensed something — but not the big magenta star. "
+                      ? "You noticed something, but not the magenta star. "
                       : "A magenta star, three times the size of the circles, crossed the whole arena. "}
-                    You&rsquo;re in good company: in the classic study, {SC1999.missedPct}% of people missed the surprise.
+                    In the original study, {SC1999.missedPct}% of people missed the unexpected event.
                   </p>
-                  {server.r3Identified && <p className="ms-dim">And when you weren&rsquo;t counting, in round 3, you saw it straight away.</p>}
+                  {server.r3Identified && <p className="ms-dim">In round 3, when you weren&rsquo;t counting, you saw it.</p>}
                 </>
               )}
             </div>
           </>
         ) : (
           <>
-            <p className="ms-kicker">You spotted it</p>
+            <p className="ms-kicker">You spotted it · inattentional blindness</p>
             <h1 className="serif ms-h1">You saw the magenta star.</h1>
             <p className="ms-lede">
-              Noticing is common but not guaranteed: in the classic study, {SC1999.missedPct}% of people missed it.
+              Plenty of people do, but not all: in the original study, {SC1999.missedPct}% missed it.
             </p>
           </>
         )}
@@ -111,8 +111,7 @@ export default function Reveal({
           <section className="ms-sec">
             <h2 className="serif ms-h2">Where attention goes</h2>
             <p className="ms-lede ms-narrow">
-              While you count, attention clings to the white circles you&rsquo;re tracking. Everything else — however big or bright —
-              can slip by unseen.
+              While you count, your attention stays on the white circles. Other things, even big bright ones, can go unnoticed.
             </p>
             <div className="ms-arena-wrap ms-arena-wrap--sm">
               <Arena key={spotKey} scene={scene} program={SPOT} label="Illustration: pools of light on the white circles while the star crosses in the dark" />
@@ -127,7 +126,7 @@ export default function Reveal({
           </section>
 
           <section className="ms-sec ms-research">
-            <h2 className="serif ms-h2">You&rsquo;re not alone</h2>
+            <h2 className="serif ms-h2">The research</h2>
             <div className="ms-facts">
               <figure>
                 <span className="serif">{SC1999.missedPct}%</span>
@@ -165,13 +164,13 @@ export default function Reveal({
             </div>
             <div className="ms-explain">
               <p>
-                <strong>Attention is a spotlight, not a camera.</strong> Your eyes take in the whole scene, but you only become aware
-                of what attention lands on. Counting fills that spotlight, so a big, bright, unexpected thing can pass right through
-                the middle without ever reaching awareness. Psychologists call this <em>inattentional blindness</em>.
+                Your eyes take in the whole scene, but you only become aware of the part your attention is on. Counting takes up
+                most of that attention, so something big and unexpected can cross the middle of the screen without you noticing it.
+                Psychologists call this <strong>inattentional blindness</strong>.
               </p>
               <p>
-                Missing it doesn&rsquo;t mean you&rsquo;re careless. Everyone has this limit — it&rsquo;s the price of being able
-                to focus at all.
+                Missing it doesn&rsquo;t mean you weren&rsquo;t paying attention. You were, to the circles. Being able to focus on one
+                thing means other things get filtered out.
               </p>
             </div>
           </section>

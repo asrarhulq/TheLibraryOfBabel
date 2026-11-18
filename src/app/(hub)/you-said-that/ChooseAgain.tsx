@@ -54,7 +54,7 @@ export default function ChooseAgain({ seed, trials }: { seed: string; trials: Tr
       </h2>
       {i === null ? (
         <>
-          <p className="yst-lede">The same ten pairs, no tricks this time. Sides are shuffled. Does your taste hold?</p>
+          <p className="yst-lede">The same ten pairs again, with no swaps. The sides are shuffled.</p>
           <button className="yst-btn yst-btn--primary" onClick={() => setI(0)}>
             Choose again
           </button>
@@ -102,8 +102,8 @@ export default function ChooseAgain({ seed, trials }: { seed: string; trials: Tr
           <p className="yst-dim">
             * the swapped pairs. On those, you went back to your original pick {backToOriginal} of {swapped.length} times
             {backToOriginal < swapped.length ? ", and chose the piece you'd been handed instead" : ""}
-            {backToOriginal < swapped.length ? ` ${swapped.length - backToOriginal} ${swapped.length - backToOriginal === 1 ? "time" : "times"}` : ""}. Taste in
-            abstract shapes is a light preference, so some wobble is normal.
+            {backToOriginal < swapped.length ? ` ${swapped.length - backToOriginal} ${swapped.length - backToOriginal === 1 ? "time" : "times"}` : ""}. Preferences
+            for abstract shapes are weak, so some changes are expected.
           </p>
         </>
       )}

@@ -38,8 +38,8 @@ export default function ReadInstead({ onBack }: { onBack: () => void }) {
           bright red cross ({MOST2001.cite}). The same object is easily seen by people who aren&rsquo;t busy counting (Most et al., 2001).
         </p>
         <p>
-          <strong>Attention is a spotlight, not a camera.</strong> You only become aware of what attention lands on. Missing things
-          is not carelessness — it&rsquo;s the price of being able to focus.
+          You only become aware of what your attention is on. This is called <strong>inattentional blindness</strong>, and it
+          isn&rsquo;t carelessness: being able to focus on one thing means other things get filtered out.
         </p>
       </div>
       <button className="ms-btn" onClick={onBack}>

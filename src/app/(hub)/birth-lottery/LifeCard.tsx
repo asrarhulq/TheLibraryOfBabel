@@ -14,7 +14,7 @@ const LEVEL_LABEL: Record<string, string> = {
 const CONF_TEXT = {
   high: "UN life tables for this region and year.",
   medium: "Regional historical records.",
-  low: "Few or no records for this time and place — coarse estimates, see notes.",
+  low: "Few or no records for this time and place, so these are rough estimates (see notes).",
 };
 
 function Tag({ f }: { f: Field }) {

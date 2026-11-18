@@ -52,12 +52,12 @@ export async function renderShareCard(d: ShareData, serifFamily: string): Promis
 
   g.fillStyle = "#f3e6c8";
   g.font = `600 76px ${serif}`;
-  g.fillText(n === 0 ? "My memory didn’t lie." : `I falsely remembered ${n} of 5 words.`, W / 2, 228, W - 160);
+  g.fillText(n === 0 ? "No false memories." : `I remembered ${n} of 5 words I never saw.`, W / 2, 228, W - 160);
 
   g.fillStyle = "#c9b896";
   g.font = `italic 40px ${serif}`;
   g.fillText(
-    n === 0 ? "Not one word I never saw. Can you match that?" : "Words I never saw — and was sure I had. Can you beat me?",
+    n === 0 ? "Five planted words, all turned down. Try it yourself." : "They were planted, never shown. Try it yourself.",
     W / 2,
     292,
     W - 180

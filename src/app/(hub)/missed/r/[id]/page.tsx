@@ -32,8 +32,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: "The Thing You Missed — a result",
     description: text,
-    openGraph: { title: text, description: "A 90-second attention test.", url: `/missed/r/${id}`, type: "website" },
-    twitter: { card: "summary_large_image", title: text, description: "A 90-second attention test." },
+    openGraph: { title: text, description: "A 90-second counting test.", url: `/missed/r/${id}`, type: "website" },
+    twitter: { card: "summary_large_image", title: text, description: "A 90-second counting test." },
     robots: { index: false },
   };
 }
@@ -47,8 +47,8 @@ export default async function ResultPage({ params }: Props) {
     <MissedShell>
       <section className="ms-stage ms-enter">
         <p className="ms-kicker">A shared result</p>
-        <h1 className="serif ms-h2">Someone took the attention test.</h1>
-        <p className="ms-lede">Try it yourself first — the result below gives the trick away.</p>
+        <h1 className="serif ms-h2">Someone sent you their result.</h1>
+        <p className="ms-lede">Try it yourself first. The result below gives the trick away.</p>
         <Link className="ms-btn ms-btn--primary" href="/missed">
           Take the test (90 seconds)
         </Link>

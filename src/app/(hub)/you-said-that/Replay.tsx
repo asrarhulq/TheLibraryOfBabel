@@ -123,7 +123,7 @@ export default function Replay({
             </p>
           ) : item.kind === "stmt" && !item.selected ? (
             <p>
-              You didn&rsquo;t flag it, but you didn&rsquo;t pick it as one to explain either. It passed quietly.
+              You didn&rsquo;t flag it, and you didn&rsquo;t pick it as one to explain.
             </p>
           ) : (
             <p>

@@ -64,9 +64,9 @@ const Crowd = (
 const EXPERIENCES: Experience[] = [
   {
     slug: "babel",
-    call: "No. 001",
+    call: "Combinatorics · after Borges",
     title: "Library of Babel",
-    teaser: "Every book that could be written already waits here. Wander the infinite hexagons.",
+    teaser: "A library holding every possible book. Browse the hexagons.",
     href: "/babel",
     cta: "Enter the stacks",
     tone: "ink",
@@ -74,21 +74,21 @@ const EXPERIENCES: Experience[] = [
   },
   {
     slug: "memory",
-    call: "No. 002",
+    call: "False memory (DRM)",
     title: "Memory That Lies",
-    teaser: "Your memory is lying to you. Prove it.",
+    teaser: "Read some word lists, then see which words you remember.",
     href: "/memory",
-    cta: "Start the experiment",
+    cta: "Start",
     tone: "oxblood",
     emblem: Mind,
   },
   {
     slug: "birth-lottery",
-    call: "No. 003",
+    call: "Inequality of opportunity",
     title: "The Birth Lottery",
-    teaser: "You didn't choose when or where you were born. Roll the dice and see what you got.",
+    teaser: "Pick someone at random from everyone ever born and see their odds of growing up.",
     href: "/birth-lottery",
-    cta: "Roll the dice",
+    cta: "Pick someone",
     tone: "umber",
     emblem: (
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -101,11 +101,11 @@ const EXPERIENCES: Experience[] = [
   },
   {
     slug: "missed",
-    call: "No. 007",
+    call: "Inattentional blindness",
     title: "The Thing You Missed",
-    teaser: "Watch closely. Count carefully. Notice anything?",
+    teaser: "Count the bouncing circles. It takes about 90 seconds.",
     href: "/missed",
-    cta: "Start watching",
+    cta: "Start",
     tone: "slate",
     emblem: (
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -120,11 +120,11 @@ const EXPERIENCES: Experience[] = [
   },
   {
     slug: "you-said-that",
-    call: "No. 008",
+    call: "Choice blindness",
     title: "You Said That?",
     teaser: "Explain your choice. Are you sure it was yours?",
     href: "/you-said-that",
-    cta: "Make your choices",
+    cta: "Start",
     tone: "moss",
     emblem: (
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -136,9 +136,9 @@ const EXPERIENCES: Experience[] = [
       </svg>
     ),
   },
-  { slug: "bias", call: "No. 004", title: "Bias Lab", teaser: "The shortcuts your mind takes without asking.", tone: "moss", emblem: Scale },
-  { slug: "change", call: "No. 005", title: "Change Blindness", teaser: "What changed? You were looking right at it.", tone: "slate", emblem: Eye },
-  { slug: "crowd", call: "No. 006", title: "Crowd Wisdom", teaser: "Are a thousand guesses smarter than one?", tone: "umber", emblem: Crowd },
+  { slug: "bias", call: "Cognitive biases", title: "Bias Lab", teaser: "Short tests of common reasoning errors.", tone: "moss", emblem: Scale },
+  { slug: "change", call: "Change blindness", title: "Spot the Change", teaser: "Two versions of a picture. Find what's different.", tone: "slate", emblem: Eye },
+  { slug: "crowd", call: "Wisdom of crowds", title: "A Thousand Guesses", teaser: "Does the average of many guesses beat one good one?", tone: "umber", emblem: Crowd },
 ];
 
 export default function Hub() {
@@ -150,7 +150,7 @@ export default function Hub() {
       <header className="hub-head">
         <p className="hub-kicker">thelibrary.page</p>
         <h1 className="serif hub-title">The Library</h1>
-        <p className="serif hub-sub">A small, growing shelf of experiments — in infinity, and in the mind.</p>
+        <p className="serif hub-sub">Small experiments in memory, attention and choice, and one infinite library.</p>
       </header>
 
       <main>
@@ -192,7 +192,7 @@ export default function Hub() {
 
       <footer className="hub-foot">
         <p>
-          Everything here is an educational demo — not a clinical or diagnostic test. No accounts, no tracking of who you are.
+          These are educational demos, not clinical or diagnostic tests. There are no accounts and no tracking.
         </p>
       </footer>
     </div>

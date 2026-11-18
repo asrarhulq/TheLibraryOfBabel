@@ -74,7 +74,7 @@ export default function YouSaidThat() {
   if (phase.k === "intro" || !seed)
     return (
       <section className="yst-stage yst-enter">
-        <p className="yst-kicker">A taste test</p>
+        <p className="yst-kicker">Decision research</p>
         <h1 className="serif yst-title">You Said That?</h1>
         <p className="yst-lede">A quick taste test: pick the one you prefer, then tell us why.</p>
         <p className="yst-dim">Two short parts, about five minutes. Anything you type stays on your device.</p>

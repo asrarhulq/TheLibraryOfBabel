@@ -78,17 +78,16 @@ export default function MemoryExperience() {
 function Intro({ onStart }: { onStart: () => void }) {
   return (
     <section className="mem-stage mem-intro mem-enter">
-      <p className="mem-kicker">Experiment No. 002</p>
+      <p className="mem-kicker">Memory research</p>
       <h1 className="serif mem-title">Memory That Lies</h1>
       <p className="mem-lede">
-        You&rsquo;ll study five short lists of words, shown one at a time. Just read each word and try to remember it — no
-        need to write anything down. After a short break, we&rsquo;ll test how many you remember. It takes about four
-        minutes.
+        You&rsquo;ll see five lists of words, one word at a time. Read them and try to remember them. After a short break
+        there&rsquo;s a recognition test. It takes about four minutes.
       </p>
       <button className="mem-btn mem-btn--primary" onClick={onStart} autoFocus>
-        Begin studying
+        Start the lists
       </button>
-      <p className="mem-hint">Find a quiet moment — the words go by quickly.</p>
+      <p className="mem-hint">Each word is on screen for just over a second.</p>
     </section>
   );
 }
@@ -218,8 +217,8 @@ function Distractor({ onDone }: { onDone: () => void }) {
 
   return (
     <section className="mem-stage mem-distract mem-enter" aria-label="Short break: quick sums">
-      <p className="mem-kicker">Short break</p>
-      <h2 className="serif mem-h2">Quick sums, as many as you can</h2>
+      <p className="mem-kicker">Break</p>
+      <h2 className="serif mem-h2">Some sums, to clear your head</h2>
       <div className="mem-timer" role="timer" aria-label={`${left} seconds left`}>
         <span style={{ transform: `scaleX(${left / DISTRACTOR_SECONDS})` }} />
       </div>
@@ -245,11 +244,11 @@ function Distractor({ onDone }: { onDone: () => void }) {
 function TestIntro({ count, onStart }: { count: number; onStart: () => void }) {
   return (
     <section className="mem-stage mem-intro mem-enter">
-      <p className="mem-kicker">The test</p>
-      <h2 className="serif mem-h2">Did you see it?</h2>
+      <p className="mem-kicker">Recognition test</p>
+      <h2 className="serif mem-h2">Which of these were on the lists?</h2>
       <p className="mem-lede">
-        You&rsquo;ll see {count} words, one at a time. Some were in the lists, some weren&rsquo;t. For each one, say whether you
-        saw it, then how sure you are. Go with your gut.
+        You&rsquo;ll see {count} words, one at a time. Some were on the lists and some weren&rsquo;t. For each one, say whether
+        you saw it, then how sure you are. Don&rsquo;t think too long about it.
       </p>
       <ul className="mem-keys">
         <li>

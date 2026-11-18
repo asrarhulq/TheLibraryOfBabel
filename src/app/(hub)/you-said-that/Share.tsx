@@ -36,7 +36,7 @@ export default function Share({ id, seed, totals }: { id: string | null; seed: s
           className="yst-btn yst-btn--primary"
           onClick={() => send(CHALLENGE_TEXT, `${origin}/you-said-that?s=${seed}`, "Link copied. Its preview gives nothing away.")}
         >
-          Try the trick on a friend
+          Send to a friend
         </button>
         {path && (
           <>
@@ -51,7 +51,7 @@ export default function Share({ id, seed, totals }: { id: string | null; seed: s
       </div>
       <p className="yst-dim" role="status">
         {note ||
-          "“Try the trick on a friend” sends them the same pieces you saw, with a neutral preview, so you can compare afterwards. Your result link does reveal the trick."}
+          "The friend link shows them the same pieces you saw, and its preview gives nothing away. Your result link does reveal the trick."}
       </p>
     </section>
   );

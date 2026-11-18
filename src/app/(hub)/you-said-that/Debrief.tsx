@@ -60,7 +60,7 @@ export default function Debrief() {
           </li>
         </ul>
       </details>
-      <p className="yst-iq">How you did says nothing about your intelligence or your honesty.</p>
+      <p className="yst-iq">This isn&rsquo;t a measure of intelligence or honesty.</p>
     </section>
   );
 }

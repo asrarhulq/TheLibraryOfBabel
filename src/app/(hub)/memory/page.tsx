@@ -6,10 +6,10 @@ import "./memory.css";
 
 export const metadata: Metadata = {
   title: "Memory That Lies",
-  description: "Your memory is lying to you. Prove it. A four-minute browser experiment based on the classic DRM false-memory paradigm.",
+  description: "A four-minute false-memory test based on the classic DRM word lists.",
   openGraph: {
     title: "Memory That Lies",
-    description: "Your memory is lying to you. Prove it.",
+    description: "Read five word lists, then see which words you remember.",
     url: "/memory",
   },
 };

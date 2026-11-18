@@ -96,7 +96,7 @@ export default function Values({ seed, reduced, onDone }: { seed: string; reduce
         <h1 className="serif yst-h1" ref={heading} tabIndex={-1}>
           What do you believe?
         </h1>
-        <p className="yst-lede">Eight short statements about everyday values. There are no right answers: just say how much you agree.</p>
+        <p className="yst-lede">Eight statements about everyday values. Say how much you agree with each one.</p>
         <button className="yst-btn yst-btn--primary" onClick={() => setStage({ k: "rate", i: 0 })}>
           Begin
         </button>
@@ -229,7 +229,7 @@ export default function Values({ seed, reduced, onDone }: { seed: string; reduce
             autoComplete="off"
           />
         </label>
-        <p className="yst-local yst-narrowbox">Stays on your device. It is never sent anywhere.</p>
+        <p className="yst-local yst-narrowbox">This stays in your browser.</p>
         <button
           className="yst-btn yst-btn--primary"
           disabled={!ok}

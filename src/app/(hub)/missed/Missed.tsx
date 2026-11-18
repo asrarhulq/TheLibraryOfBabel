@@ -139,7 +139,7 @@ export default function Missed() {
           <p className="ms-big">
             You counted <strong>{a.practiceAnswer}</strong>. The answer was <strong>{practice.bounceCount}</strong>.
           </p>
-          <p className="ms-dim">The count is computed exactly from the motion, frame by frame.</p>
+          <p className="ms-dim">The answer is counted from the motion itself, frame by frame.</p>
         </Brief>
       );
     }
@@ -147,7 +147,7 @@ export default function Missed() {
       return (
         <Brief step="Round 2 of 3" title="Faster this time" onGo={() => setPhase("r2-play")} cta="Start round 2">
           {task}
-          <p className="ms-dim">Same task. More bounces. Stay focused.</p>
+          <p className="ms-dim">Same task, with more bounces.</p>
         </Brief>
       );
     case "r2-play":
@@ -234,9 +234,9 @@ function Intro({ onStart, onRead }: { onStart: () => void; onRead: () => void })
   }, []);
   return (
     <section className="ms-stage ms-intro ms-enter">
-      <p className="ms-kicker">Experiment No. 007</p>
+      <p className="ms-kicker">Attention research</p>
       <h1 className="serif ms-title">The Thing You Missed</h1>
-      <p className="ms-lede">A 90-second attention test. Count carefully.</p>
+      <p className="ms-lede">A short counting task, about 90 seconds in all.</p>
       <button className="ms-btn ms-btn--primary" onClick={onStart} autoFocus>
         Start
       </button>

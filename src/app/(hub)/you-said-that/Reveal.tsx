@@ -77,17 +77,14 @@ export default function Reveal({
       <section className="yst-dimroom" aria-labelledby="yst-dim-h">
         <div className="yst-dimroom-inner yst-enter">
           <h1 id="yst-dim-h" className="serif yst-h1" ref={heading} tabIndex={-1}>
-            Something happened during this test.
-            <br />
-            Let&rsquo;s replay it.
+            Five of your answers were switched.
           </h1>
           <p className="yst-dimroom-note">
-            The swaps were part of the design. On three pairs we handed back the piece you <em>didn&rsquo;t</em> pick, and on two
-            statements the summary showed the opposite of your answer. Nothing was wrong with your screen, and nothing you typed was
-            sent anywhere.
+            This was deliberate. On three pairs you were handed back the piece you <em>didn&rsquo;t</em> pick, and two of the
+            statement cards showed the opposite of your answer. Nothing you typed left your browser.
           </p>
           <button className="yst-btn yst-btn--primary" onClick={() => setStage({ k: "replay", n: 0 })} autoFocus>
-            Replay
+            Show me each one
           </button>
           <button className="yst-link" onClick={() => setStage({ k: "result" })}>
             Skip to my result
@@ -120,7 +117,7 @@ export default function Reveal({
   return (
     <div className="yst-result">
       <section className="yst-stage yst-result-top">
-        <p className="yst-kicker">Your result</p>
+        <p className="yst-kicker">Your result · choice blindness</p>
         {!t ? (
           <p className="yst-lede" aria-busy="true">
             Working it out…
@@ -135,37 +132,34 @@ export default function Reveal({
             </h1>
             {t.accepted > 0 && (
               <p className="yst-dim">
-                {t.accepted === 1 ? "One more" : `${t.accepted} more`} slipped by unflagged without you choosing to explain {t.accepted === 1 ? "it" : "them"}.
+                {t.accepted === 1 ? "One more" : `${t.accepted} more`} went unflagged, though you didn&rsquo;t pick {t.accepted === 1 ? "it" : "them"} to explain.
               </p>
             )}
             <div className="yst-msg">
               {t.defended > 0 ? (
                 <>
                   <p>
-                    <strong>This is normal.</strong>{" "}Asked &ldquo;why?&rdquo;, the mind readily supplies reasons, even for a choice it
-                    never made. In the original face study most swaps went unnoticed, and explanations for swapped choices were rated
-                    just as confident, detailed and emotional as explanations for real ones.
+                    Most people do this. Asked why they chose something, people come up with a reason, even for a choice they didn&rsquo;t
+                    make. In the original face study most swaps went unnoticed, and explanations for swapped choices were rated as
+                    confident, detailed and emotional as explanations for real ones.
                   </p>
-                  <p>It says something real about how explanations are built: often after the fact, from whatever is in front of us.</p>
                 </>
               ) : t.detected === t.manipulated ? (
                 <>
                   <p>
-                    <strong>You caught every swap.</strong>{" "}Well spotted. Catching it is common on some trials (a big, obvious difference,
-                    or an answer you hold strongly) and much rarer on others: in the face study, no more than {J2005.totalExposedMaxPct}%
-                    of swaps were exposed by any measure.
+                    You caught all five, which is uncommon: in the face study, no more than {J2005.totalExposedMaxPct}% of swaps were
+                    exposed by any measure. Swaps are easier to catch when the difference is large or the opinion is strongly held.
                   </p>
                 </>
               ) : (
                 <p>
-                  <strong>You didn&rsquo;t defend a swapped choice</strong>, but not every swap was flagged. Noticing tends to depend on
-                  how big the change is and how strongly you hold the view: some swaps get caught, others pass quietly.
+                  You didn&rsquo;t explain any swapped choice, but some swaps went unflagged. Whether people notice usually depends on how
+                  big the change is and how strongly they hold the view.
                 </p>
               )}
               {t.falseAlarms > 0 && (
                 <p className="yst-dim">
-                  You also flagged {t.falseAlarms} {t.falseAlarms === 1 ? "card that wasn't" : "cards that weren't"} swapped. Once you
-                  start suspecting, everything looks suspicious, which researchers see too.
+                  You also flagged {t.falseAlarms} {t.falseAlarms === 1 ? "card that wasn't" : "cards that weren't"} swapped.
                 </p>
               )}
             </div>
@@ -213,7 +207,7 @@ export default function Reveal({
       </section>
 
       <section className="yst-sec">
-        <h2 className="serif yst-h2">You&rsquo;re not alone</h2>
+        <h2 className="serif yst-h2">The research</h2>
         <div className="yst-facts">
           <figure>
             <span className="serif">{J2005.concurrentPct}%</span>
@@ -268,15 +262,15 @@ export default function Reveal({
         <h2 className="serif yst-h2">Why it happens</h2>
         <div className="yst-explain-text">
           <p>
-            <strong>We don&rsquo;t have a window onto our own reasons.</strong>{" "}When asked why we chose something, we rarely replay the
-            decision. We look at the result and infer a plausible reason, the same way we would explain someone else&rsquo;s choice. When
-            the result has been swapped, the inference runs just as smoothly. This idea is associated with{" "}
+            People don&rsquo;t have direct access to the reasons behind their choices. Asked why, we usually look at the result and
+            work out a plausible reason, much as we would for someone else&rsquo;s choice. If the result has been swapped, that works
+            just as well. Researchers call this <strong>choice blindness</strong>. It fits an older argument by{" "}
             <a href={NW1977.url} target="_blank" rel="noreferrer">
               Nisbett and Wilson (1977)
             </a>
-            , who argued that people often report reasons they could not have had direct access to.
+            : people often report reasons they had no direct access to.
           </p>
-          <p>This is a question about self-knowledge, the old philosophical puzzle of how we know our own minds, not a flaw in you.</p>
+          <p>Philosophers would call this a question about self-knowledge. It isn&rsquo;t a flaw in you.</p>
         </div>
       </section>
 

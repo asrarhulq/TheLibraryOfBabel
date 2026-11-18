@@ -87,12 +87,12 @@ export default function BirthLottery({ initial }: { initial: RollResult | null }
     <div className={`bl ${phase === "intro" ? "bl--intro" : ""}`}>
       {phase === "intro" && (
         <section className="bl-intro bl-fade">
-          <p className="bl-kicker">Experiment No. 003</p>
+          <p className="bl-kicker">Inequality of opportunity</p>
           <h1 className="serif bl-title">The Birth Lottery</h1>
           <p className="serif bl-fact">
             About <strong>117 billion</strong> humans have ever been born.
             <br />
-            You are one of them. Roll.
+            This picks one of them at random.
           </p>
           <p className="bl-source">
             Estimate:{" "}
@@ -103,7 +103,7 @@ export default function BirthLottery({ initial }: { initial: RollResult | null }
 
           <div className="bl-modes">
             <button className="bl-btn bl-btn--primary" onClick={() => roll("random")} autoFocus>
-              Roll a random human
+              Pick someone at random
             </button>
             <form
               className="bl-year"
@@ -141,8 +141,8 @@ export default function BirthLottery({ initial }: { initial: RollResult | null }
             </p>
           )}
           <p className="bl-honest">
-            An illustration built from historical estimates — not a prediction, and nothing to do with anyone&rsquo;s
-            ancestry. Only time, place and living conditions.
+            Built from historical estimates. It&rsquo;s an illustration, not a prediction, and it has nothing to do with
+            anyone&rsquo;s ancestry: only time, place and living conditions.
           </p>
         </section>
       )}
@@ -183,7 +183,7 @@ export default function BirthLottery({ initial }: { initial: RollResult | null }
           <Share r={result} />
           <div className="bl-again">
             <button className="bl-btn bl-btn--primary" onClick={() => roll("random")}>
-              Roll another human
+              Pick another person
             </button>
             <button
               className="bl-btn"
@@ -238,7 +238,7 @@ function Share({ r }: { r: RollResult }) {
         setNote("Copied to clipboard.");
       }
     } catch (e) {
-      if ((e as Error).name !== "AbortError") setNote("Couldn’t share — copy the link instead.");
+      if ((e as Error).name !== "AbortError") setNote("Sharing didn’t work. Copy the link instead.");
     }
   };
   const copy = async () => {
@@ -253,7 +253,7 @@ function Share({ r }: { r: RollResult }) {
   return (
     <section className="bl-share" aria-labelledby="bl-share-title">
       <h2 id="bl-share-title" className="serif">
-        Share your roll
+        Share this one
       </h2>
       <p className="bl-share-text">&ldquo;{r.shareText}&rdquo;</p>
       {/* eslint-disable-next-line @next/next/no-img-element */}

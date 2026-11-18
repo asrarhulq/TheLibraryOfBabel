@@ -5,9 +5,9 @@ import "./missed.css";
 
 export const metadata: Metadata = {
   title: "The Thing You Missed",
-  description: "Watch closely. Count carefully. Notice anything? A 90-second attention test.",
-  openGraph: { title: "The Thing You Missed", description: "A 90-second attention test. Count carefully.", url: "/missed" },
-  twitter: { card: "summary_large_image", title: "The Thing You Missed", description: "A 90-second attention test. Count carefully." },
+  description: "A 90-second test: count the bouncing circles.",
+  openGraph: { title: "The Thing You Missed", description: "A 90-second test: count the bouncing circles.", url: "/missed" },
+  twitter: { card: "summary_large_image", title: "The Thing You Missed", description: "A 90-second test: count the bouncing circles." },
 };
 
 export default function MissedPage() {

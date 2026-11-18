@@ -211,13 +211,13 @@ export default function Trial({
             autoComplete="off"
           />
         </label>
-        <p className="yst-local">Stays on your device. It is never sent anywhere.</p>
+        <p className="yst-local">This stays in your browser.</p>
         <button className="yst-btn yst-btn--primary" onClick={finish} disabled={!canNext}>
           {index + 1 < TRIALS ? "Next pair" : "Continue"}
         </button>
         {flagged && (
           <p className="yst-flagnote" role="status">
-            Noted. Thanks for telling us.
+            Noted.
           </p>
         )}
       </div>

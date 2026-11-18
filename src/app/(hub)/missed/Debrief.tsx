@@ -41,7 +41,7 @@ export default function Debrief({ reduced }: { reduced: boolean }) {
           </li>
         </ul>
       </details>
-      <p className="ms-iq">How you did says nothing about your intelligence.</p>
+      <p className="ms-iq">This isn&rsquo;t a measure of intelligence or eyesight.</p>
     </section>
   );
 }

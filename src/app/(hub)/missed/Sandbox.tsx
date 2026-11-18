@@ -12,7 +12,7 @@ const CROSS = 6;
 // look-alike from Most et al. (2001), Exp. 1 (attending white) and Exp. 3 (unique red cross).
 const DIFF_READOUT: Record<Difficulty, { missed: number | null; text: string }> = {
   easy: { missed: 100 - SC1999.easyNoticedPct, text: `Easy counting task: ${100 - SC1999.easyNoticedPct}% missed the surprise.` },
-  medium: { missed: null, text: "Somewhere in between — no study measured this exact level." },
+  medium: { missed: null, text: "Somewhere in between. No study measured this exact level." },
   hard: { missed: 100 - SC1999.hardNoticedPct, text: `Hard counting task: ${100 - SC1999.hardNoticedPct}% missed the surprise.` },
 };
 const LOOK_READOUT: Record<StarLook, { missed: number; text: string }> = {
@@ -92,9 +92,9 @@ export default function Sandbox() {
   return (
     <section className="ms-sec ms-sandbox" aria-labelledby="ms-sandbox-title">
       <h2 id="ms-sandbox-title" className="serif ms-h2">
-        Tune your attention
+        Change the scene
       </h2>
-      <p className="ms-lede ms-narrow">Change the scene and see what research says happens to people doing the counting task.</p>
+      <p className="ms-lede ms-narrow">Adjust the task and the surprise, and see what studies found for people doing the counting.</p>
 
       <div className="ms-sandbox-grid">
         <div className="ms-arena-wrap ms-arena-wrap--sm">
@@ -137,7 +137,7 @@ export default function Sandbox() {
 
           <label className="ms-toggle">
             <input type="checkbox" checked={frozen} onChange={(e) => setFrozen(e.target.checked)} />
-            <span>Show me everything (freeze and label)</span>
+            <span>Freeze and label everything</span>
           </label>
 
           <p className="ms-caption">

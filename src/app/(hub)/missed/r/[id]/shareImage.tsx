@@ -31,12 +31,12 @@ const DOTS: [number, number, boolean][] = [
 /** Result card. Shows the star only for result links; the challenge image never does. */
 export function renderResultImage(run: MissedRunDoc | null, seconds: number, opts: { challenge?: boolean } = {}) {
   const showStar = !!run && !opts.challenge;
-  const headline = !run || opts.challenge ? "Watch closely. Count carefully." : run.identified ? `I counted ${run.countAnswer} bounces and spotted the surprise.` : `I counted ${run.countAnswer} bounces.`;
+  const headline = !run || opts.challenge ? "Count the bouncing circles." : run.identified ? `I counted ${run.countAnswer} bounces and saw the surprise.` : `I counted ${run.countAnswer} bounces.`;
   const sub =
     !run || opts.challenge
-      ? "A 90-second attention test. Notice anything?"
+      ? "A 90-second counting test."
       : run.identified
-        ? "Can you?"
+        ? "Try it yourself."
         : `I missed the magenta star that crossed the screen for ${seconds} seconds.`;
   return new ImageResponse(
     (
