@@ -140,3 +140,53 @@ test("validation rejects bad or extra input, including free text", () => {
   // client-reported outcomes are not a thing: these fields are refused
   assert.equal(parseRun({ ...base, detected: 5 }).ok, false);
 });
+
+// ── Replay ───────────────────────────────────────────────────────────────────
+import { buildReplay } from "../../src/lib/you-said-that/replay";
+import { pieceId as pid, makePair as mp } from "../../src/lib/you-said-that/art";
+import { shownValue as sv } from "../../src/lib/you-said-that/protocol";
+
+/** Simulates a run the way the UI does it: the returned card is pair[shownSide(trial, pick)]. */
+function simulate(seed: string, picks: (0 | 1)[], values: number[], flagged = Array(10).fill(false)) {
+  const log = picks.map((p, i) => ({ picked: p, shownId: pid(mp(seed, i)[shownSide(i, p)]), flagged: flagged[i] }));
+  const rev = reversedStatements(seed, values);
+  const shownValues = values.map((v, i) => sv(seed, i, v, rev.includes(i)));
+  return { log, v: { values, shownValues, flagged: Array(8).fill(false), strongest: [0, 1, 2] }, rev };
+}
+
+test("replay: shows exactly the 3 swapped pairs and the 2 reversed statements, as they happened", () => {
+  for (const seed of seeds.slice(0, 100)) {
+    const picks = Array.from({ length: 10 }, (_, i) => ((seed.charCodeAt(i % 8) + i) % 2) as 0 | 1);
+    const values = [9, 2, 7, 8, 5, 3, 6, 1];
+    const { log, v, rev } = simulate(seed, picks, values);
+    const { items, consistent } = buildReplay(seed, log, v);
+    assert.ok(consistent);
+    assert.equal(items.length, 5);
+    const pickItems = items.filter((x) => x.kind === "pick");
+    assert.deepEqual(
+      pickItems.map((x) => x.index),
+      [3, 6, 8]
+    );
+    for (const it of pickItems) {
+      if (it.kind !== "pick") continue;
+      const pair = mp(seed, it.index);
+      assert.equal(it.pickedId, pid(pair[picks[it.index]]), "replay 'you picked' = what was clicked");
+      assert.equal(it.shownId, pid(pair[1 - picks[it.index]]), "replay 'you were shown' = the rejected piece");
+      assert.notEqual(it.pickedId, it.shownId);
+    }
+    assert.deepEqual(
+      items.filter((x) => x.kind === "stmt").map((x) => x.index),
+      rev
+    );
+  }
+});
+
+test("replay: a log that disagrees with the swap rule is reported as inconsistent", () => {
+  const seed = "abcd1234";
+  const picks = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1] as (0 | 1)[];
+  const { log, v } = simulate(seed, picks, [9, 2, 7, 8, 5, 3, 6, 1]);
+  const bad1 = log.map((x, i) => (i === 3 ? { ...x, shownId: pid(mp(seed, 3)[picks[3]]) } : x)); // swap did not happen
+  assert.equal(buildReplay(seed, bad1, v).consistent, false);
+  const bad2 = log.map((x, i) => (i === 0 ? { ...x, shownId: pid(mp(seed, 0)[1 - picks[0]]) } : x)); // swap on a normal trial
+  assert.equal(buildReplay(seed, bad2, v).consistent, false);
+});
