@@ -362,7 +362,9 @@ a.book:focus-visible .book-leaf {
   margin: auto 0;
   padding: 18px 0;
   box-sizing: content-box;
-  color: var(--foil);
+  /* gold tooling pressed into the leather */
+  color: #dcc089;
+  filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.55)) drop-shadow(0 1px 0 rgba(255, 236, 200, 0.12));
 }
 .book-emblem svg {
   width: 100%;
@@ -375,7 +377,13 @@ a.book:focus-visible .book-leaf {
   font-weight: 600;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--foil);
+  /* gold foil: a little sheen across the letters, pressed into the leather */
+  color: #dcc089;
+  background: linear-gradient(180deg, #f2dfb0 0%, #d9b877 48%, #b8924f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.6)) drop-shadow(0 1px 0 rgba(255, 236, 200, 0.1));
   /* the trailing letter-space would push the name off-centre */
   margin-right: -0.32em;
 }
