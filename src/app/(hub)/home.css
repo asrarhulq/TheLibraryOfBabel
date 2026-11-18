@@ -157,7 +157,7 @@
     /* rubbed corners and edges, where hands wear the leather */
     radial-gradient(120% 60% at 100% 0%, rgba(255, 226, 180, 0.13), transparent 34%),
     radial-gradient(120% 60% at 100% 100%, rgba(255, 226, 180, 0.1), transparent 30%),
-    radial-gradient(140% 100% at 55% 45%, transparent 55%, rgba(0, 0, 0, 0.42) 100%),
+    radial-gradient(140% 100% at 55% 45%, transparent 58%, rgba(0, 0, 0, 0.32) 100%),
     /* uneven dye */
     url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='420'%20height='420'%3E%3Cfilter%20id='m'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.011'%20numOctaves='3'%20seed='4'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200%200%20%200%200%200%20-.9%20.48'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23m)'/%3E%3C/svg%3E"),
     /* pebbled leather grain (generated tile, see public/textures) */
@@ -198,24 +198,24 @@ a.book:focus-visible {
 }
 
 .book--ink {
-  --cloth: #24385a;
-  --cloth-deep: #101a2c;
+  --cloth: #2e4670;
+  --cloth-deep: #17243c;
 }
 .book--oxblood {
-  --cloth: #7a2a22;
-  --cloth-deep: #3a120e;
+  --cloth: #8e342a;
+  --cloth-deep: #4a1913;
 }
 .book--moss {
-  --cloth: #2f4a2c;
-  --cloth-deep: #172414;
+  --cloth: #3a5a36;
+  --cloth-deep: #1f301c;
 }
 .book--slate {
-  --cloth: #3a3a40;
-  --cloth-deep: #1b1b20;
+  --cloth: #48484f;
+  --cloth-deep: #26262c;
 }
 .book--umber {
-  --cloth: #6b4526;
-  --cloth-deep: #2e1c0e;
+  --cloth: #7f5430;
+  --cloth-deep: #3d2614;
 }
 
 .book-band {
