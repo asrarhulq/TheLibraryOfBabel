@@ -2,12 +2,13 @@
 
 import { useSyncExternalStore } from "react";
 
-// Three-way theme switch: System / Light / Dark. The choice lives in localStorage and on
-// <html data-theme>; "system" removes the attribute so CSS follows prefers-color-scheme.
+// One-button theme switch: flips between light and dark. Until someone clicks, the page follows
+// the system setting; a click stores an explicit choice in localStorage and on <html data-theme>.
 
 export type ThemePref = "system" | "light" | "dark";
 export const THEME_KEY = "library-theme";
 const EVENT = "library-theme-change";
+const DARK_MQ = "(prefers-color-scheme: dark)";
 
 function read(): ThemePref {
   try {
@@ -18,12 +19,22 @@ function read(): ThemePref {
   }
 }
 
+/** The theme actually showing: the stored choice, or the system setting if there is none. */
+function resolved(): "light" | "dark" {
+  const pref = read();
+  if (pref !== "system") return pref;
+  return window.matchMedia(DARK_MQ).matches ? "dark" : "light";
+}
+
 function subscribe(cb: () => void) {
+  const mq = window.matchMedia(DARK_MQ);
   window.addEventListener(EVENT, cb);
   window.addEventListener("storage", cb);
+  mq.addEventListener("change", cb);
   return () => {
     window.removeEventListener(EVENT, cb);
     window.removeEventListener("storage", cb);
+    mq.removeEventListener("change", cb);
   };
 }
 
@@ -62,58 +73,37 @@ function setTheme(pref: ThemePref, origin?: { x: number; y: number }) {
     .catch(() => {});
 }
 
-const OPTIONS: { value: ThemePref; label: string; icon: React.ReactNode }[] = [
-  {
-    value: "system",
-    label: "Match system theme",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-        <circle cx="12" cy="12" r="8" />
-        <path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none" />
-      </svg>
-    ),
-  },
-  {
-    value: "light",
-    label: "Light theme",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />
-      </svg>
-    ),
-  },
-  {
-    value: "dark",
-    label: "Dark theme",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden="true">
-        <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
-      </svg>
-    ),
-  },
-];
+const SUN = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />
+  </svg>
+);
+
+const MOON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
+  </svg>
+);
 
 export default function ThemeToggle({ className = "" }: { className?: string }) {
-  const pref = useSyncExternalStore(subscribe, read, () => "system" as ThemePref);
+  // The server can't know the theme; it renders the dark-mode button and the client corrects it.
+  const theme = useSyncExternalStore(subscribe, resolved, () => "dark" as const);
+  const next = theme === "dark" ? "light" : "dark";
+  const label = `Switch to ${next} theme`;
   return (
-    <div className={`theme-toggle ${className}`} role="group" aria-label="Colour theme">
-      {OPTIONS.map((o) => (
-        <button
-          key={o.value}
-          type="button"
-          title={o.label}
-          aria-label={o.label}
-          aria-pressed={pref === o.value}
-          onClick={(e) => {
-            if (o.value === pref) return;
-            const b = (e.currentTarget as HTMLElement).getBoundingClientRect();
-            setTheme(o.value, { x: b.left + b.width / 2, y: b.top + b.height / 2 });
-          }}
-        >
-          {o.icon}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      className={`theme-toggle ${className}`}
+      title={label}
+      aria-label={label}
+      data-theme-now={theme}
+      onClick={(e) => {
+        const b = e.currentTarget.getBoundingClientRect();
+        setTheme(next, { x: b.left + b.width / 2, y: b.top + b.height / 2 });
+      }}
+    >
+      {theme === "dark" ? SUN : MOON}
+    </button>
   );
 }

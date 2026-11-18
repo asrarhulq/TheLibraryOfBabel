@@ -414,15 +414,53 @@ a.book:focus-visible .book-leaf {
   color: var(--ink-faint);
 }
 
+/* Phones: two books to a row so they keep a book's proportions. */
 @media (max-width: 520px) {
   .shelf {
-    grid-template-columns: 1fr;
+    --gap: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .book {
-    --tilt: -12deg;
+    --tilt: -20deg;
+    --d: 22px;
   }
   .book-cover {
     min-height: 250px;
+    padding: 24px 12px 20px 22px;
+  }
+  .book-cover::after {
+    inset: 20px 7px 20px 17px;
+  }
+  .book-band {
+    left: 12px;
+    top: 10px;
+    height: 5px;
+  }
+  .book-band--foot {
+    top: auto;
+    bottom: 10px;
+  }
+  .book-title {
+    margin-top: 16px;
+    font-size: 20px;
+  }
+  .book-rule {
+    margin: 10px 0 7px;
+  }
+  .book-sub {
+    font-size: 13px;
+  }
+  .book-emblem {
+    width: 34px;
+    height: 34px;
+    padding: 12px 0;
+  }
+  .book-author {
+    font-size: 12px;
+  }
+  .book-soon {
+    font-size: 8.5px;
+    margin-bottom: 6px;
   }
 }
 
@@ -441,6 +479,44 @@ a.book:focus-visible .book-leaf {
     }
   }
 }
+/* Touch screens have no hover, so the cover opens and the leaves riffle as each book passes
+   through the middle of the screen instead. */
+@supports (animation-timeline: view()) {
+  @media (hover: none) and (prefers-reduced-motion: no-preference) {
+    .book-cover {
+      animation: peek linear both;
+      animation-timeline: view();
+      animation-range: cover 22% cover 78%;
+    }
+    .book-leaf {
+      animation: peek-leaf linear both;
+      animation-timeline: view();
+      animation-range: cover 24% cover 76%;
+    }
+    .book-leaf--2 { animation-range: cover 27% cover 73%; }
+    .book-leaf--3 { animation-range: cover 30% cover 70%; }
+    .book-leaf--4 { animation-range: cover 33% cover 67%; }
+  }
+}
+@keyframes peek {
+  0%,
+  100% {
+    transform: translateZ(var(--d));
+  }
+  50% {
+    transform: translateZ(var(--d)) rotateY(-40deg);
+  }
+}
+@keyframes peek-leaf {
+  0%,
+  100% {
+    transform: translateZ(var(--z));
+  }
+  50% {
+    transform: translateZ(var(--z)) rotateY(var(--to));
+  }
+}
+
 @keyframes shelve {
   from {
     --tilt: -72deg;
