@@ -41,7 +41,7 @@ const L = [-0.55, -0.6, 0.58], px = Buffer.alloc(N * N), at = (x, y) => h[((y + 
 for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
   const S = +process.argv[6] || 1.2, nx = -(at(x + 1, y) - at(x - 1, y)) * S, ny = -(at(x, y + 1) - at(x, y - 1)) * S, l = Math.hypot(nx, ny, 1);
   const d = (nx * L[0] + ny * L[1] + L[2]) / l;
-  const v = 128 + (d - 0.58) * 78 + (h[y * N + x] - 0.6) * 20;
+  const v = 128 + (d - 0.58) * 46 + (h[y * N + x] - 0.6) * 12;
   px[y * N + x] = Math.max(0, Math.min(255, Math.round(v)));
 }
 await sharp(px, { raw: { width: N, height: N, channels: 1 } }).jpeg({ quality: 80 }).toFile(out);
