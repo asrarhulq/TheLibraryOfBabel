@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { newSeed, SEED_RE } from "@/lib/you-said-that/rng";
 import { scoreRun, TRIALS, type RunInput } from "@/lib/you-said-that/protocol";
+import ChooseAgain from "./ChooseAgain";
+import HowItWorks from "./HowItWorks";
 import Reveal from "./Reveal";
 import Trial from "./Trial";
 import Values from "./Values";
@@ -109,5 +111,10 @@ export default function YouSaidThat() {
       />
     );
 
-  return <Reveal seed={seed} trials={trials} part2={part2!} server={server} reduced={reduced} onAgain={() => start(true)} />;
+  return (
+    <Reveal seed={seed} trials={trials} part2={part2!} server={server} reduced={reduced} onAgain={() => start(true)}>
+      <ChooseAgain seed={seed} trials={trials} />
+      <HowItWorks seed={seed} trials={trials} reduced={reduced} />
+    </Reveal>
+  );
 }
