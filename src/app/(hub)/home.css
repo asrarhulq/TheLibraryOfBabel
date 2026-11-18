@@ -7,6 +7,50 @@
   padding: clamp(40px, 8vw, 88px) 16px 40px;
 }
 
+/* ── Room backdrop (this page only) ──────────────────────
+   Dark: a walnut-panelled reading room under a lamp. Light: aged, foxed paper. */
+
+.hub::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    /* lamplight from above */
+    radial-gradient(70% 55% at 50% 0%, rgba(255, 196, 120, 0.16), transparent 70%),
+    /* deep vignette */
+    radial-gradient(130% 95% at 50% 40%, transparent 45%, rgba(0, 0, 0, 0.72) 100%),
+    /* panelling: vertical boards with grain */
+    repeating-linear-gradient(90deg, transparent 0 calc(25vw - 2px), rgba(0, 0, 0, 0.18) calc(25vw - 1px) 25vw),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='600'%20height='2400'%3E%3Cfilter%20id='w'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.09%20.0035'%20numOctaves='4'%20seed='3'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.42%20%200%200%200%200%20.27%20%200%200%200%200%20.14%20%200%200%200%20.28%20-.06'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23w)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #1d130c, #120b07);
+}
+:root[data-theme="light"] .hub::before {
+  background:
+    radial-gradient(130% 100% at 50% 45%, transparent 50%, rgba(120, 72, 24, 0.28) 100%),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1400'%20height='1400'%3E%3Cfilter%20id='x'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.07'%20numOctaves='3'%20seed='21'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.5%20%200%200%200%200%20.3%20%200%200%200%200%20.1%20%200%200%200%204%20-2.95'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23x)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1600'%20height='1600'%3E%3Cfilter%20id='p'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.018'%20numOctaves='4'%20seed='9'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.55%20%200%200%200%200%20.38%20%200%200%200%200%20.16%20%200%200%200%20.72%20-.26'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23p)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='260'%20height='260'%3E%3Cfilter%20id='f'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.9%20.25'%20numOctaves='2'%20seed='5'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.4%20%200%200%200%200%20.28%20%200%200%200%200%20.14%20%200%200%200%20.16%200'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23f)'/%3E%3C/svg%3E"),
+    linear-gradient(180deg, #f1e4c6, #e8d6b0);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .hub::before {
+    background:
+      radial-gradient(130% 100% at 50% 45%, transparent 50%, rgba(120, 72, 24, 0.28) 100%),
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1400'%20height='1400'%3E%3Cfilter%20id='x'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.07'%20numOctaves='3'%20seed='21'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.5%20%200%200%200%200%20.3%20%200%200%200%200%20.1%20%200%200%200%204%20-2.95'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23x)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='1600'%20height='1600'%3E%3Cfilter%20id='p'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.018'%20numOctaves='4'%20seed='9'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.55%20%200%200%200%200%20.38%20%200%200%200%200%20.16%20%200%200%200%20.72%20-.26'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23p)'/%3E%3C/svg%3E"),
+      url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='260'%20height='260'%3E%3Cfilter%20id='f'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.9%20.25'%20numOctaves='2'%20seed='5'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%20.4%20%200%200%200%200%20.28%20%200%200%200%200%20.14%20%200%200%200%20.16%200'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23f)'/%3E%3C/svg%3E"),
+      linear-gradient(180deg, #f1e4c6, #e8d6b0);
+  }
+}
+
+@media (max-width: 560px) {
+  .hub {
+    padding-top: 76px; /* room for the theme toggle above the heading */
+  }
+}
+
 .hub-topbar {
   position: absolute;
   top: 16px;
@@ -35,6 +79,20 @@
   color: var(--parchment);
 }
 
+.hub-head::after {
+  content: "❦";
+  display: block;
+  width: min(280px, 70%);
+  margin: 18px auto 0;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: 22px;
+  line-height: 1;
+  color: var(--gold-dim);
+  background:
+    linear-gradient(var(--gold-dim), var(--gold-dim)) left 50% / calc(50% - 22px) 1px no-repeat,
+    linear-gradient(var(--gold-dim), var(--gold-dim)) right 50% / calc(50% - 22px) 1px no-repeat;
+}
+
 .hub-sub {
   margin: 14px auto 0;
   max-width: 34ch;
@@ -46,16 +104,39 @@
 /* ── Shelf ───────────────────────────────────────────── */
 
 .shelf {
+  --gap: clamp(16px, 2.4vw, 28px);
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(188px, 1fr));
-  gap: clamp(16px, 2.4vw, 28px);
+  gap: calc(var(--gap) + 14px) var(--gap);
 }
 
 .shelf-slot {
+  position: relative;
   display: flex;
+  padding-bottom: 12px;
+}
+/* the wooden ledge each row of books stands on; pieces meet across the gaps */
+.shelf-slot::after {
+  content: "";
+  position: absolute;
+  left: calc(var(--gap) / -2 - 1px);
+  right: calc(var(--gap) / -2 - 1px);
+  bottom: -2px;
+  height: 14px;
+  border-radius: 1px;
+  background:
+    linear-gradient(180deg, rgba(255, 220, 170, 0.22) 0 1px, transparent 1px 4px, rgba(0, 0, 0, 0.35) 100%),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0 1px, transparent 1px 37px, rgba(255, 220, 170, 0.05) 37px 39px, transparent 39px 83px),
+    linear-gradient(180deg, #5a3a20, #3a2412);
+  box-shadow: 0 10px 18px -8px rgba(0, 0, 0, 0.75);
+  z-index: 0;
+}
+.shelf-slot > * {
+  position: relative;
+  z-index: 1;
 }
 
 /* ── Book cover card ─────────────────────────────────── */
@@ -74,16 +155,46 @@
   text-decoration: none;
   color: #ecdfc6;
   background:
+    /* raised bands across the spine */
+    repeating-linear-gradient(180deg, transparent 0 46px, rgba(0, 0, 0, 0.5) 46px 47px, rgba(255, 236, 200, 0.12) 47px 49px, rgba(0, 0, 0, 0.45) 49px 50px, transparent 50px 66px)
+      0 0 / 14px 100% no-repeat,
     /* spine hinge */
-    linear-gradient(90deg, rgba(0, 0, 0, 0.45) 0, rgba(255, 255, 255, 0.06) 7px, rgba(0, 0, 0, 0.25) 10px, transparent 16px),
-    /* cloth weave texture */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.5) 0, rgba(255, 240, 210, 0.08) 7px, rgba(0, 0, 0, 0.32) 11px, transparent 18px),
+    /* rubbed corners and edges, where hands wear the leather */
+    radial-gradient(120% 60% at 100% 0%, rgba(255, 226, 180, 0.13), transparent 34%),
+    radial-gradient(120% 60% at 100% 100%, rgba(255, 226, 180, 0.1), transparent 30%),
+    radial-gradient(140% 100% at 55% 45%, transparent 55%, rgba(0, 0, 0, 0.42) 100%),
+    /* uneven dye */
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='420'%20height='420'%3E%3Cfilter%20id='m'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.011'%20numOctaves='3'%20seed='4'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200%200%20%200%200%200%20-.9%20.48'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23m)'/%3E%3C/svg%3E"),
+    /* pebbled grain (lit relief, blended into the colour) */
+    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='240'%20height='240'%3E%3Cfilter%20id='l'%20x='0'%20y='0'%20width='100%25'%20height='100%25'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='1.05'%20numOctaves='2'%20seed='11'%20stitchTiles='stitch'%20result='t'/%3E%3CfeDiffuseLighting%20in='t'%20surfaceScale='1.7'%20lighting-color='%23fff'%20result='d'%3E%3CfeDistantLight%20azimuth='225'%20elevation='50'/%3E%3C/feDiffuseLighting%3E%3CfeComponentTransfer%3E%3CfeFuncR%20type='linear'%20slope='1.1'%20intercept='-.33'/%3E%3CfeFuncG%20type='linear'%20slope='1.1'%20intercept='-.33'/%3E%3CfeFuncB%20type='linear'%20slope='1.1'%20intercept='-.33'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23l)'/%3E%3C/svg%3E"),
     linear-gradient(160deg, var(--cloth), var(--cloth-deep));
+  background-blend-mode: normal, normal, normal, normal, normal, multiply, soft-light, normal;
   box-shadow: var(--book-shadow);
   transition:
     transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 0.35s ease;
   will-change: transform;
+}
+
+/* blind-stamped panel: a debossed frame pressed into the leather */
+.book::after {
+  content: "";
+  position: absolute;
+  inset: 26px 10px 26px 22px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.42);
+  box-shadow:
+    0 1px 0 rgba(255, 232, 196, 0.09),
+    inset 0 1px 0 rgba(255, 232, 196, 0.07);
+  pointer-events: none;
+}
+.book > * {
+  position: relative;
+  z-index: 1;
+}
+.book > .book-band {
+  position: absolute;
 }
 
 a.book:hover,
@@ -93,24 +204,24 @@ a.book:focus-visible {
 }
 
 .book--ink {
-  --cloth: #22324a;
-  --cloth-deep: #121b2a;
+  --cloth: #24385a;
+  --cloth-deep: #101a2c;
 }
 .book--oxblood {
-  --cloth: #6a2620;
-  --cloth-deep: #341210;
+  --cloth: #7a2a22;
+  --cloth-deep: #3a120e;
 }
 .book--moss {
-  --cloth: #2f3a2a;
-  --cloth-deep: #1a2017;
+  --cloth: #2f4a2c;
+  --cloth-deep: #172414;
 }
 .book--slate {
-  --cloth: #33363c;
-  --cloth-deep: #1c1e22;
+  --cloth: #3a3a40;
+  --cloth-deep: #1b1b20;
 }
 .book--umber {
-  --cloth: #45321f;
-  --cloth-deep: #241a10;
+  --cloth: #6b4526;
+  --cloth-deep: #2e1c0e;
 }
 
 .book-band {
@@ -154,7 +265,10 @@ a.book:focus-visible {
   font-weight: 600;
   line-height: 1.05;
   color: #f3e6c8;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+  /* pressed into the leather */
+  text-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.55),
+    0 1px 0 rgba(255, 232, 196, 0.1);
 }
 
 .book-teaser {
