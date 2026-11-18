@@ -144,7 +144,6 @@ export default function Hub() {
         <ThemeToggle />
       </div>
       <header className="hub-head">
-        <p className="hub-kicker">thelibrary.page</p>
         <h1 className="serif hub-title">The Library</h1>
         <p className="serif hub-sub">Small experiments in memory, attention and choice, and one infinite library.</p>
       </header>

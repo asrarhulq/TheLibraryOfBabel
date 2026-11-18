@@ -56,14 +56,6 @@
   margin-bottom: clamp(26px, 4vw, 40px);
 }
 
-.hub-kicker {
-  margin: 0 0 10px;
-  font-size: 11px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--gold-dim);
-}
-
 .hub-title {
   margin: 0;
   font-weight: 600;
