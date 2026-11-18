@@ -8,7 +8,6 @@ type Experience = {
   title: string;
   teaser: string;
   href?: string;
-  cta?: string;
   tone: "ink" | "oxblood" | "moss" | "slate" | "umber";
   emblem: React.ReactNode;
 };
@@ -61,6 +60,8 @@ const Crowd = (
   </svg>
 );
 
+const AUTHOR = "Zor";
+
 const EXPERIENCES: Experience[] = [
   {
     slug: "babel",
@@ -68,7 +69,6 @@ const EXPERIENCES: Experience[] = [
     title: "Library of Babel",
     teaser: "A library holding every possible book. Browse the hexagons.",
     href: "/babel",
-    cta: "Enter the stacks",
     tone: "ink",
     emblem: Hex,
   },
@@ -78,7 +78,6 @@ const EXPERIENCES: Experience[] = [
     title: "Memory That Lies",
     teaser: "Read some word lists, then see which words you remember.",
     href: "/memory",
-    cta: "Start",
     tone: "oxblood",
     emblem: Mind,
   },
@@ -88,7 +87,6 @@ const EXPERIENCES: Experience[] = [
     title: "The Birth Lottery",
     teaser: "Pick someone at random from everyone ever born and see their odds of growing up.",
     href: "/birth-lottery",
-    cta: "Pick someone",
     tone: "umber",
     emblem: (
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -105,7 +103,6 @@ const EXPERIENCES: Experience[] = [
     title: "The Thing You Missed",
     teaser: "Count the bouncing circles. It takes about 90 seconds.",
     href: "/missed",
-    cta: "Start",
     tone: "slate",
     emblem: (
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -124,7 +121,6 @@ const EXPERIENCES: Experience[] = [
     title: "You Said That?",
     teaser: "Explain your choice. Are you sure it was yours?",
     href: "/you-said-that",
-    cta: "Start",
     tone: "moss",
     emblem: (
       <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -160,11 +156,16 @@ export default function Hub() {
             const inner = (
               <>
                 <span className="book-band" aria-hidden="true" />
-                <span className="book-call">{x.call}</span>
-                <span className="book-emblem">{x.emblem}</span>
                 <span className="serif book-title">{x.title}</span>
-                <span className="book-teaser">{x.teaser}</span>
-                <span className="book-cta">{x.href ? <>{x.cta} <span aria-hidden="true">→</span></> : "Coming soon"}</span>
+                <span className="book-rule" aria-hidden="true" />
+                <span className="serif book-sub">{x.call}</span>
+                <span className="book-emblem">{x.emblem}</span>
+                <span className="visually-hidden">. {x.teaser}</span>
+                {!x.href && <span className="book-soon">Forthcoming</span>}
+                <span className="serif book-author">
+                  <span className="visually-hidden">by </span>
+                  {AUTHOR}
+                </span>
                 <span className="book-band book-band--foot" aria-hidden="true" />
               </>
             );
