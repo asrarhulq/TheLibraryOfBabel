@@ -4,15 +4,17 @@ import { useEffect, useState } from "react";
 import { newSeed, SEED_RE } from "@/lib/you-said-that/rng";
 import { TRIALS } from "@/lib/you-said-that/protocol";
 import Trial from "./Trial";
-import type { TrialLog } from "./types";
+import Values from "./Values";
+import type { Part2Log, TrialLog } from "./types";
 
-type Phase = { k: "intro" } | { k: "p1"; i: number } | { k: "p1done" };
+type Phase = { k: "intro" } | { k: "p1"; i: number } | { k: "p2" } | { k: "reveal" };
 
 export default function YouSaidThat() {
   const [seed, setSeed] = useState<string | null>(null);
   const [reduced, setReduced] = useState(false);
   const [phase, setPhase] = useState<Phase>({ k: "intro" });
   const [trials, setTrials] = useState<TrialLog[]>([]);
+  const [part2, setPart2] = useState<Part2Log | null>(null);
   const [device, setDevice] = useState<"mobile" | "desktop">("desktop");
 
   useEffect(() => {
@@ -58,15 +60,29 @@ export default function YouSaidThat() {
         reduced={reduced}
         onDone={(log) => {
           setTrials((xs) => [...xs.slice(0, phase.i), log]);
-          setPhase(phase.i + 1 < TRIALS ? { k: "p1", i: phase.i + 1 } : { k: "p1done" });
+          setPhase(phase.i + 1 < TRIALS ? { k: "p1", i: phase.i + 1 } : { k: "p2" });
+        }}
+      />
+    );
+
+  if (phase.k === "p2")
+    return (
+      <Values
+        seed={seed}
+        reduced={reduced}
+        onDone={(log) => {
+          setPart2(log);
+          setPhase({ k: "reveal" });
         }}
       />
     );
 
   return (
     <section className="yst-stage yst-enter">
-      <p className="yst-kicker">Part 1 done</p>
-      <h1 className="serif yst-h1">Thanks. {trials.length} choices made.</h1>
+      <p className="yst-kicker">Done</p>
+      <h1 className="serif yst-h1">
+        Thanks. {trials.length} choices, {part2?.values.length} answers{device === "mobile" ? "" : ""}.
+      </h1>
     </section>
   );
 }
