@@ -139,15 +139,33 @@
   --cloth: #1f2a3a;
   --cloth-deep: #121a26;
   --foil: #d4a656;
+  --d: 30px; /* thickness of the page block */
+  --tilt: -26deg;
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: block;
   width: 100%;
-  min-height: 300px;
-  padding: 30px 22px 28px 30px;
   border-radius: 4px 10px 10px 4px;
   text-decoration: none;
   color: #ecdfc6;
+  /* the back board */
+  background: linear-gradient(160deg, var(--cloth-deep), #0b0704);
+  box-shadow: var(--book-shadow);
+  transform-style: preserve-3d;
+  transform: perspective(1500px) rotateY(var(--tilt));
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.35s ease;
+}
+
+/* the front board, which swings open on hover */
+.book-cover {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 300px;
+  height: 100%;
+  padding: 30px 22px 28px 30px;
+  border-radius: 4px 10px 10px 4px;
   background:
     /* raised bands across the spine */
     repeating-linear-gradient(180deg, transparent 0 46px, rgba(0, 0, 0, 0.5) 46px 47px, rgba(255, 236, 200, 0.12) 47px 49px, rgba(0, 0, 0, 0.45) 49px 50px, transparent 50px 66px)
@@ -164,15 +182,14 @@
     url("/textures/leather.jpg") 0 0 / 280px 280px,
     linear-gradient(160deg, var(--cloth), var(--cloth-deep));
   background-blend-mode: normal, normal, normal, normal, normal, multiply, overlay, normal;
-  box-shadow: var(--book-shadow);
-  transition:
-    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
-    box-shadow 0.35s ease;
-  will-change: transform;
+  box-shadow: inset -1px 0 0 rgba(255, 232, 196, 0.08);
+  transform-origin: left center;
+  transform: translateZ(var(--d));
+  transition: transform 0.7s cubic-bezier(0.3, 0.7, 0.2, 1);
 }
 
 /* blind-stamped panel: a debossed frame pressed into the leather */
-.book::after {
+.book-cover::after {
   content: "";
   position: absolute;
   inset: 26px 10px 26px 22px;
@@ -183,18 +200,89 @@
     inset 0 1px 0 rgba(255, 232, 196, 0.07);
   pointer-events: none;
 }
-.book > * {
+.book-cover > * {
   position: relative;
   z-index: 1;
 }
-.book > .book-band {
+.book-cover > .book-band {
   position: absolute;
 }
 
+/* fore-edge of the page block, turned to face right so the tilt shows it */
+.book-edge {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  right: 3px;
+  width: var(--d);
+  transform-origin: right center;
+  transform: rotateY(90deg);
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.32), transparent 22%, transparent 78%, rgba(0, 0, 0, 0.2)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), transparent 8%, transparent 92%, rgba(0, 0, 0, 0.22)),
+    repeating-linear-gradient(90deg, #efe4cb 0 1px, #d6c6a3 1px 2px, #e8dcc0 2px 3px);
+}
+
+/* the first page and loose leaves under the cover */
+.book-page,
+.book-leaf {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 4px;
+  right: 3px;
+  border-radius: 2px 4px 4px 2px;
+  background:
+    /* gutter shadow at the spine, and the page curling away at the edge */
+    linear-gradient(90deg, rgba(90, 60, 30, 0.3), transparent 14%, transparent 80%, rgba(90, 60, 30, 0.16)),
+    /* faint lines of print */
+    repeating-linear-gradient(180deg, transparent 0 9px, rgba(70, 50, 30, 0.14) 9px 10px) 50% 50% / calc(100% - 44px) 62% no-repeat,
+    linear-gradient(180deg, #f1e7d0, #e6d9bb);
+  box-shadow:
+    inset -1px 0 0 rgba(120, 90, 50, 0.3),
+    1px 0 3px rgba(60, 40, 20, 0.25);
+  transform-origin: left center;
+}
+.book-page {
+  transform: translateZ(calc(var(--d) - 6px));
+}
+.book-leaf {
+  --z: calc(var(--d) - 1px);
+  transform: translateZ(var(--z));
+}
+.book-leaf--2 { --z: calc(var(--d) - 2px); }
+.book-leaf--3 { --z: calc(var(--d) - 3px); }
+.book-leaf--4 { --z: calc(var(--d) - 4px); }
+
 a.book:hover,
 a.book:focus-visible {
-  transform: translateY(-6px) rotate(-0.4deg);
+  transform: perspective(1500px) rotateY(var(--tilt)) translateY(-6px);
   box-shadow: var(--book-shadow-hover);
+}
+/* open the cover and riffle the pages */
+a.book:hover .book-cover,
+a.book:focus-visible .book-cover {
+  transform: translateZ(var(--d)) rotateY(-42deg);
+}
+a.book:hover .book-leaf,
+a.book:focus-visible .book-leaf {
+  animation: riffle 0.9s cubic-bezier(0.3, 0.6, 0.3, 1) both;
+  animation-delay: calc(var(--n) * 90ms);
+}
+.book-leaf--1 { --n: 3; --to: -34deg; }
+.book-leaf--2 { --n: 2; --to: -24deg; }
+.book-leaf--3 { --n: 1; --to: -14deg; }
+.book-leaf--4 { --n: 0; --to: -6deg; }
+@keyframes riffle {
+  0% {
+    transform: translateZ(var(--z)) rotateY(0deg);
+  }
+  45% {
+    transform: translateZ(var(--z)) rotateY(-40deg);
+  }
+  100% {
+    transform: translateZ(var(--z)) rotateY(var(--to));
+  }
 }
 
 .book--ink {
@@ -234,7 +322,7 @@ a.book:focus-visible {
 }
 
 /* Laid out like a real cover: title high, emblem in the middle, author at the foot. */
-.book {
+.book-cover {
   align-items: center;
   text-align: center;
 }
@@ -301,10 +389,12 @@ a.book:focus-visible {
 }
 
 /* Coming soon: faded, not interactive */
+/* filter/opacity on the book itself would flatten the 3D, so fade its parts instead */
 .book--soon {
   cursor: default;
-  filter: var(--soon-filter);
-  opacity: var(--soon-opacity);
+}
+.book--soon > * {
+  filter: var(--soon-filter) brightness(0.9);
 }
 
 .hub-foot {
@@ -321,16 +411,50 @@ a.book:focus-visible {
     grid-template-columns: 1fr;
   }
   .book {
+    --tilt: -12deg;
+  }
+  .book-cover {
     min-height: 250px;
   }
 }
 
+/* Scrolling: each book swings round to face you as it comes into view. */
+@property --tilt {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: -26deg;
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .book {
+      animation: shelve linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 95%;
+    }
+  }
+}
+@keyframes shelve {
+  from {
+    --tilt: -72deg;
+    translate: 0 36px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .book {
+  .book,
+  .book-cover {
     transition: none;
   }
   a.book:hover,
   a.book:focus-visible {
-    transform: none;
+    transform: perspective(1500px) rotateY(var(--tilt));
+  }
+  a.book:hover .book-cover,
+  a.book:focus-visible .book-cover {
+    transform: translateZ(var(--d));
+  }
+  a.book:hover .book-leaf,
+  a.book:focus-visible .book-leaf {
+    animation: none;
   }
 }

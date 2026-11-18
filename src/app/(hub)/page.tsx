@@ -155,6 +155,12 @@ export default function Hub() {
           {EXPERIENCES.map((x) => {
             const inner = (
               <>
+                <span className="book-edge" aria-hidden="true" />
+                <span className="book-page" aria-hidden="true" />
+                {[1, 2, 3, 4].map((n) => (
+                  <span key={n} className={`book-leaf book-leaf--${n}`} aria-hidden="true" />
+                ))}
+                <span className="book-cover">
                 <span className="book-band" aria-hidden="true" />
                 <span className="serif book-title">{x.title}</span>
                 <span className="book-rule" aria-hidden="true" />
@@ -167,6 +173,7 @@ export default function Hub() {
                   {AUTHOR}
                 </span>
                 <span className="book-band book-band--foot" aria-hidden="true" />
+                </span>
               </>
             );
             return (
