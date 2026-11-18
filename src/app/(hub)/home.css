@@ -177,7 +177,7 @@
     radial-gradient(120% 60% at 100% 100%, rgba(255, 226, 180, 0.1), transparent 30%),
     radial-gradient(140% 100% at 55% 45%, transparent 58%, rgba(0, 0, 0, 0.32) 100%),
     /* uneven dye */
-    url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='420'%20height='420'%3E%3Cfilter%20id='m'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.011'%20numOctaves='3'%20seed='4'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20values='0%200%200%200%200%20%200%200%200%200%200%20%200%200%200%200%200%20%200%200%200%20-.9%20.48'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23m)'/%3E%3C/svg%3E"),
+    url("/textures/mottle.jpg"),
     /* pebbled leather grain (generated tile, see public/textures) */
     url("/textures/leather.jpg") 0 0 / 280px 280px,
     linear-gradient(160deg, var(--cloth), var(--cloth-deep));
@@ -465,11 +465,6 @@ a.book:focus-visible .book-leaf {
 }
 
 /* Scrolling: each book swings round to face you as it comes into view. */
-@property --tilt {
-  syntax: "<angle>";
-  inherits: true;
-  initial-value: -26deg;
-}
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .book {
@@ -519,8 +514,7 @@ a.book:focus-visible .book-leaf {
 
 @keyframes shelve {
   from {
-    --tilt: -72deg;
-    translate: 0 36px;
+    transform: perspective(1500px) rotateY(-72deg) translateY(36px);
   }
 }
 
