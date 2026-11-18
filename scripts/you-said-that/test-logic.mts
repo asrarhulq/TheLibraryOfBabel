@@ -2,7 +2,7 @@
 // Run: node --import ./scripts/you-said-that/ts-resolve.mjs --test scripts/you-said-that/test-logic.mts
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makePair, isFairPair, diffFeatures, pieceId, COLOR_FEATURES, describe } from "../../src/lib/you-said-that/art.ts";
+import { makePair, isFairPair, diffFeatures, pieceId, COLOR_FEATURES, describe } from "../../src/lib/you-said-that/art";
 import {
   MANIPULATED_TRIALS,
   TRIALS,
@@ -13,7 +13,7 @@ import {
   scoreRun,
   parseRun,
   stanceLabel,
-} from "../../src/lib/you-said-that/protocol.ts";
+} from "../../src/lib/you-said-that/protocol";
 
 const seeds = Array.from({ length: 500 }, (_, i) => `t${i.toString(36).padStart(7, "0")}`);
 
@@ -88,11 +88,11 @@ test("strong answers are reversed before mild or undecided ones", () => {
   for (const i of rev) assert.notEqual(shownValue("abcd1234", i, 5, true), 5);
 });
 
-const base = {
+const base: Parameters<typeof scoreRun>[0] & { reducedMotion: boolean; device: string } = {
   seed: "abcd1234",
   reducedMotion: false,
   device: "desktop",
-  picks: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+  picks: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1] as (0 | 1)[],
   flagged: Array(10).fill(false),
   rtMs: Array(10).fill(1500),
   values: [5, 5, 4, 9, 5, 6, 5, 2],
@@ -101,7 +101,7 @@ const base = {
 };
 
 test("scoring: nobody flags anything", () => {
-  const s = scoreRun(base as never);
+  const s = scoreRun(base);
   assert.equal(s.totals.manipulated, 5);
   assert.equal(s.totals.detected, 0);
   // 3 part-1 swaps explained + statement 3 (reversed, chosen); statement 7 reversed but not chosen
@@ -116,7 +116,7 @@ test("scoring: catching every swap, plus one false alarm", () => {
   flagged[0] = true;
   const fs = Array(8).fill(false);
   fs[3] = fs[7] = true;
-  const s = scoreRun({ ...(base as never), flagged, flaggedStatements: fs });
+  const s = scoreRun({ ...base, flagged, flaggedStatements: fs });
   assert.equal(s.totals.detected, 5);
   assert.equal(s.totals.defended, 0);
   assert.equal(s.totals.falseAlarms, 1);

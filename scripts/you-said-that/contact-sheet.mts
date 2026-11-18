@@ -1,8 +1,8 @@
 // Writes an HTML contact sheet of every pair for the given seeds, with the differing features listed.
 // Run: node --import ./scripts/you-said-that/ts-resolve.mjs scripts/you-said-that/contact-sheet.mts out.html seed1 seed2 …
 import { writeFileSync } from "node:fs";
-import { makePair, shapes, diffFeatures, H, W, type Features, type Shape } from "../../src/lib/you-said-that/art.ts";
-import { MANIPULATED_TRIALS, TRIALS } from "../../src/lib/you-said-that/protocol.ts";
+import { makePair, shapes, diffFeatures, H, W, type Features, type Shape } from "../../src/lib/you-said-that/art";
+import { MANIPULATED_TRIALS, TRIALS } from "../../src/lib/you-said-that/protocol";
 
 const svgShape = (s: Shape) =>
   s.t === "rect"
