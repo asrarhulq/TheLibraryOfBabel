@@ -8,7 +8,7 @@ type Experience = {
   title: string;
   teaser: string;
   href?: string;
-  tone: "ink" | "oxblood" | "moss" | "slate" | "umber";
+  tone: "ink" | "oxblood" | "moss" | "slate" | "umber" | "teal";
   emblem: React.ReactNode;
 };
 
@@ -129,6 +129,23 @@ const EXPERIENCES: Experience[] = [
         <circle cx="13.5" cy="21.5" r="4" fill="currentColor" />
         <path d="M30.5 25.5h8M34.5 17v8.5" stroke="currentColor" strokeWidth="1.4" opacity=".75" />
         <path d="M13 37c4 4.5 18 4.5 22 0M32.5 35.4l2.6 1.7-1.2 2.9" fill="none" stroke="currentColor" strokeWidth="1.2" opacity=".6" />
+      </svg>
+    ),
+  },
+  {
+    slug: "choice-machine",
+    call: "Predictability & free will",
+    title: "The Choice Machine",
+    teaser: "Make eleven quick choices. Before the last one, a machine seals its prediction.",
+    href: "/choice-machine",
+    tone: "teal",
+    emblem: (
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="20" r="13" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="24" cy="20" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.1" opacity=".75" />
+        <circle cx="24" cy="20" r="2.6" fill="currentColor" />
+        <path d="M24 5.5v2.5M24 32v2.5M9.5 20H12M36 20h2.5" stroke="currentColor" strokeWidth="1.1" opacity=".6" />
+        <path d="M8 41h10M8 41l3-2.5M8 41l3 2.5M40 41H30M40 41l-3-2.5M40 41l-3 2.5" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
       </svg>
     ),
   },

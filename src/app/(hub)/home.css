@@ -297,6 +297,10 @@ a.book:focus-visible .book-leaf {
   --cloth: #7f5430;
   --cloth-deep: #3d2614;
 }
+.book--teal {
+  --cloth: #245457;
+  --cloth-deep: #10292b;
+}
 
 .book-band {
   position: absolute;
