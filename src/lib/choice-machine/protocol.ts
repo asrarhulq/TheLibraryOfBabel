@@ -66,3 +66,53 @@ export function shareText(s: Pick<Score, "sealedHit" | "hits">): string {
     ? `The Choice Machine predicted my "free" choice (and ${s.hits} of my ${TOTAL}). Can it predict yours?`
     : `I beat the Choice Machine on the sealed choice. It still got ${s.hits} of ${TOTAL}. Can you beat it?`;
 }
+
+/** Exact probability that `n` fair coin flips contain a run of at least `k` of the same side. */
+export function coinRunAtLeast(n: number, k: number): number {
+  // f[len] = number of sequences so far whose current run has length `len` (all runs < k).
+  let f = new Array(k).fill(0);
+  f[1] = 2;
+  for (let i = 1; i < n; i++) {
+    const g = new Array(k).fill(0);
+    for (let len = 1; len < k; len++) {
+      g[1] += f[len]; // switch side
+      if (len + 1 < k) g[len + 1] += f[len]; // same side again
+    }
+    f = g;
+  }
+  const without = f.reduce((a, b) => a + b, 0);
+  return 1 - without / 2 ** n;
+}
+
+/** Exact chance that a coin matches at least `hits` of `n` predictions. */
+export function coinAtLeast(n: number, hits: number): number {
+  let c = 1;
+  let total = 0;
+  for (let k = 0; k <= n; k++) {
+    if (k > 0) c = (c * (n - k + 1)) / k;
+    if (k >= hits) total += c;
+  }
+  return total / 2 ** n;
+}
+
+/** The most reliable "after X, you did Y" habit in a sequence, for contexts of length k. */
+export function strongestHabit(c: Side[], k: number): { ctx: Side[]; next: Side; times: number; of: number } | null {
+  const tally = new Map<string, [number, number]>();
+  for (let i = k; i < c.length; i++) {
+    const key = c.slice(i - k, i).join("");
+    const t = tally.get(key) ?? [0, 0];
+    t[c[i]]++;
+    tally.set(key, t);
+  }
+  let best: { ctx: Side[]; next: Side; times: number; of: number } | null = null;
+  for (const [key, t] of tally) {
+    const of = t[0] + t[1];
+    const next: Side = t[1] > t[0] ? 1 : 0;
+    const times = t[next];
+    if (of < 2 || times / of < 0.75) continue;
+    if (!best || times > best.times || (times === best.times && of < best.of)) {
+      best = { ctx: [...key].map(Number) as Side[], next, times, of };
+    }
+  }
+  return best;
+}

@@ -69,3 +69,23 @@ test("parseRun accepts only the exact shape", () => {
   const p = parseRun({ choices: "RRLLRLRLLRL", device: "desktop" });
   assert.ok(p.ok && encodeChoices(p.run.choices) === "RRLLRLRLLRL");
 });
+
+import { coinRunAtLeast, coinAtLeast, strongestHabit } from "../../src/lib/choice-machine/protocol";
+
+test("coin maths is exact", () => {
+  // brute force over all 2^11 sequences
+  let runs4 = 0;
+  for (let m = 0; m < 2 ** 11; m++) {
+    const c = Array.from({ length: 11 }, (_, i) => ((m >> i) & 1) as Side);
+    if (longestRun(c) >= 4) runs4++;
+  }
+  assert.ok(Math.abs(coinRunAtLeast(11, 4) - runs4 / 2048) < 1e-12);
+  assert.ok(Math.abs(coinAtLeast(11, 0) - 1) < 1e-12);
+  assert.ok(Math.abs(coinAtLeast(11, 11) - 1 / 2048) < 1e-12);
+  console.log("P(run>=4 in 11)", coinRunAtLeast(11, 4).toFixed(3), "P(>=8 of 11)", coinAtLeast(11, 8).toFixed(3));
+});
+
+test("strongestHabit finds a repeated pattern", () => {
+  const h = strongestHabit([0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1] as Side[], 1);
+  assert.ok(h && h.times >= 2);
+});
